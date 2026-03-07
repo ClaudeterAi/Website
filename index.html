@@ -17,7 +17,7 @@ html,body{width:100%;background:#000;cursor:none;font-family:'JetBrains Mono',mo
 nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:20px 44px;background:linear-gradient(to bottom,rgba(0,0,0,.95),transparent)}
 .nlogo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.22em;background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;animation:fi .8s .3s forwards}
 .nlinks{display:flex;gap:28px;opacity:0;animation:fi .8s .5s forwards}
-.nlinks a{font-size:.54rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.2);text-decoration:none;transition:color .25s}
+.nlinks a{font-size:.54rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);text-decoration:none;transition:color .25s}
 .nlinks a:hover{color:#00ffcc}
 .ncta{font-size:.54rem;letter-spacing:.16em;text-transform:uppercase;padding:9px 20px;border:1px solid #00ffcc;color:#00ffcc;text-decoration:none;transition:all .3s;opacity:0;animation:fi .8s .6s forwards}
 .ncta:hover{color:#000;background:#00ffcc}
@@ -45,15 +45,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 .rs{padding:11px 15px;border:1px solid rgba(0,255,204,.06);border-bottom:none;text-align:right}
 .rs:last-child{border-bottom:1px solid rgba(0,255,204,.06)}
 .rsn{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;background:linear-gradient(135deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
-.rsl{font-size:.43rem;letter-spacing:.12em;text-transform:uppercase;color:#0a2018;margin-top:2px}
+.rsl{font-size:.43rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(0,255,204,.35);margin-top:2px}
 #lside{position:fixed;top:50%;left:28px;transform:translateY(-55%);z-index:30;opacity:0;animation:fi .8s 1s forwards}
-.lsl{font-size:.48rem;letter-spacing:.2em;text-transform:uppercase;color:#00ffcc;opacity:.35;margin-bottom:8px}
+.lsl{font-size:.48rem;letter-spacing:.2em;text-transform:uppercase;color:#00ffcc;opacity:.7;margin-bottom:8px}
 .lsf{display:flex;flex-direction:column;gap:5px}
-.lff{font-size:.53rem;letter-spacing:.1em;padding:7px 11px;border:1px solid rgba(0,255,204,.06);color:rgba(255,255,255,.18);display:flex;gap:6px;align-items:center;transition:all .3s}
+.lff{font-size:.53rem;letter-spacing:.1em;padding:7px 11px;border:1px solid rgba(0,255,204,.12);color:rgba(255,255,255,.55);display:flex;gap:6px;align-items:center;transition:all .3s}
 .lff:hover{border-color:#00ffcc;color:#00ffcc}
 #ticker{position:fixed;bottom:0;left:0;right:0;height:26px;z-index:20;display:flex;align-items:center;overflow:hidden;border-top:1px solid rgba(0,255,204,.05);background:rgba(0,0,0,.92)}
 .tt{display:flex;white-space:nowrap;animation:tick 24s linear infinite}
-.ti{font-size:.44rem;letter-spacing:.14em;text-transform:uppercase;color:#081f12;padding:0 24px;border-right:1px solid rgba(0,255,204,.04)}
+.ti{font-size:.44rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);padding:0 24px;border-right:1px solid rgba(0,255,204,.08)}
 .ti span{color:#00ffcc;opacity:.5}
 @keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
@@ -63,29 +63,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 @keyframes sba{from{height:3px}to{height:var(--h,18px)}}
 @keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes glitchFlash{0%{opacity:0}10%{opacity:.3}20%{opacity:0}30%{opacity:.2}40%{opacity:0}100%{opacity:0}}
-@media(max-width:768px){
-  #rside,#lside{display:none}
-  nav{padding:14px 20px}
-  .nlinks{display:none}
-  .ncta{padding:7px 14px;font-size:.5rem}
-  #bot{padding:0 0 16px;gap:7px}
-  .nn{font-size:clamp(1.9rem,8.5vw,3.2rem);letter-spacing:.22em}
-  .ns{font-size:.4rem;letter-spacing:.12em}
-  #tx{font-size:.58rem;padding:0 14px}
-  #btns{gap:8px;padding:0 10px}
-  .bv{padding:10px 18px;font-size:.52rem;letter-spacing:.1em}
-  .be{padding:10px 16px;font-size:.52rem}
-  .sec-inner{padding:0 20px}
-  .srv-grid{grid-template-columns:1fr}
-  .ind-grid{grid-template-columns:1fr}
-  .proc-track{flex-direction:column;gap:24px}
-  .proc-line{width:1px;height:20px;margin:0}
-}
-@media(max-width:420px){
-  .nn{font-size:clamp(1.5rem,10vw,2.5rem);letter-spacing:.15em}
-  .bv{padding:9px 14px;font-size:.48rem}
-  #tx{font-size:.5rem}
-}
+
 
 /* ========== PAGE LAYOUT ========== */
 html,body{overflow-x:hidden}
@@ -102,10 +80,10 @@ html,body{overflow-x:hidden}
 section{position:relative;padding:100px 0;overflow:hidden}
 section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .sec-inner{max-width:1200px;margin:0 auto;padding:0 60px}
-.sec-label{font-size:.48rem;letter-spacing:.22em;text-transform:uppercase;color:#00ffcc;opacity:.5;margin-bottom:16px}
+.sec-label{font-size:.48rem;letter-spacing:.22em;text-transform:uppercase;color:#00ffcc;opacity:.85;margin-bottom:16px}
 .sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,5vw,4.5rem);letter-spacing:.08em;color:#fff;line-height:1.05;margin-bottom:18px}
 .sec-title .hl{background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.sec-sub{font-size:.68rem;letter-spacing:.04em;color:rgba(255,255,255,.35);max-width:560px;line-height:1.8}
+.sec-sub{font-size:.68rem;letter-spacing:.04em;color:rgba(255,255,255,.65);max-width:560px;line-height:1.8}
 
 /* ========== SERVICES ========== */
 #s-services{background:#000}
@@ -115,11 +93,13 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .srv-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,255,204,.04),transparent);opacity:0;transition:opacity .3s}
 .srv-card:hover{background:#030f09;border-color:rgba(0,255,204,.18)}
 .srv-card:hover::after{opacity:1}
-.srv-icon{font-size:1.8rem;margin-bottom:18px;display:block}
+.srv-icon{font-size:.62rem;letter-spacing:.2em;font-family:'JetBrains Mono',monospace;color:#00ffcc;margin-bottom:18px;display:block;opacity:.8}
+.ind-flag{font-size:.58rem;letter-spacing:.2em;font-family:'Bebas Neue',sans-serif;color:#00cfff;margin-bottom:14px;display:block;opacity:.8}
+.lf-tag{font-size:.4rem;letter-spacing:.1em;background:rgba(0,255,204,.12);color:#00ffcc;padding:2px 5px;border:1px solid rgba(0,255,204,.25)}
 .srv-card h3{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.1em;color:#fff;margin-bottom:12px}
-.srv-card p{font-size:.58rem;color:rgba(255,255,255,.3);line-height:1.8;letter-spacing:.04em}
+.srv-card p{font-size:.58rem;color:rgba(255,255,255,.6);line-height:1.8;letter-spacing:.04em}
 .srv-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:18px}
-.srv-tags span{font-size:.43rem;letter-spacing:.12em;padding:3px 9px;border:1px solid rgba(0,255,204,.1);color:rgba(0,255,204,.4);text-transform:uppercase}
+.srv-tags span{font-size:.43rem;letter-spacing:.12em;padding:3px 9px;border:1px solid rgba(0,255,204,.3);color:rgba(0,255,204,.8);text-transform:uppercase}
 
 /* ========== PROCESS ========== */
 #s-process{background:linear-gradient(180deg,#000 0%,#020a06 50%,#000 100%)}
@@ -127,7 +107,7 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .proc-step{flex:1;position:relative}
 .proc-num{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;letter-spacing:.08em;background:linear-gradient(135deg,#00ffcc,transparent);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:14px}
 .proc-body h4{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.12em;color:#fff;margin-bottom:8px}
-.proc-body p{font-size:.57rem;color:rgba(255,255,255,.3);line-height:1.75;letter-spacing:.03em}
+.proc-body p{font-size:.57rem;color:rgba(255,255,255,.6);line-height:1.75;letter-spacing:.03em}
 .proc-line{width:60px;flex-shrink:0;height:1px;background:linear-gradient(90deg,rgba(0,255,204,.2),rgba(0,255,204,.05));margin-top:28px;align-self:flex-start}
 
 /* ========== INDUSTRIES ========== */
@@ -138,9 +118,9 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .ind-card:hover{background:#030810}
 .ind-flag{font-size:1.8rem;margin-bottom:14px;display:block}
 .ind-card h3{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.1em;color:#fff;margin-bottom:10px}
-.ind-card p{font-size:.57rem;color:rgba(255,255,255,.28);line-height:1.75;letter-spacing:.03em}
+.ind-card p{font-size:.57rem;color:rgba(255,255,255,.58);line-height:1.75;letter-spacing:.03em}
 .ind-markets{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px}
-.ind-markets span{font-size:.43rem;letter-spacing:.1em;padding:3px 8px;border:1px solid rgba(0,207,255,.1);color:rgba(0,207,255,.4)}
+.ind-markets span{font-size:.43rem;letter-spacing:.1em;padding:3px 8px;border:1px solid rgba(0,207,255,.3);color:rgba(0,207,255,.85)}
 
 /* ========== STACK ========== */
 #s-stack{background:linear-gradient(180deg,#000 0%,#020a06 50%,#000 100%)}
@@ -149,32 +129,32 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .stack-cat:last-child{border-bottom:none}
 .stack-cat-label{font-size:.48rem;letter-spacing:.16em;text-transform:uppercase;color:#00ffcc;opacity:.5;min-width:140px;padding-top:4px}
 .stack-items{display:flex;flex-wrap:wrap;gap:8px}
-.stack-items span{font-size:.52rem;letter-spacing:.1em;padding:5px 13px;border:1px solid rgba(0,255,204,.08);color:rgba(255,255,255,.3);transition:all .25s;cursor:default}
+.stack-items span{font-size:.52rem;letter-spacing:.1em;padding:5px 13px;border:1px solid rgba(0,255,204,.2);color:rgba(255,255,255,.6);transition:all .25s;cursor:default}
 .stack-items span:hover{border-color:#00ffcc;color:#00ffcc;background:rgba(0,255,204,.04)}
 
 /* ========== ABOUT ========== */
 #s-about{background:#000}
 #s-about::before{background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(108,0,255,.04),transparent)}
 .about-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
-.about-body{font-size:.62rem;color:rgba(255,255,255,.32);line-height:1.85;letter-spacing:.03em;margin-bottom:20px}
+.about-body{font-size:.62rem;color:rgba(255,255,255,.62);line-height:1.85;letter-spacing:.03em;margin-bottom:20px}
 .about-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:40px;border:1px solid rgba(0,255,204,.06)}
 .astat{padding:20px 22px;border:1px solid rgba(0,255,204,.06);background:#000}
 .astat-n{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;background:linear-gradient(135deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
-.astat-l{font-size:.44rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-top:4px}
+.astat-l{font-size:.44rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-top:4px}
 .manifesto-card{border:1px solid rgba(0,255,204,.08);padding:40px;background:rgba(0,255,204,.015)}
 .mc-label{font-size:.44rem;letter-spacing:.22em;text-transform:uppercase;color:#00ffcc;opacity:.4;margin-bottom:28px}
 .manifesto-list{list-style:none;display:flex;flex-direction:column;gap:18px}
 .manifesto-list li{display:flex;gap:20px;align-items:flex-start}
 .ml-num{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;color:rgba(0,255,204,.25);flex-shrink:0;line-height:1.3}
-.ml-text{font-size:.6rem;color:rgba(255,255,255,.3);letter-spacing:.04em;line-height:1.7}
+.ml-text{font-size:.6rem;color:rgba(255,255,255,.62);letter-spacing:.04em;line-height:1.7}
 
 /* ========== CONTACT ========== */
 #s-contact{background:linear-gradient(180deg,#000 0%,#020c06 100%)}
 .contact-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
 .contact-details{margin-top:40px;display:flex;flex-direction:column;gap:0}
 .cd-row{display:flex;gap:0;border-bottom:1px solid rgba(0,255,204,.05);padding:14px 0}
-.cd-label{font-size:.46rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(0,255,204,.35);width:120px;flex-shrink:0}
-.cd-val{font-size:.58rem;color:rgba(255,255,255,.35);letter-spacing:.06em;text-decoration:none;transition:color .25s}
+.cd-label{font-size:.46rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(0,255,204,.7);width:120px;flex-shrink:0}
+.cd-val{font-size:.58rem;color:rgba(255,255,255,.65);letter-spacing:.06em;text-decoration:none;transition:color .25s}
 a.cd-val:hover{color:#00ffcc}
 .contact-form-wrap{border:1px solid rgba(0,255,204,.08);padding:40px;background:rgba(0,0,0,.5)}
 .cf-field{margin-bottom:22px}
@@ -192,9 +172,9 @@ a.cd-val:hover{color:#00ffcc}
 .foot-logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.3em;background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
 .foot-tagline{font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(0,255,204,.2);margin-bottom:30px}
 .foot-links{display:flex;justify-content:center;gap:32px;margin-bottom:30px}
-.foot-links a{font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.18);text-decoration:none;transition:color .25s}
+.foot-links a{font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5);text-decoration:none;transition:color .25s}
 .foot-links a:hover{color:#00ffcc}
-.foot-copy{font-size:.44rem;letter-spacing:.1em;color:rgba(255,255,255,.1)}
+.foot-copy{font-size:.44rem;letter-spacing:.1em;color:rgba(255,255,255,.35)}
 
 /* ========== SCROLL REVEAL ========== */
 .reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease}
@@ -204,18 +184,79 @@ a.cd-val:hover{color:#00ffcc}
 .nav-scrolled{background:rgba(0,0,0,.98)!important;box-shadow:0 1px 0 rgba(0,255,204,.06)}
 
 /* ========== MOBILE ========== */
+/* ===== TABLET ===== */
 @media(max-width:900px){
   .sec-inner{padding:0 28px}
   .srv-grid,.ind-grid{grid-template-columns:1fr 1fr}
-  .about-layout,.contact-layout{grid-template-columns:1fr}
+  .about-layout,.contact-layout{grid-template-columns:1fr;gap:40px}
   .proc-track{flex-direction:column;gap:30px}
   .proc-line{width:1px;height:30px;background:linear-gradient(180deg,rgba(0,255,204,.2),transparent);margin:0 0 0 14px;align-self:auto}
   .stack-cat{flex-direction:column;gap:12px}
   .stack-cat-label{min-width:auto}
+  #rside,#lside{display:none}
+  .foot-inner{padding:0 28px}
 }
-@media(max-width:600px){
-  .srv-grid,.ind-grid{grid-template-columns:1fr}
+
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+  #rside,#lside{display:none}
+  nav{padding:14px 20px}
+  .nlinks{display:none}
+  .ncta{padding:7px 14px;font-size:.5rem}
+
+  /* NOVA bottom panel */
+  #bot{padding:0 0 80px;gap:7px}
+  .nn{font-size:clamp(2rem,9vw,3.5rem);letter-spacing:.22em}
+  .ns{font-size:.4rem;letter-spacing:.1em;padding:0 10px;text-align:center}
+  .nstxt{font-size:.42rem}
+  #tx{font-size:.58rem;padding:0 16px;min-height:18px}
+  #btns{gap:8px;padding:0 12px;flex-wrap:wrap;justify-content:center}
+  .bv{padding:11px 22px;font-size:.54rem;letter-spacing:.1em}
+  .be{padding:11px 18px;font-size:.54rem;letter-spacing:.08em}
+
+  /* Sections */
   section{padding:70px 0}
+  .sec-inner{padding:0 20px}
+  .sec-title{font-size:clamp(2rem,7vw,3.5rem)}
+  .sec-sub{font-size:.62rem}
+
+  /* Grids */
+  .srv-grid,.ind-grid{grid-template-columns:1fr}
+  .srv-card,.ind-card{padding:28px 22px}
+  .about-layout,.contact-layout{grid-template-columns:1fr;gap:36px}
+  .about-stats{grid-template-columns:1fr 1fr}
+  .astat{padding:16px 14px}
+  .manifesto-card{padding:28px 22px}
+
+  /* Process */
+  .proc-track{flex-direction:column;gap:24px}
+  .proc-line{width:1px;height:20px;background:linear-gradient(180deg,rgba(0,255,204,.2),transparent);margin:4px 0 0 12px;align-self:auto}
+
+  /* Stack */
+  .stack-cat{flex-direction:column;gap:10px;padding:18px 0}
+  .stack-cat-label{min-width:auto}
+  .stack-items{gap:6px}
+
+  /* Contact */
+  .contact-form-wrap{padding:28px 20px}
+  .cd-label{width:90px;font-size:.42rem}
+  .cd-val{font-size:.54rem}
+
+  /* Footer */
+  .foot-inner{padding:0 20px}
+  .foot-links{flex-wrap:wrap;gap:16px;justify-content:center}
+  .foot-logo{font-size:1.5rem}
+}
+
+/* ===== SMALL MOBILE ===== */
+@media(max-width:420px){
+  .nn{font-size:clamp(1.6rem,10vw,2.5rem);letter-spacing:.18em}
+  .bv{padding:10px 16px;font-size:.5rem}
+  .be{padding:10px 14px;font-size:.5rem}
+  #tx{font-size:.52rem}
+  .sec-title{font-size:clamp(1.8rem,8vw,3rem)}
+  .srv-card h3,.ind-card h3{font-size:1rem}
+  .about-stats{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -239,9 +280,9 @@ a.cd-val:hover{color:#00ffcc}
 <div id="lside">
   <div class="lsl">// Markets</div>
   <div class="lsf">
-    <div class="lff">🇺🇸 <span>USA</span></div>
-    <div class="lff">🇦🇪 <span>UAE</span></div>
-    <div class="lff">🇮🇳 <span>India</span></div>
+    <div class="lff"><span class="lf-tag">US</span> <span>USA</span></div>
+    <div class="lff"><span class="lf-tag">AE</span> <span>UAE</span></div>
+    <div class="lff"><span class="lf-tag">IN</span> <span>India</span></div>
   </div>
 </div>
 <div id="bot">
@@ -760,37 +801,37 @@ setTimeout(()=>setTx('// NOVA is online. Click "Talk to NOVA" to begin.'),1500);
     <p class="sec-sub">End-to-end AI systems that go live in weeks, not quarters. No bloat, no lock-in.</p>
     <div class="srv-grid">
       <div class="srv-card">
-        <div class="srv-icon">⟨ AI ⟩</div>
+        <div class="srv-icon">[ AI ]</div>
         <h3>AI Agents &amp; Automation</h3>
         <p>Multi-agent orchestration, task automation, workflow AI. From intake to resolution — fully autonomous pipelines.</p>
         <div class="srv-tags"><span>LangChain</span><span>CrewAI</span><span>n8n</span></div>
       </div>
       <div class="srv-card">
-        <div class="srv-icon">🎙️</div>
+        <div class="srv-icon">◎ VOICE</div>
         <h3>Voice &amp; Conversational AI</h3>
         <p>Real-time voice bots, call center AI, patient engagement systems. Sub-500ms latency. HIPAA-ready.</p>
         <div class="srv-tags"><span>Whisper</span><span>ElevenLabs</span><span>Twilio</span></div>
       </div>
       <div class="srv-card">
-        <div class="srv-icon">🏥</div>
+        <div class="srv-icon">+ RCM</div>
         <h3>Healthcare &amp; RCM Platforms</h3>
         <p>EHR integrations, revenue cycle management, prior auth automation. HIPAA compliant. UAE DHA certified.</p>
         <div class="srv-tags"><span>FHIR</span><span>HL7</span><span>Epic</span></div>
       </div>
       <div class="srv-card">
-        <div class="srv-icon">⚡</div>
+        <div class="srv-icon">▸ SAAS</div>
         <h3>SaaS Product Engineering</h3>
         <p>Full-stack platforms from zero to production. We embed AI-first from day one — not as an afterthought.</p>
         <div class="srv-tags"><span>Next.js</span><span>Supabase</span><span>Vercel</span></div>
       </div>
       <div class="srv-card">
-        <div class="srv-icon">📊</div>
+        <div class="srv-icon">▦ DATA</div>
         <h3>Data &amp; Analytics Infrastructure</h3>
         <p>Real-time pipelines, RAG knowledge bases, custom dashboards. Turn raw data into revenue signals.</p>
         <div class="srv-tags"><span>Pinecone</span><span>Airflow</span><span>dbt</span></div>
       </div>
       <div class="srv-card">
-        <div class="srv-icon">🔗</div>
+        <div class="srv-icon">⊕ API</div>
         <h3>Integrations &amp; APIs</h3>
         <p>EDI, payer APIs, EHR connectors, third-party platforms. We speak every protocol your stack needs.</p>
         <div class="srv-tags"><span>REST</span><span>GraphQL</span><span>EDI 837/835</span></div>
