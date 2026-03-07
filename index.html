@@ -603,42 +603,47 @@ function render(){
 }
 render();
 
-// VOICE AI — clean flow: mic grant → listen → user speaks → NOVA thinks → NOVA speaks → auto-listen
-let hist=[], currentAudio=null, micGranted=false;
+// ============================================================
+// NOVA VOICE AI — Always-on conversational mode
+// Architecture:
+//   - One click starts the session, stays on forever
+//   - Continuous SpeechRecognition restarts itself after each utterance
+//   - NOVA pauses gracefully when user speaks (audio ducked/paused)
+//   - Accumulated buffer: collects partial sentences before sending
+//   - History maintained for full contextual conversation
+// ============================================================
+let hist=[], currentAudio=null, micGranted=false, sessionActive=false;
+let pendingText='', silenceTimer=null;
 
 function setTx(t){document.getElementById('tx').textContent=t;}
+function setStatus(s){document.getElementById('stxt').textContent=s;}
 
+// ---- SPEAKING ----
 function onSpeakStart(text){
-  isTalking=true;sbEl.classList.add('on');
-  document.getElementById('stxt').textContent='Speaking...';
+  isTalking=true;
+  sbEl.classList.add('on');
+  setStatus('Speaking...');
   document.getElementById('vbtn').className='bv speaking';
   document.getElementById('vlbl').textContent='Stop';
-  setTx('NOVA: '+text);
+  setTx('NOVA: '+text.substring(0,120)+(text.length>120?'...':''));
 }
 
 function onSpeakEnd(){
-  isTalking=false;mouthOpen=0;sbEl.classList.remove('on');
-  document.getElementById('stxt').textContent='Online · Ready to Talk';
-  document.getElementById('vbtn').className='bv';
-  document.getElementById('vlbl').textContent='Talk to NOVA';
-  setTx('// Say something...');
-  // Auto-listen after NOVA finishes speaking
-  if(micGranted){
-    setTimeout(()=>{
-      if(!isListening&&!isTalking){
-        rec=setupRec();
-        if(rec){try{rec.start();}catch(e){console.warn('rec.start failed',e);}}
-      }
-    },400);
-  }
+  isTalking=false; mouthOpen=0; analyser=null;
+  sbEl.classList.remove('on');
+  setStatus('Listening...');
+  document.getElementById('vbtn').className='bv listening';
+  document.getElementById('vlbl').textContent='Listening...';
+  setTx('// Go ahead, I'm listening...');
+  // Restart listener after NOVA finishes — always-on
+  if(sessionActive) scheduleRestart(300);
 }
 
 async function speak(text){
   if(currentAudio){currentAudio.pause();currentAudio=null;}
   onSpeakStart(text);
   try{
-    const r=await fetch('/api/speak',{
-      method:'POST',
+    const r=await fetch('/api/speak',{method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({text})
     });
@@ -648,7 +653,6 @@ async function speak(text){
     const audio=new Audio(url);
     audio.crossOrigin='anonymous';
     currentAudio=audio;
-    // Wire AudioContext for real-time lip-sync amplitude reading
     try{
       if(!audioCtx||audioCtx.state==='closed') audioCtx=new(window.AudioContext||window.webkitAudioContext)();
       if(audioCtx.state==='suspended') await audioCtx.resume();
@@ -656,20 +660,18 @@ async function speak(text){
       analyser=audioCtx.createAnalyser();
       analyser.fftSize=256;
       lipData=new Uint8Array(analyser.frequencyBinCount);
-      src.connect(analyser);
-      analyser.connect(audioCtx.destination);
+      src.connect(analyser); analyser.connect(audioCtx.destination);
     }catch(ae){console.warn('AudioCtx:',ae);analyser=null;}
-    audio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;analyser=null;onSpeakEnd();};
-    audio.onerror=()=>{URL.revokeObjectURL(url);currentAudio=null;analyser=null;onSpeakEnd();};
+    audio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;onSpeakEnd();};
+    audio.onerror=()=>{URL.revokeObjectURL(url);currentAudio=null;onSpeakEnd();};
     await audio.play();
   }catch(e){
-    console.warn('ElevenLabs failed:',e.message);
-    // Browser TTS fallback
+    console.warn('TTS failed:',e.message);
     try{
-      const synth=window.speechSynthesis;synth.cancel();
+      const synth=window.speechSynthesis; synth.cancel();
       const u=new SpeechSynthesisUtterance(text);
-      u.rate=.88;u.pitch=.72;u.volume=1;
-      u.onend=onSpeakEnd;u.onerror=onSpeakEnd;
+      u.rate=.88; u.pitch=.72; u.volume=1;
+      u.onend=onSpeakEnd; u.onerror=onSpeakEnd;
       synth.speak(u);
     }catch(e2){onSpeakEnd();}
   }
@@ -678,105 +680,168 @@ async function speak(text){
 function stopSpeaking(){
   if(currentAudio){currentAudio.pause();currentAudio=null;}
   window.speechSynthesis&&window.speechSynthesis.cancel();
-  onSpeakEnd();
+  isTalking=false; mouthOpen=0; analyser=null;
+  sbEl.classList.remove('on');
 }
 
+// ---- THINKING & ASKING ----
 async function ask(text){
+  if(!text.trim()) return;
   hist.push({role:'user',content:text});
-  setTx('NOVA: ...');
-  document.getElementById('stxt').textContent='Thinking...';
+  setTx('You: '+text);
+  setStatus('Thinking...');
   document.getElementById('vbtn').className='bv';
   document.getElementById('vlbl').textContent='Thinking...';
   try{
-    const r=await fetch('/api/nova',{
-      method:'POST',
+    const r=await fetch('/api/nova',{method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({max_tokens:150,messages:hist})
+      body:JSON.stringify({max_tokens:180,messages:hist})
     });
     const d=await r.json();
-    const reply=d.content?.[0]?.text||'Signal lost.';
+    const reply=d.content?.[0]?.text||'Lost signal for a sec — say that again?';
     hist.push({role:'assistant',content:reply});
     speak(reply);
   }catch(e){
     console.error('ask() failed:',e);
-    setTx('// Connection error. Try again.');
-    document.getElementById('stxt').textContent='Online · Ready to Talk';
-    document.getElementById('vbtn').className='bv';
-    document.getElementById('vlbl').textContent='Talk to NOVA';
+    setTx('// Network hiccup — try again.');
+    setStatus('Listening...');
+    document.getElementById('vbtn').className='bv listening';
+    document.getElementById('vlbl').textContent='Listening...';
+    if(sessionActive) scheduleRestart(600);
   }
 }
 
-let rec=null;
-function setupRec(){
+// ---- SPEECH RECOGNITION — always-on, restarts itself ----
+let rec=null, recRestarting=false;
+
+function scheduleRestart(delay){
+  if(recRestarting) return;
+  recRestarting=true;
+  setTimeout(()=>{
+    recRestarting=false;
+    if(sessionActive&&!isTalking) startRec();
+  }, delay||300);
+}
+
+function startRec(){
+  if(rec){try{rec.stop();}catch(e){}} rec=null;
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){setTx('// Voice requires Chrome or Edge.');return null;}
+  if(!SR||!sessionActive) return;
   const r=new SR();
-  r.continuous=false;r.interimResults=true;r.lang='en-US';
+  r.continuous=false;
+  r.interimResults=true;
+  r.lang='en-US';
+  rec=r;
+
   r.onstart=()=>{
-    isListening=true;sbEl.classList.add('on');
-    document.getElementById('stxt').textContent='Listening...';
-    document.getElementById('vbtn').className='bv listening';
-    document.getElementById('vlbl').textContent='Listening...';
-    setTx('// Listening...');
+    isListening=true;
+    if(!isTalking){
+      sbEl.classList.add('on');
+      setStatus('Listening...');
+      document.getElementById('vbtn').className='bv listening';
+      document.getElementById('vlbl').textContent='Listening...';
+    }
   };
+
   r.onresult=e=>{
-    let fi='',interim='';
+    let fi='', interim='';
     for(let i=e.resultIndex;i<e.results.length;i++){
       if(e.results[i].isFinal) fi+=e.results[i][0].transcript;
       else interim+=e.results[i][0].transcript;
     }
-    setTx('You: '+(fi||interim));
-    // Interrupt NOVA if she's mid-speech
-    if((fi||interim)&&isTalking) stopSpeaking();
-    if(fi){stopRec();ask(fi.trim());}
+    const heard=(fi||interim).trim();
+    if(!heard) return;
+
+    // Show what we heard live
+    setTx('You: '+heard);
+
+    // If NOVA is speaking, pause her gracefully — user is taking the floor
+    if(isTalking){
+      stopSpeaking();
+      setStatus('Listening...');
+    }
+
+    // Clear silence timer
+    if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}
+
+    if(fi){
+      // Accumulate final text — user may still be speaking
+      pendingText=(pendingText+' '+fi).trim();
+      // Give 900ms of silence before sending — lets them add more
+      silenceTimer=setTimeout(()=>{
+        const toSend=pendingText; pendingText='';
+        isListening=false;
+        ask(toSend);
+      },900);
+    }
   };
+
   r.onerror=e=>{
-    console.warn('SpeechRecognition error:',e.error);
-    stopRec();
-    if(e.error==='not-allowed') setTx('// Mic access denied.');
-    else if(e.error==='no-speech') setTx('// No speech detected. Click to try again.');
-    else setTx('// Could not hear. Click to try again.');
+    isListening=false;
+    if(e.error==='not-allowed'){setTx('// Mic access denied.');sessionActive=false;return;}
+    if(e.error==='no-speech'){
+      // Silence — just restart quietly
+      if(sessionActive&&!isTalking) scheduleRestart(200);
+      return;
+    }
+    console.warn('SR error:',e.error);
+    if(sessionActive&&!isTalking) scheduleRestart(400);
   };
-  r.onend=()=>{if(isListening)stopRec();};
-  return r;
+
+  r.onend=()=>{
+    isListening=false;
+    sbEl.classList.remove('on');
+    // Restart automatically — keep always-on
+    if(sessionActive&&!isTalking&&!silenceTimer) scheduleRestart(200);
+  };
+
+  try{r.start();}catch(e){
+    console.warn('rec.start:',e);
+    if(sessionActive) scheduleRestart(500);
+  }
 }
 
-function stopRec(){
+function stopSession(){
+  sessionActive=false;
+  if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}
+  pendingText='';
+  stopSpeaking();
+  if(rec){try{rec.stop();}catch(e){}} rec=null;
   isListening=false;
-  if(rec){try{rec.stop();}catch(e){}}
   sbEl.classList.remove('on');
   document.getElementById('vbtn').className='bv';
   document.getElementById('vlbl').textContent='Talk to NOVA';
-  document.getElementById('stxt').textContent='Online · Ready to Talk';
+  setStatus('Online · Ready to Talk');
+  setTx('// Click "Talk to NOVA" to start a new conversation.');
 }
 
+// ---- TOGGLE — one button starts / stops the whole session ----
 async function toggleVoice(){
-  if(isTalking){stopSpeaking();return;}
-  if(isListening){stopRec();return;}
+  if(sessionActive){stopSession();return;}
 
-  // Request mic permission on very first click
   if(!micGranted){
-    document.getElementById('stxt').textContent='Requesting mic...';
+    setStatus('Requesting mic...');
     document.getElementById('vlbl').textContent='...';
     try{
-      // Get permission then IMMEDIATELY release the stream
-      // so SpeechRecognition can open its own clean mic connection
       const stream=await navigator.mediaDevices.getUserMedia({audio:true});
       stream.getTracks().forEach(t=>t.stop());
       micGranted=true;
     }catch(e){
       setTx('// Mic access denied. Allow microphone and try again.');
-      document.getElementById('stxt').textContent='Mic denied';
+      setStatus('Mic denied');
       document.getElementById('vlbl').textContent='Talk to NOVA';
       return;
     }
   }
 
-  // Small delay so mic hardware fully releases before SpeechRecognition opens it
-  setTimeout(()=>{
-    rec=setupRec();
-    if(rec){try{rec.start();}catch(e){console.warn('rec.start:',e);}}
-  },150);
+  sessionActive=true;
+  hist=[];  // fresh conversation each session
+  pendingText='';
+  setTx('// Hey! Ask me anything about Claudeter...');
+  setStatus('Listening...');
+  document.getElementById('vbtn').className='bv listening';
+  document.getElementById('vlbl').textContent='Listening...';
+  setTimeout(()=>startRec(), 200);
 }
 
 setTimeout(()=>setTx('// NOVA is online. Click "Talk to NOVA" to begin.'),1500);
