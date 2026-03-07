@@ -1,7 +1,7 @@
 export const config = { runtime: 'edge' };
 
-// Deep & authoritative male voice — "Adam" from ElevenLabs
-const VOICE_ID = 'pNInz6obpgDQGcFmaJgB';
+// Custom NOVA voice
+const VOICE_ID = 'Zv7P8CISODgj9wDHyyI9';
 
 export default async function handler(req) {
   if (req.method === 'OPTIONS') {
