@@ -63,7 +63,29 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 @keyframes sba{from{height:3px}to{height:var(--h,18px)}}
 @keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes glitchFlash{0%{opacity:0}10%{opacity:.3}20%{opacity:0}30%{opacity:.2}40%{opacity:0}100%{opacity:0}}
-@media(max-width:768px){#rside,#lside{display:none}nav{padding:14px 20px}.nlinks{display:none}}
+@media(max-width:768px){
+  #rside,#lside{display:none}
+  nav{padding:14px 20px}
+  .nlinks{display:none}
+  .ncta{padding:7px 14px;font-size:.5rem}
+  #bot{padding:0 0 16px;gap:7px}
+  .nn{font-size:clamp(1.9rem,8.5vw,3.2rem);letter-spacing:.22em}
+  .ns{font-size:.4rem;letter-spacing:.12em}
+  #tx{font-size:.58rem;padding:0 14px}
+  #btns{gap:8px;padding:0 10px}
+  .bv{padding:10px 18px;font-size:.52rem;letter-spacing:.1em}
+  .be{padding:10px 16px;font-size:.52rem}
+  .sec-inner{padding:0 20px}
+  .srv-grid{grid-template-columns:1fr}
+  .ind-grid{grid-template-columns:1fr}
+  .proc-track{flex-direction:column;gap:24px}
+  .proc-line{width:1px;height:20px;margin:0}
+}
+@media(max-width:420px){
+  .nn{font-size:clamp(1.5rem,10vw,2.5rem);letter-spacing:.15em}
+  .bv{padding:9px 14px;font-size:.48rem}
+  #tx{font-size:.5rem}
+}
 
 /* ========== PAGE LAYOUT ========== */
 html,body{overflow-x:hidden}
@@ -313,7 +335,11 @@ let grid=[], W=0, H=0, frame=0;
 let isTalking=false, isListening=false, mouthOpen=0, mouthTarget=0, talkPhase=0;
 let mnx=0.5, mny=0.42;
 let faceAlpha=0, faceOffX=0.55;
+let blinkPhase=0, blinkAmt=0, nextBlink=180+Math.random()*200;
+let breathPhase=0;
+let audioCtx=null, analyser=null, lipData=null;
 document.addEventListener('mousemove',e=>{mnx=e.clientX/W;mny=e.clientY/H});
+document.addEventListener('touchmove',e=>{mnx=e.touches[0].clientX/W;mny=e.touches[0].clientY/H},{passive:true});
 const canvas=document.getElementById('cv'), ctx=canvas.getContext('2d');
 const glitchEl=document.getElementById('glitch');
 let glitchInt=0;
@@ -371,13 +397,31 @@ function render(){
   frame++;
   ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
 
-  if(isTalking){talkPhase+=0.17;mouthTarget=Math.abs(Math.sin(talkPhase))*0.88+0.1;}
-  else{mouthTarget=0;talkPhase=0;}
-  mouthOpen+=(mouthTarget-mouthOpen)*0.12;
+  // Breath idle micro-movement
+  breathPhase+=0.011;
+  const breathY=Math.sin(breathPhase)*0.004;
+  // Blink
+  blinkPhase++;
+  if(blinkPhase>=nextBlink){
+    blinkAmt=Math.min(1,blinkAmt+0.28);
+    if(blinkAmt>=1){blinkAmt=0;blinkPhase=0;nextBlink=160+Math.random()*260;}
+  } else { blinkAmt=Math.max(0,blinkAmt-0.18); }
+  // Lip sync: audio-driven amplitude, fallback sine
+  if(isTalking){
+    let amp=0;
+    if(analyser&&lipData){
+      analyser.getByteFrequencyData(lipData);
+      let sum=0;for(let i=2;i<18;i++)sum+=lipData[i]; // focus on low-mid freqs (speech)
+      amp=(sum/16)/128;
+    }
+    if(amp>0.02){ mouthTarget=Math.pow(amp,0.65)*0.9+0.06; }
+    else{ talkPhase+=0.2; mouthTarget=Math.abs(Math.sin(talkPhase))*0.78+0.1; }
+  } else { mouthTarget=0; talkPhase=0; }
+  mouthOpen+=(mouthTarget-mouthOpen)*0.2;
 
   // Smooth gaze
-  const gazeX=(mnx-0.5)*1.6, gazeY=(mny-0.42)*1.2;
-  const pxOff=(mnx-0.5)*0.010, pyOff=(mny-0.42)*0.007;
+  const gazeX=(mnx-0.5)*1.6, gazeY=(mny-0.42+breathY)*1.2;
+  const pxOff=(mnx-0.5)*0.010, pyOff=(mny-0.42+breathY)*0.007;
 
   const rows=Math.ceil(H/CELL)+2;
   for(let r=0;r<rows;r++){
@@ -402,7 +446,7 @@ function render(){
       let bright=sampleFace(nx,ny)*faceAlpha;
 
       // Eye iris override
-      const eyeBright=getEyeBright(nx,ny,gazeX,gazeY)*faceAlpha;
+      const eyeBright=getEyeBright(nx,ny,gazeX,gazeY)*faceAlpha*(1-blinkAmt*0.96);
 
       // Mouth darkness
       const mDark=mouthDark(nx,ny,mouthOpen)*faceAlpha;
@@ -544,7 +588,7 @@ function onSpeakEnd(){
         rec=setupRec();
         if(rec){try{rec.start();}catch(e){console.warn('rec.start failed',e);}}
       }
-    },800);
+    },400);
   }
 }
 
@@ -561,10 +605,21 @@ async function speak(text){
     const blob=await r.blob();
     const url=URL.createObjectURL(blob);
     const audio=new Audio(url);
+    audio.crossOrigin='anonymous';
     currentAudio=audio;
-    audio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;onSpeakEnd();};
-    audio.onerror=()=>{URL.revokeObjectURL(url);currentAudio=null;onSpeakEnd();};
-    // play() is safe here — always triggered from user gesture chain
+    // Wire AudioContext for real-time lip-sync amplitude reading
+    try{
+      if(!audioCtx||audioCtx.state==='closed') audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+      if(audioCtx.state==='suspended') await audioCtx.resume();
+      const src=audioCtx.createMediaElementSource(audio);
+      analyser=audioCtx.createAnalyser();
+      analyser.fftSize=256;
+      lipData=new Uint8Array(analyser.frequencyBinCount);
+      src.connect(analyser);
+      analyser.connect(audioCtx.destination);
+    }catch(ae){console.warn('AudioCtx:',ae);analyser=null;}
+    audio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;analyser=null;onSpeakEnd();};
+    audio.onerror=()=>{URL.revokeObjectURL(url);currentAudio=null;analyser=null;onSpeakEnd();};
     await audio.play();
   }catch(e){
     console.warn('ElevenLabs failed:',e.message);
@@ -630,6 +685,8 @@ function setupRec(){
       else interim+=e.results[i][0].transcript;
     }
     setTx('You: '+(fi||interim));
+    // Interrupt NOVA if she's mid-speech
+    if((fi||interim)&&isTalking) stopSpeaking();
     if(fi){stopRec();ask(fi.trim());}
   };
   r.onerror=e=>{
