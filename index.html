@@ -544,7 +544,7 @@ function onSpeakEnd(){
         rec=setupRec();
         if(rec){try{rec.start();}catch(e){console.warn('rec.start failed',e);}}
       }
-    },500);
+    },800);
   }
 }
 
@@ -661,7 +661,10 @@ async function toggleVoice(){
     document.getElementById('stxt').textContent='Requesting mic...';
     document.getElementById('vlbl').textContent='...';
     try{
-      await navigator.mediaDevices.getUserMedia({audio:true});
+      // Get permission then IMMEDIATELY release the stream
+      // so SpeechRecognition can open its own clean mic connection
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      stream.getTracks().forEach(t=>t.stop());
       micGranted=true;
     }catch(e){
       setTx('// Mic access denied. Allow microphone and try again.');
@@ -671,9 +674,11 @@ async function toggleVoice(){
     }
   }
 
-  // Start listening immediately — no hardcoded greeting
-  rec=setupRec();
-  if(rec){try{rec.start();}catch(e){console.warn('rec.start:',e);}}
+  // Small delay so mic hardware fully releases before SpeechRecognition opens it
+  setTimeout(()=>{
+    rec=setupRec();
+    if(rec){try{rec.start();}catch(e){console.warn('rec.start:',e);}}
+  },150);
 }
 
 setTimeout(()=>setTx('// NOVA is online. Click "Talk to NOVA" to begin.'),1500);
