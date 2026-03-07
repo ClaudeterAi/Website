@@ -519,20 +519,101 @@ function render(){
 render();
 
 // VOICE AI
-const SYS=`You are NOVA — the AI face of Claudeter, manifesting as a portrait made of living code. Be cinematic, brief: 2-3 sentences only. No lists, no markdown. Claudeter builds AI agents, voice bots, EHR/healthcare platforms (HIPAA, UAE DHA), RCM systems, SaaS. Markets: USA, UAE, India. Contact: hello@claudeter.com.`;
-let hist=[],synth=window.speechSynthesis,vList=[];
-synth.onvoiceschanged=()=>{vList=synth.getVoices();};vList=synth.getVoices();
-function getVoice(){const w=['Google US English','Microsoft David','Daniel','Alex','Samantha'];for(const n of w){const v=vList.find(v=>v.name.includes(n));if(v)return v;}return vList.find(v=>v.lang==='en-US')||vList[0];}
-function speak(text){synth.cancel();const u=new SpeechSynthesisUtterance(text);u.voice=getVoice();u.rate=.88;u.pitch=.78;u.volume=1;u.onstart=()=>{isTalking=true;sbEl.classList.add('on');document.getElementById('stxt').textContent='Speaking...';document.getElementById('vbtn').className='bv speaking';document.getElementById('vlbl').textContent='Stop';setTx('NOVA: '+text);};u.onend=u.onerror=()=>{isTalking=false;mouthOpen=0;sbEl.classList.remove('on');document.getElementById('stxt').textContent='Online · Ready to Talk';document.getElementById('vbtn').className='bv';document.getElementById('vlbl').textContent='Talk to NOVA';setTx('// Say something...');};synth.speak(u);}
-// NOTE: Direct Anthropic API calls from browser will be CORS-blocked and expose your API key.
-// Replace '/api/nova' below with your own backend proxy that calls Anthropic server-side.
-async function ask(text){hist.push({role:'user',content:text});setTx('NOVA: ...');document.getElementById('stxt').textContent='Thinking...';try{const r=await fetch('/api/nova',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:150,system:SYS,messages:hist})});const d=await r.json();const reply=d.content?.[0]?.text||"Signal lost.";hist.push({role:'assistant',content:reply});speak(reply);}catch(e){speak("Connection wavered. Reach us at hello@claudeter.com.");isTalking=false;}}
+// Knowledge base & system prompt now handled server-side in /api/nova.js
+let hist=[], currentAudio=null;
+
 function setTx(t){document.getElementById('tx').textContent=t;}
+
+function onSpeakStart(text){
+  isTalking=true;sbEl.classList.add('on');
+  document.getElementById('stxt').textContent='Speaking...';
+  document.getElementById('vbtn').className='bv speaking';
+  document.getElementById('vlbl').textContent='Stop';
+  setTx('NOVA: '+text);
+}
+function onSpeakEnd(){
+  isTalking=false;mouthOpen=0;sbEl.classList.remove('on');
+  document.getElementById('stxt').textContent='Online · Ready to Talk';
+  document.getElementById('vbtn').className='bv';
+  document.getElementById('vlbl').textContent='Talk to NOVA';
+  setTx('// Say something...');
+  // Auto-listen after NOVA finishes
+  setTimeout(()=>{if(!isListening&&!isTalking){rec=setupRec();if(rec)rec.start();}},400);
+}
+
+async function speak(text){
+  if(currentAudio){currentAudio.pause();currentAudio=null;}
+  onSpeakStart(text);
+  try{
+    const r=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+    if(!r.ok) throw new Error('TTS failed');
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    const audio=new Audio(url);
+    currentAudio=audio;
+    audio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;onSpeakEnd();};
+    audio.onerror=()=>{currentAudio=null;onSpeakEnd();};
+    audio.play();
+  }catch(e){
+    // Fallback to browser TTS if ElevenLabs fails
+    const synth=window.speechSynthesis;
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=.88;u.pitch=.78;
+    u.onend=onSpeakEnd;u.onerror=onSpeakEnd;
+    synth.speak(u);
+  }
+}
+
+function stopSpeaking(){
+  if(currentAudio){currentAudio.pause();currentAudio=null;}
+  window.speechSynthesis&&window.speechSynthesis.cancel();
+  isTalking=false;mouthOpen=0;sbEl.classList.remove('on');
+  document.getElementById('stxt').textContent='Online · Ready to Talk';
+  document.getElementById('vbtn').className='bv';
+  document.getElementById('vlbl').textContent='Talk to NOVA';
+}
+
+async function ask(text){
+  hist.push({role:'user',content:text});
+  setTx('NOVA: ...');
+  document.getElementById('stxt').textContent='Thinking...';
+  try{
+    const r=await fetch('/api/nova',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:150,messages:hist})});
+    const d=await r.json();
+    const reply=d.content?.[0]?.text||"Signal lost.";
+    hist.push({role:'assistant',content:reply});
+    speak(reply);
+  }catch(e){
+    speak("Connection wavered. Reach us at hello@claudeter.com.");
+    isTalking=false;
+  }
+}
+
 let rec=null;
-function setupRec(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){setTx('// Voice requires Chrome.');return null;}const r=new SR();r.continuous=false;r.interimResults=true;r.lang='en-US';r.onstart=()=>{isListening=true;sbEl.classList.add('on');document.getElementById('stxt').textContent='Listening...';document.getElementById('vbtn').className='bv listening';document.getElementById('vlbl').textContent='Listening...';setTx('// Listening...');};r.onresult=e=>{let fi='',in2='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)fi+=e.results[i][0].transcript;else in2+=e.results[i][0].transcript;}setTx('You: '+(fi||in2));if(fi){stopRec();ask(fi);}};r.onerror=e=>{stopRec();setTx(e.error==='not-allowed'?'// Mic access denied.':'// Could not hear. Try again.');};r.onend=()=>{if(isListening)stopRec();};return r;}
+function setupRec(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){setTx('// Voice requires Chrome.');return null;}
+  const r=new SR();r.continuous=false;r.interimResults=true;r.lang='en-US';
+  r.onstart=()=>{isListening=true;sbEl.classList.add('on');document.getElementById('stxt').textContent='Listening...';document.getElementById('vbtn').className='bv listening';document.getElementById('vlbl').textContent='Listening...';setTx('// Listening...');};
+  r.onresult=e=>{let fi='',in2='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)fi+=e.results[i][0].transcript;else in2+=e.results[i][0].transcript;}setTx('You: '+(fi||in2));if(fi){stopRec();ask(fi);}};
+  r.onerror=e=>{stopRec();setTx(e.error==='not-allowed'?'// Mic access denied.':'// Could not hear. Try again.');};
+  r.onend=()=>{if(isListening)stopRec();};
+  return r;
+}
 function stopRec(){isListening=false;if(rec){try{rec.stop();}catch(e){}}sbEl.classList.remove('on');document.getElementById('vbtn').className='bv';document.getElementById('vlbl').textContent='Talk to NOVA';document.getElementById('stxt').textContent='Online · Ready to Talk';}
-function toggleVoice(){if(synth.speaking){synth.cancel();isTalking=false;mouthOpen=0;return;}if(isListening){stopRec();return;}if(hist.length===0){const g="I am NOVA. Every character you see sculpts my face — billions of symbols, one presence. What do you want to build?";hist.push({role:'assistant',content:g});speak(g);setTimeout(()=>{if(!synth.speaking&&!isListening){rec=setupRec();if(rec)rec.start();}},4800);return;}rec=setupRec();if(rec)rec.start();}
-setInterval(()=>{if(synth.speaking&&!isTalking){isTalking=true;sbEl.classList.add('on');}if(!synth.speaking&&isTalking&&!isListening){isTalking=false;mouthOpen=0;sbEl.classList.remove('on');}},80);
+
+function toggleVoice(){
+  if(isTalking){stopSpeaking();return;}
+  if(isListening){stopRec();return;}
+  if(hist.length===0){
+    const g="I am NOVA. Every character you see sculpts my face — billions of symbols, one presence. What do you want to build?";
+    hist.push({role:'assistant',content:g});
+    speak(g);
+    return;
+  }
+  rec=setupRec();if(rec)rec.start();
+}
+
 setTimeout(()=>setTx('// NOVA is online. Click "Talk to NOVA" to begin.'),1500);
 </script>
 
