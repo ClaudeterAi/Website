@@ -719,7 +719,7 @@ function scheduleRestart(delay){
   recRestarting=true;
   setTimeout(()=>{
     recRestarting=false;
-    if(sessionActive&&!isTalking) startRec();
+    if(sessionActive) startRec();
   }, delay||300);
 }
 
@@ -752,13 +752,17 @@ function startRec(){
     const heard=(fi||interim).trim();
     if(!heard) return;
 
-    // Show what we heard live
-    setTx('You: '+heard);
-
-    // If NOVA is speaking, pause her gracefully — user is taking the floor
+    // If NOVA is speaking, interrupt only if user said something substantial (not echo)
     if(isTalking){
-      stopSpeaking();
-      setStatus('Listening...');
+      if(heard.split(' ').length>=2){
+        stopSpeaking();
+        setStatus('Listening...');
+        setTx('You: '+heard);
+      }
+      // Don't process 1-word echoes of NOVA's voice
+      if(!fi || heard.split(' ').length < 2) return;
+    } else {
+      setTx('You: '+heard);
     }
 
     // Clear silence timer
@@ -780,19 +784,18 @@ function startRec(){
     isListening=false;
     if(e.error==='not-allowed'){setTx('// Mic access denied.');sessionActive=false;return;}
     if(e.error==='no-speech'){
-      // Silence — just restart quietly
-      if(sessionActive&&!isTalking) scheduleRestart(200);
+      if(sessionActive) scheduleRestart(isTalking?100:200);
       return;
     }
     console.warn('SR error:',e.error);
-    if(sessionActive&&!isTalking) scheduleRestart(400);
+    if(sessionActive) scheduleRestart(isTalking?200:400);
   };
 
   r.onend=()=>{
     isListening=false;
     sbEl.classList.remove('on');
-    // Restart automatically — keep always-on
-    if(sessionActive&&!isTalking&&!silenceTimer) scheduleRestart(200);
+    // Restart always — even while NOVA speaks, so user can interrupt at any time
+    if(sessionActive&&!silenceTimer) scheduleRestart(isTalking?100:200);
   };
 
   try{r.start();}catch(e){
