@@ -537,8 +537,8 @@ function onSpeakEnd(){
   document.getElementById('vbtn').className='bv';
   document.getElementById('vlbl').textContent='Talk to NOVA';
   setTx('// Say something...');
-  // Auto-listen after NOVA finishes
-  setTimeout(()=>{if(!isListening&&!isTalking){rec=setupRec();if(rec)rec.start();}},400);
+  // Auto-listen after NOVA finishes (mic already granted at this point)
+  setTimeout(()=>{if(!isListening&&!isTalking){rec=setupRec();if(rec){try{rec.start();}catch(e){}}}},600);
 }
 
 async function speak(text){
@@ -546,21 +546,34 @@ async function speak(text){
   onSpeakStart(text);
   try{
     const r=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
-    if(!r.ok) throw new Error('TTS failed');
+    if(!r.ok) throw new Error('TTS '+r.status);
     const blob=await r.blob();
     const url=URL.createObjectURL(blob);
     const audio=new Audio(url);
     currentAudio=audio;
+    // Unlock audio context for autoplay
+    audio.load();
+    audio.oncanplaythrough=()=>{
+      audio.play().catch(()=>{
+        // Autoplay blocked — show prompt
+        setTx('// Tap anywhere to hear NOVA');
+        const resume=()=>{audio.play();document.removeEventListener('click',resume);};
+        document.addEventListener('click',resume,{once:true});
+      });
+    };
     audio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;onSpeakEnd();};
     audio.onerror=()=>{currentAudio=null;onSpeakEnd();};
-    audio.play();
   }catch(e){
-    // Fallback to browser TTS if ElevenLabs fails
-    const synth=window.speechSynthesis;
-    const u=new SpeechSynthesisUtterance(text);
-    u.rate=.88;u.pitch=.78;
-    u.onend=onSpeakEnd;u.onerror=onSpeakEnd;
-    synth.speak(u);
+    console.warn('ElevenLabs TTS failed:',e.message,'; falling back to browser TTS');
+    try{
+      const synth=window.speechSynthesis;
+      synth.cancel();
+      const u=new SpeechSynthesisUtterance(text);
+      u.rate=.88;u.pitch=.72;u.volume=1;
+      u.onstart=()=>{isTalking=true;};
+      u.onend=onSpeakEnd;u.onerror=onSpeakEnd;
+      synth.speak(u);
+    }catch(e2){onSpeakEnd();}
   }
 }
 
