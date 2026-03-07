@@ -578,7 +578,7 @@ async function ask(text){
   setTx('NOVA: ...');
   document.getElementById('stxt').textContent='Thinking...';
   try{
-    const r=await fetch('/api/nova',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:150,messages:hist})});
+    const r=await fetch('/api/nova',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({max_tokens:150,messages:hist})});
     const d=await r.json();
     const reply=d.content?.[0]?.text||"Signal lost.";
     hist.push({role:'assistant',content:reply});
@@ -602,17 +602,41 @@ function setupRec(){
 }
 function stopRec(){isListening=false;if(rec){try{rec.stop();}catch(e){}}sbEl.classList.remove('on');document.getElementById('vbtn').className='bv';document.getElementById('vlbl').textContent='Talk to NOVA';document.getElementById('stxt').textContent='Online · Ready to Talk';}
 
-function toggleVoice(){
+async function requestMicAndStart(){
+  try{
+    // Ask for mic permission first — before anything else
+    await navigator.mediaDevices.getUserMedia({audio:true});
+    return true;
+  }catch(e){
+    setTx('// Mic access denied. Please allow microphone and try again.');
+    document.getElementById('stxt').textContent='Mic denied';
+    return false;
+  }
+}
+
+async function toggleVoice(){
   if(isTalking){stopSpeaking();return;}
   if(isListening){stopRec();return;}
+
   if(hist.length===0){
+    // First interaction — get mic permission before doing anything
+    document.getElementById('stxt').textContent='Requesting mic...';
+    const granted = await requestMicAndStart();
+    if(!granted) return;
+
+    // Permission granted — now speak the greeting
     const g="I am NOVA. Every character you see sculpts my face — billions of symbols, one presence. What do you want to build?";
     hist.push({role:'assistant',content:g});
     speak(g);
     return;
   }
+
   rec=setupRec();if(rec)rec.start();
 }
+
+// onSpeakEnd auto-listens — only after mic is already granted
+// Remove the auto-listen from onSpeakEnd and let user click to respond,
+// or keep it since permission is already granted by this point
 
 setTimeout(()=>setTx('// NOVA is online. Click "Talk to NOVA" to begin.'),1500);
 </script>
