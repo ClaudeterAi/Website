@@ -117,7 +117,6 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .ind-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:56px;border:1px solid rgba(0,255,204,.06)}
 .ind-card{padding:32px 28px;border:1px solid rgba(0,255,204,.06);background:#000;transition:background .3s}
 .ind-card:hover{background:#030810}
-.ind-flag{font-size:1.8rem;margin-bottom:14px;display:block}
 .ind-card h3{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.1em;color:#fff;margin-bottom:10px}
 .ind-card p{font-size:.57rem;color:rgba(255,255,255,.58);line-height:1.75;letter-spacing:.03em}
 .ind-markets{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px}
@@ -269,7 +268,7 @@ a.cd-val:hover{color:#00ffcc}
 <div id="glitch"></div>
 <nav>
   <div class="nlogo">Claudeter</div>
-  <div class="nlinks"><a href="#">Services</a><a href="#">About</a><a href="#">Stack</a><a href="#">Industries</a></div>
+  <div class="nlinks"><a href="#s-services">Services</a><a href="#s-about">About</a><a href="#s-stack">Stack</a><a href="#s-industries">Industries</a></div>
   <a href="#s-contact" class="ncta">Book a Call ↗</a>
 </nav>
 <div id="rside">
@@ -635,7 +634,7 @@ function onSpeakEnd(){
   setStatus('Listening...');
   document.getElementById('vbtn').className='bv listening';
   document.getElementById('vlbl').textContent='Listening...';
-  setTx('// Go ahead, I'm listening...');
+  setTx("// Go ahead, I'm listening...");
   // Restart listener after NOVA finishes — always-on
   if(sessionActive) scheduleRestart(300);
 }
