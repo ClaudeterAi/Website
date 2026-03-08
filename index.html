@@ -1461,10 +1461,10 @@ function submitForm(){
   }
   btn.textContent='Sending...';
   btnEl.disabled=true;
-  fetch('https://formspree.io/f/xbdzlwgv',{
+  fetch('/api/contact',{
     method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body:JSON.stringify({name,email,message:msg})
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name,email,message:msg,source:'Contact Form'})
   }).then(r=>{
     st.style.display='block';
     if(r.ok){
@@ -1786,7 +1786,7 @@ async function cwThink(userMsg){
 
 async function cwSubmitLead(lead){
   try {
-    await fetch('https://formspree.io/f/mjgakdvo',{
+    await fetch('/api/contact',{
       method:'POST',
       headers:{'Content-Type':'application/json','Accept':'application/json'},
       body: JSON.stringify({
