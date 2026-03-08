@@ -666,7 +666,8 @@ async function setupVAD(){
 // ── TTS ────────────────────────────────────────────────────
 function onSpeakStart(){
   isTalking=true; interruptArmed=false; interruptFired=false;
-  utteranceBuffer='';  // discard any ambient pickup before NOVA spoke
+  pendingText='';  // discard any partial SR text before NOVA spoke
+  if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}
   sbEl.classList.add('on'); setStatus('Speaking...'); setBtnState('speaking');
   // Delay interrupt arming 1.8s — mic picks up speaker echo and self-triggers otherwise
   setTimeout(()=>{ if(isTalking) interruptArmed=true; }, 1800);
@@ -675,7 +676,8 @@ function onSpeakStart(){
 function onSpeakEnd(){
   isTalking=false; mouthOpen=0; analyser=null;
   interruptArmed=false; interruptFired=false; isProcessing=false;
-  utteranceBuffer='';  // discard anything picked up while NOVA was speaking
+  pendingText='';  // discard echo residue
+  if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}
   sbEl.classList.remove('on');
   if(!sessionActive) return;
   setStatus('Listening...'); setBtnState('listening');
@@ -762,7 +764,7 @@ function startSRWatchdog(){
   if(srWatchdog) return;
   srWatchdog=setInterval(()=>{
     if(!sessionActive){clearInterval(srWatchdog);srWatchdog=null;return;}
-    if(isTalking||isProcessing) return;
+    if(isTalking||isProcessing){touchSR();return;}  // reset timer while NOVA speaks
     const age=Date.now()-srLastActivity;
     if(!recRunning||age>7000){
       stopRec(); setTimeout(startRec,150);
@@ -803,12 +805,12 @@ function startRec(){
   r.onerror=e=>{
     touchSR(); recRunning=false; rec=null;
     if(e.error==='not-allowed'){setStatus('Mic denied');sessionActive=false;return;}
-    if(sessionActive&&!isTalking) setTimeout(startRec,300);
+    if(sessionActive&&!isTalking&&!isProcessing) setTimeout(startRec,300);
   };
 
   r.onend=()=>{
     recRunning=false; rec=null; touchSR();
-    if(sessionActive&&!isTalking) setTimeout(startRec,150);
+    if(sessionActive&&!isTalking&&!isProcessing) setTimeout(startRec,150);
   };
 
   try{r.start();}catch(e){recRunning=false;rec=null;if(sessionActive) setTimeout(startRec,500);}
