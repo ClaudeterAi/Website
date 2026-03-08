@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Why We Ship AI in 6 Weeks While Others Take 6 Months — Claudeter</title>
+<meta name="description" content="The difference isn't working harder. It's a fundamentally different approach to scoping, building, and validating AI systems from day one."/>
+<link rel="canonical" href="https://www.claudeter.ai/blog/why-we-ship-in-6-weeks/"/>
+<meta property="og:title" content="Why We Ship AI in 6 Weeks While Others Take 6 Months — Claudeter"/>
+<meta property="og:description" content="The difference isn't working harder. It's a fundamentally different approach to scoping, building, and validating AI systems from day one."/>
+<meta property="og:url" content="https://www.claudeter.ai/blog/why-we-ship-in-6-weeks/"/>
+<meta property="og:image" content="https://www.claudeter.ai/logo/og-image.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;background:#000;font-family:'JetBrains Mono',monospace;color:#fff}
+nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:20px 44px;background:rgba(0,0,0,.95);border-bottom:1px solid rgba(0,255,204,.06)}
+.nlogo{display:flex;align-items:center;text-decoration:none}
+.nlogo span{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.18em;background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nlinks{display:flex;gap:28px}
+.nlinks a{font-size:.54rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);text-decoration:none;transition:color .25s}
+.nlinks a:hover{color:#00ffcc}
+.ncta{font-size:.54rem;letter-spacing:.16em;text-transform:uppercase;padding:9px 20px;border:1px solid #00ffcc;color:#00ffcc;text-decoration:none;transition:all .3s}
+.ncta:hover{color:#000;background:#00ffcc}
+.hero{padding:120px 44px 0;max-width:800px;margin:0 auto}
+.back{font-size:.48rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(0,255,204,.5);text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:32px;transition:color .2s}
+.back:hover{color:#00ffcc}
+.post-tag{font-size:.48rem;letter-spacing:.22em;text-transform:uppercase;color:#00ffcc;opacity:.85;margin-bottom:16px}
+.post-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,5vw,3.8rem);letter-spacing:.06em;line-height:1.08;margin-bottom:24px}
+.post-meta{display:flex;align-items:center;gap:24px;padding:20px 0;border-top:1px solid rgba(0,255,204,.08);border-bottom:1px solid rgba(0,255,204,.08);margin-bottom:48px}
+.post-meta span{font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35)}
+.post-meta .author{color:rgba(0,255,204,.6)}
+.cover{width:100%;max-width:800px;margin:0 auto 48px;display:block}
+.cover canvas{width:100%;aspect-ratio:16/9;display:block;border:1px solid rgba(0,255,204,.08)}
+.post-body{max-width:800px;margin:0 auto;padding:0 44px 100px}
+.post-body h2{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.08em;color:#fff;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,255,204,.08)}
+.post-body h3{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.08em;color:#00ffcc;margin:32px 0 12px}
+.post-body p{font-size:.62rem;color:rgba(255,255,255,.7);line-height:1.9;letter-spacing:.03em;margin-bottom:20px}
+.post-body ul,.post-body ol{margin:0 0 20px 20px}
+.post-body li{font-size:.62rem;color:rgba(255,255,255,.7);line-height:1.9;letter-spacing:.03em;margin-bottom:8px}
+.post-body strong{color:#fff}
+.post-body a{color:#00ffcc;text-decoration:none}
+.callout{border-left:2px solid #00ffcc;padding:16px 20px;background:rgba(0,255,204,.04);margin:28px 0}
+.callout p{margin:0;color:rgba(255,255,255,.8)}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;border:1px solid rgba(0,255,204,.08);margin:32px 0}
+.stat{padding:24px;background:#000;text-align:center}
+.stat-n{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-l{font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-top:4px}
+.cta-box{border:1px solid rgba(0,255,204,.2);padding:40px;background:rgba(0,255,204,.03);margin:48px 0;text-align:center}
+.cta-box h3{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.1em;margin-bottom:12px}
+.cta-box p{font-size:.58rem;color:rgba(255,255,255,.5);margin-bottom:24px}
+.cta-btn{display:inline-block;padding:13px 32px;background:linear-gradient(135deg,#002b1c,#00ffcc);color:#000;font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;transition:all .25s}
+.cta-btn:hover{box-shadow:0 0 40px rgba(0,255,204,.4)}
+@media(max-width:768px){nav{padding:14px 20px}.nlinks{display:none}.hero{padding:100px 20px 0}.post-body{padding:0 20px 80px}.stat-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nlogo"><span>CLAUDETER</span></a>
+  <div class="nlinks">
+    <a href="/#s-services">Services</a>
+    <a href="/#s-about">About</a>
+    <a href="/#s-stack">Stack</a>
+    <a href="/#s-industries">Industries</a>
+    <a href="/blog/">Blog</a>
+  </div>
+  <a href="/#s-contact" class="ncta">Book a Call ↗</a>
+</nav>
+
+<div class="hero">
+  <a href="/blog/" class="back">← Back to Blog</a>
+  <div class="post-tag">Process · Engineering</div>
+  <h1 class="post-title">Why We Ship AI in 6 Weeks While Others Take 6 Months</h1>
+  <div class="post-meta">
+    <span class="author">Claudeter Team</span>
+    <span>February 10, 2026</span>
+    <span>8 min read</span>
+  </div>
+</div>
+
+<div class="cover">
+  <canvas id="cover" width="1280" height="720"></canvas>
+</div>
+
+<div class="post-body">
+
+<p>Six weeks. Every time we say it, someone pushes back. "That's not enough time to build something real." "You must be cutting corners." "Our last vendor took 8 months and it still wasn't right."</p>
+<p>We understand the skepticism. The AI development world has trained buyers to expect long timelines and delayed deliveries. But the 6-month timeline isn't a feature — it's a symptom of a broken process. Here's what we do differently.</p>
+
+<h2>Week 1: We Scope Differently</h2>
+<p>Most agencies start with requirements gathering. They spend weeks writing specs, documenting workflows, and creating detailed project plans before writing a single line of code.</p>
+<p>We spend 3 days building a proof of concept. Not a wireframe. Not a mockup. A working POC that you can interact with and that demonstrates the core value of what we're building.</p>
+
+<div class="callout"><p>A working POC in 3 days changes the conversation fundamentally. Instead of debating specifications, you're giving feedback on something real. That compresses the entire discovery process.</p></div>
+
+<h2>Week 2: Architecture That Doesn't Fight Itself</h2>
+<p>The reason most AI projects take 6 months is that the architecture decisions in week 1 create problems that get discovered in month 4. A data model that seemed reasonable turns out to be incompatible with the EHR integration. A prompt structure that worked in testing falls apart under real-world variation.</p>
+<p>We've built enough systems to have a pattern library of what works. We start with proven architectural patterns and adapt them — not by rebuilding from scratch every time.</p>
+
+<div class="stat-row">
+  <div class="stat"><div class="stat-n">3</div><div class="stat-l">days to first POC</div></div>
+  <div class="stat"><div class="stat-n">50+</div><div class="stat-l">patterns from past builds</div></div>
+  <div class="stat"><div class="stat-n">0</div><div class="stat-l">black boxes in delivery</div></div>
+</div>
+
+<h2>Weeks 3–4: Build in the Open</h2>
+<p>We don't disappear into a development cave and emerge with something 4 weeks later. You see working features every 48 hours. Not demos — actual features you can use and break and tell us what's wrong.</p>
+<p>This continuous feedback loop catches misalignments early, when they're cheap to fix. The traditional waterfall approach catches them late, when they're expensive.</p>
+
+<h2>Weeks 5–6: Real-World Testing, Not QA Theater</h2>
+<p>Testing a voice agent against a curated test set tells you almost nothing. We test against your real payer list, your real claim types, your real IVR environments. We make hundreds of test calls before go-live. We introduce deliberate failures to verify that fallback handling works.</p>
+<p>By the time we hand off, the system has been battle-tested against your actual environment — not a simulation of it.</p>
+
+<h2>What 6 Weeks Requires From You</h2>
+<p>The 6-week timeline isn't magic — it requires a client who can engage actively. A stakeholder who reviews demos within 24 hours. Access to your EHR sandbox environment in week 1. A decision-maker who can say yes or no to scope questions without a 2-week committee process.</p>
+<p>If your organization moves slowly, we'll move at your pace. But the 6-week path is there for organizations that want to move fast — and most of our clients do.</p>
+
+
+<div class="cta-box">
+  <h3>Ready to Automate?</h3>
+  <p>Talk to our team about building a custom AI solution for your workflow. POC in 3 days, live in 6 weeks.</p>
+  <a href="/#s-contact" class="cta-btn">Book a Free Discovery Call →</a>
+</div>
+</div>
+
+<script>
+const canvas = document.getElementById('cover');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+ctx.fillStyle = '#001020';
+ctx.fillRect(0,0,W,H);
+ctx.strokeStyle = '#0088ff';
+ctx.globalAlpha = 0.06;
+ctx.lineWidth = 1;
+for(let x=0;x<W;x+=60){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+for(let y=0;y<H;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+ctx.globalAlpha = 1;
+const grd = ctx.createRadialGradient(W*.25,H*.35,0,W*.25,H*.35,W*.55);
+grd.addColorStop(0,'#0088ff'+'44');
+grd.addColorStop(1,'transparent');
+ctx.fillStyle=grd;
+ctx.fillRect(0,0,W,H);
+const grd2 = ctx.createRadialGradient(W*.8,H*.7,0,W*.8,H*.7,W*.4);
+grd2.addColorStop(0,'#00ffcc'+'22');
+grd2.addColorStop(1,'transparent');
+ctx.fillStyle=grd2;
+ctx.fillRect(0,0,W,H);
+ctx.globalAlpha=0.7;
+ctx.strokeStyle='#0088ff';
+ctx.lineWidth=2;
+ctx.beginPath();ctx.moveTo(0,H*.72);ctx.lineTo(W*.5,H*.72);ctx.stroke();
+ctx.globalAlpha=0.25;
+ctx.strokeStyle='#00ffcc';
+ctx.lineWidth=1;
+ctx.beginPath();ctx.moveTo(W*.08,H*.82);ctx.lineTo(W*.65,H*.82);ctx.stroke();
+ctx.globalAlpha=0.5;
+ctx.fillStyle='#0088ff';
+for(let i=0;i<8;i++){ctx.beginPath();ctx.arc(W*.06+i*W*.07,H*.68,3,0,Math.PI*2);ctx.fill();}
+ctx.globalAlpha=1;
+ctx.fillStyle='#0088ff';
+ctx.font='bold 11px JetBrains Mono, monospace';
+ctx.fillText('CLAUDETER.AI',W*.06,H*.9);
+</script>
+</body>
+</html>

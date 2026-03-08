@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>What Most AI Agencies Won't Tell You About Building Voice Agents — Claudeter</title>
+<meta name="description" content="After building 50+ AI systems, here are the uncomfortable truths about voice agent development that most vendors gloss over in sales calls."/>
+<link rel="canonical" href="https://www.claudeter.ai/blog/what-ai-agencies-wont-tell-you/"/>
+<meta property="og:title" content="What Most AI Agencies Won't Tell You About Building Voice Agents — Claudeter"/>
+<meta property="og:description" content="After building 50+ AI systems, here are the uncomfortable truths about voice agent development that most vendors gloss over in sales calls."/>
+<meta property="og:url" content="https://www.claudeter.ai/blog/what-ai-agencies-wont-tell-you/"/>
+<meta property="og:image" content="https://www.claudeter.ai/logo/og-image.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;background:#000;font-family:'JetBrains Mono',monospace;color:#fff}
+nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:20px 44px;background:rgba(0,0,0,.95);border-bottom:1px solid rgba(0,255,204,.06)}
+.nlogo{display:flex;align-items:center;text-decoration:none}
+.nlogo span{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.18em;background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nlinks{display:flex;gap:28px}
+.nlinks a{font-size:.54rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);text-decoration:none;transition:color .25s}
+.nlinks a:hover{color:#00ffcc}
+.ncta{font-size:.54rem;letter-spacing:.16em;text-transform:uppercase;padding:9px 20px;border:1px solid #00ffcc;color:#00ffcc;text-decoration:none;transition:all .3s}
+.ncta:hover{color:#000;background:#00ffcc}
+.hero{padding:120px 44px 0;max-width:800px;margin:0 auto}
+.back{font-size:.48rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(0,255,204,.5);text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:32px;transition:color .2s}
+.back:hover{color:#00ffcc}
+.post-tag{font-size:.48rem;letter-spacing:.22em;text-transform:uppercase;color:#00ffcc;opacity:.85;margin-bottom:16px}
+.post-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,5vw,3.8rem);letter-spacing:.06em;line-height:1.08;margin-bottom:24px}
+.post-meta{display:flex;align-items:center;gap:24px;padding:20px 0;border-top:1px solid rgba(0,255,204,.08);border-bottom:1px solid rgba(0,255,204,.08);margin-bottom:48px}
+.post-meta span{font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35)}
+.post-meta .author{color:rgba(0,255,204,.6)}
+.cover{width:100%;max-width:800px;margin:0 auto 48px;display:block}
+.cover canvas{width:100%;aspect-ratio:16/9;display:block;border:1px solid rgba(0,255,204,.08)}
+.post-body{max-width:800px;margin:0 auto;padding:0 44px 100px}
+.post-body h2{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.08em;color:#fff;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,255,204,.08)}
+.post-body h3{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.08em;color:#00ffcc;margin:32px 0 12px}
+.post-body p{font-size:.62rem;color:rgba(255,255,255,.7);line-height:1.9;letter-spacing:.03em;margin-bottom:20px}
+.post-body ul,.post-body ol{margin:0 0 20px 20px}
+.post-body li{font-size:.62rem;color:rgba(255,255,255,.7);line-height:1.9;letter-spacing:.03em;margin-bottom:8px}
+.post-body strong{color:#fff}
+.post-body a{color:#00ffcc;text-decoration:none}
+.callout{border-left:2px solid #00ffcc;padding:16px 20px;background:rgba(0,255,204,.04);margin:28px 0}
+.callout p{margin:0;color:rgba(255,255,255,.8)}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;border:1px solid rgba(0,255,204,.08);margin:32px 0}
+.stat{padding:24px;background:#000;text-align:center}
+.stat-n{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-l{font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-top:4px}
+.cta-box{border:1px solid rgba(0,255,204,.2);padding:40px;background:rgba(0,255,204,.03);margin:48px 0;text-align:center}
+.cta-box h3{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.1em;margin-bottom:12px}
+.cta-box p{font-size:.58rem;color:rgba(255,255,255,.5);margin-bottom:24px}
+.cta-btn{display:inline-block;padding:13px 32px;background:linear-gradient(135deg,#002b1c,#00ffcc);color:#000;font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;transition:all .25s}
+.cta-btn:hover{box-shadow:0 0 40px rgba(0,255,204,.4)}
+@media(max-width:768px){nav{padding:14px 20px}.nlinks{display:none}.hero{padding:100px 20px 0}.post-body{padding:0 20px 80px}.stat-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nlogo"><span>CLAUDETER</span></a>
+  <div class="nlinks">
+    <a href="/#s-services">Services</a>
+    <a href="/#s-about">About</a>
+    <a href="/#s-stack">Stack</a>
+    <a href="/#s-industries">Industries</a>
+    <a href="/blog/">Blog</a>
+  </div>
+  <a href="/#s-contact" class="ncta">Book a Call ↗</a>
+</nav>
+
+<div class="hero">
+  <a href="/blog/" class="back">← Back to Blog</a>
+  <div class="post-tag">AI Agency · Opinion</div>
+  <h1 class="post-title">What Most AI Agencies Won't Tell You About Building Voice Agents</h1>
+  <div class="post-meta">
+    <span class="author">Claudeter Team</span>
+    <span>February 13, 2026</span>
+    <span>6 min read</span>
+  </div>
+</div>
+
+<div class="cover">
+  <canvas id="cover" width="1280" height="720"></canvas>
+</div>
+
+<div class="post-body">
+
+<p>I've sat on the other side of enough sales calls to know what gets said and what doesn't. AI voice agents are being sold as magic right now — drop them in, watch your problems disappear. The demos look incredible. The ROI projections are compelling.</p>
+<p>Most of it is real. Some of it isn't. Here's the version without the gloss.</p>
+
+<h2>The Demos Are Real But Controlled</h2>
+<p>When an AI voice agency shows you a demo, they're showing you a best-case scenario: clean audio, cooperative IVR system, no unexpected prompts, no hold time complications. Real production environments are messier. Background noise affects transcription. Payer systems have unexpected prompts. Calls get dropped. Authentication fails.</p>
+<p>A well-built system handles all of this gracefully. But "handles it gracefully" means different things to different vendors. Ask specifically: what happens when a call is dropped mid-conversation? What happens when the IVR changes? What's the fallback when the AI doesn't understand a payer response?</p>
+
+<div class="callout"><p>The difference between a demo-quality voice agent and a production-quality one isn't the AI model. It's the 200 edge cases that were handled after go-live.</p></div>
+
+<h2>Latency Is Everything and Nobody Talks About It</h2>
+<p>In a real phone call, a pause of more than 2 seconds feels awkward. More than 3 seconds feels broken. Most AI voice stacks have a pipeline that looks like this: audio capture → speech-to-text → LLM processing → text-to-speech → audio playback. Each step adds latency.</p>
+<p>Getting end-to-end latency below 800ms requires careful architecture choices at every layer — model selection, streaming TTS, optimized prompts, caching common responses. Vendors who haven't solved the latency problem will show you demos where they talk slowly and pause frequently to mask it.</p>
+
+<h2>The Payer Problem Is Real</h2>
+<p>Some payers have explicit policies against AI agents. Ambetter is the most well-known but not the only one. This isn't a problem that technology can fully solve — it's a policy constraint that requires a workflow solution.</p>
+<p>Any agency that tells you their agent can handle every payer without restriction is either misinformed or not being honest. The right answer is a hybrid model: AI handles what it can, and a streamlined human process handles the exceptions.</p>
+
+<div class="stat-row">
+  <div class="stat"><div class="stat-n">800ms</div><div class="stat-l">target end-to-end latency</div></div>
+  <div class="stat"><div class="stat-n">200+</div><div class="stat-l">edge cases per deployment</div></div>
+  <div class="stat"><div class="stat-n">6wk</div><div class="stat-l">honest timeline to production</div></div>
+</div>
+
+<h2>Integration Is Usually the Hard Part</h2>
+<p>The voice AI piece — the model, the TTS, the STT — is actually the easiest part to get right in 2026. The ecosystem is mature and the tools are excellent. What takes time and expertise is integrating with your specific EHR, your specific payer list, your specific workflow.</p>
+<p>Practices on Epic have a different integration path than practices on Kareo. FHIR R4 integration is different from HL7 v2. A vendor who quotes you a fixed price for "EHR integration" without knowing what system you're on is guessing.</p>
+
+<h2>What to Ask Before You Sign Anything</h2>
+<ul>
+  <li>Can I see a live demo on my payer list, not a curated selection?</li>
+  <li>What's your average end-to-end latency in production?</li>
+  <li>How do you handle payers that block virtual agents?</li>
+  <li>What does the integration with my specific EHR look like?</li>
+  <li>Who owns the code and the prompts after delivery?</li>
+  <li>What's your SLA for when the portal changes break the automation?</li>
+</ul>
+
+<p>If the answers are vague, that's your answer. Good AI agencies are specific because they've built enough systems to know where the complexity lives.</p>
+
+
+<div class="cta-box">
+  <h3>Ready to Automate?</h3>
+  <p>Talk to our team about building a custom AI solution for your workflow. POC in 3 days, live in 6 weeks.</p>
+  <a href="/#s-contact" class="cta-btn">Book a Free Discovery Call →</a>
+</div>
+</div>
+
+<script>
+const canvas = document.getElementById('cover');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+ctx.fillStyle = '#100000';
+ctx.fillRect(0,0,W,H);
+ctx.strokeStyle = '#ff4444';
+ctx.globalAlpha = 0.06;
+ctx.lineWidth = 1;
+for(let x=0;x<W;x+=60){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+for(let y=0;y<H;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+ctx.globalAlpha = 1;
+const grd = ctx.createRadialGradient(W*.25,H*.35,0,W*.25,H*.35,W*.55);
+grd.addColorStop(0,'#ff4444'+'44');
+grd.addColorStop(1,'transparent');
+ctx.fillStyle=grd;
+ctx.fillRect(0,0,W,H);
+const grd2 = ctx.createRadialGradient(W*.8,H*.7,0,W*.8,H*.7,W*.4);
+grd2.addColorStop(0,'#ff9f00'+'22');
+grd2.addColorStop(1,'transparent');
+ctx.fillStyle=grd2;
+ctx.fillRect(0,0,W,H);
+ctx.globalAlpha=0.7;
+ctx.strokeStyle='#ff4444';
+ctx.lineWidth=2;
+ctx.beginPath();ctx.moveTo(0,H*.72);ctx.lineTo(W*.5,H*.72);ctx.stroke();
+ctx.globalAlpha=0.25;
+ctx.strokeStyle='#ff9f00';
+ctx.lineWidth=1;
+ctx.beginPath();ctx.moveTo(W*.08,H*.82);ctx.lineTo(W*.65,H*.82);ctx.stroke();
+ctx.globalAlpha=0.5;
+ctx.fillStyle='#ff4444';
+for(let i=0;i<8;i++){ctx.beginPath();ctx.arc(W*.06+i*W*.07,H*.68,3,0,Math.PI*2);ctx.fill();}
+ctx.globalAlpha=1;
+ctx.fillStyle='#ff4444';
+ctx.font='bold 11px JetBrains Mono, monospace';
+ctx.fillText('CLAUDETER.AI',W*.06,H*.9);
+</script>
+</body>
+</html>

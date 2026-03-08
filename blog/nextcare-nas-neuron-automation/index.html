@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NextCare, NAS, Neuron, AlMadallah — One Automation to Rule Them All — Claudeter</title>
+<meta name="description" content="UAE healthcare providers deal with 5+ TPA portals daily. We built a unified RPA layer that handles all of them — here's how it works."/>
+<link rel="canonical" href="https://www.claudeter.ai/blog/nextcare-nas-neuron-automation/"/>
+<meta property="og:title" content="NextCare, NAS, Neuron, AlMadallah — One Automation to Rule Them All — Claudeter"/>
+<meta property="og:description" content="UAE healthcare providers deal with 5+ TPA portals daily. We built a unified RPA layer that handles all of them — here's how it works."/>
+<meta property="og:url" content="https://www.claudeter.ai/blog/nextcare-nas-neuron-automation/"/>
+<meta property="og:image" content="https://www.claudeter.ai/logo/og-image.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;background:#000;font-family:'JetBrains Mono',monospace;color:#fff}
+nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:20px 44px;background:rgba(0,0,0,.95);border-bottom:1px solid rgba(0,255,204,.06)}
+.nlogo{display:flex;align-items:center;text-decoration:none}
+.nlogo span{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.18em;background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nlinks{display:flex;gap:28px}
+.nlinks a{font-size:.54rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);text-decoration:none;transition:color .25s}
+.nlinks a:hover{color:#00ffcc}
+.ncta{font-size:.54rem;letter-spacing:.16em;text-transform:uppercase;padding:9px 20px;border:1px solid #00ffcc;color:#00ffcc;text-decoration:none;transition:all .3s}
+.ncta:hover{color:#000;background:#00ffcc}
+.hero{padding:120px 44px 0;max-width:800px;margin:0 auto}
+.back{font-size:.48rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(0,255,204,.5);text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:32px;transition:color .2s}
+.back:hover{color:#00ffcc}
+.post-tag{font-size:.48rem;letter-spacing:.22em;text-transform:uppercase;color:#00ffcc;opacity:.85;margin-bottom:16px}
+.post-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,5vw,3.8rem);letter-spacing:.06em;line-height:1.08;margin-bottom:24px}
+.post-meta{display:flex;align-items:center;gap:24px;padding:20px 0;border-top:1px solid rgba(0,255,204,.08);border-bottom:1px solid rgba(0,255,204,.08);margin-bottom:48px}
+.post-meta span{font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35)}
+.post-meta .author{color:rgba(0,255,204,.6)}
+.cover{width:100%;max-width:800px;margin:0 auto 48px;display:block}
+.cover canvas{width:100%;aspect-ratio:16/9;display:block;border:1px solid rgba(0,255,204,.08)}
+.post-body{max-width:800px;margin:0 auto;padding:0 44px 100px}
+.post-body h2{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.08em;color:#fff;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,255,204,.08)}
+.post-body h3{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.08em;color:#00ffcc;margin:32px 0 12px}
+.post-body p{font-size:.62rem;color:rgba(255,255,255,.7);line-height:1.9;letter-spacing:.03em;margin-bottom:20px}
+.post-body ul,.post-body ol{margin:0 0 20px 20px}
+.post-body li{font-size:.62rem;color:rgba(255,255,255,.7);line-height:1.9;letter-spacing:.03em;margin-bottom:8px}
+.post-body strong{color:#fff}
+.post-body a{color:#00ffcc;text-decoration:none}
+.callout{border-left:2px solid #00ffcc;padding:16px 20px;background:rgba(0,255,204,.04);margin:28px 0}
+.callout p{margin:0;color:rgba(255,255,255,.8)}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;border:1px solid rgba(0,255,204,.08);margin:32px 0}
+.stat{padding:24px;background:#000;text-align:center}
+.stat-n{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-l{font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-top:4px}
+.cta-box{border:1px solid rgba(0,255,204,.2);padding:40px;background:rgba(0,255,204,.03);margin:48px 0;text-align:center}
+.cta-box h3{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.1em;margin-bottom:12px}
+.cta-box p{font-size:.58rem;color:rgba(255,255,255,.5);margin-bottom:24px}
+.cta-btn{display:inline-block;padding:13px 32px;background:linear-gradient(135deg,#002b1c,#00ffcc);color:#000;font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;transition:all .25s}
+.cta-btn:hover{box-shadow:0 0 40px rgba(0,255,204,.4)}
+@media(max-width:768px){nav{padding:14px 20px}.nlinks{display:none}.hero{padding:100px 20px 0}.post-body{padding:0 20px 80px}.stat-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nlogo"><span>CLAUDETER</span></a>
+  <div class="nlinks">
+    <a href="/#s-services">Services</a>
+    <a href="/#s-about">About</a>
+    <a href="/#s-stack">Stack</a>
+    <a href="/#s-industries">Industries</a>
+    <a href="/blog/">Blog</a>
+  </div>
+  <a href="/#s-contact" class="ncta">Book a Call ↗</a>
+</nav>
+
+<div class="hero">
+  <a href="/blog/" class="back">← Back to Blog</a>
+  <div class="post-tag">UAE · RPA</div>
+  <h1 class="post-title">NextCare, NAS, Neuron, AlMadallah — One Automation to Rule Them All</h1>
+  <div class="post-meta">
+    <span class="author">Claudeter Team</span>
+    <span>February 17, 2026</span>
+    <span>11 min read</span>
+  </div>
+</div>
+
+<div class="cover">
+  <canvas id="cover" width="1280" height="720"></canvas>
+</div>
+
+<div class="post-body">
+
+<p>The dream for any UAE healthcare provider is simple: one system, one workflow, all TPAs handled. Submit a claim once and let the system figure out which portal it goes to, in what format, with what documentation.</p>
+<p>That dream is achievable. Here's how we built it.</p>
+
+<h2>The Problem With Fragmented TPA Automation</h2>
+<p>Most clinics that attempt TPA automation start with one portal — usually NextCare because it's the highest volume — and build a specific automation for it. Then they try to build the same thing for NAS. Then Neuron. Six months later they have five separate automations, each fragile, each requiring separate maintenance, each failing in different ways.</p>
+<p>This isn't the right architecture. You end up with the same operational overhead in a different form.</p>
+
+<div class="callout"><p>The right approach is a unified abstraction layer — one system that understands all TPA portals and routes claims intelligently based on the patient's insurance.</p></div>
+
+<h2>Architecture: The Unified TPA Layer</h2>
+<p>Our unified automation has three components:</p>
+<h3>1. The Routing Engine</h3>
+<p>Every claim that enters the system is analyzed for TPA assignment based on the patient's insurance card data. The routing engine maps this to the correct portal, authentication credentials, and submission format. This happens automatically — no manual routing decisions.</p>
+<h3>2. The Format Normalizer</h3>
+<p>Each TPA has a different preferred claim format. NextCare wants HAAD XML. NAS has its own variation. Some portals accept direct file upload; others require form-based entry. The format normalizer translates your internal claim data into the correct format for each destination.</p>
+<h3>3. The Portal Adapters</h3>
+<p>Each TPA has a dedicated adapter — essentially a trained RPA bot that knows how to navigate that specific portal. Adapters are built for resilience: they handle session timeouts, CAPTCHA challenges, UI changes, and error states gracefully.</p>
+
+<div class="stat-row">
+  <div class="stat"><div class="stat-n">6</div><div class="stat-l">TPA portals unified</div></div>
+  <div class="stat"><div class="stat-n">1</div><div class="stat-l">workflow for all</div></div>
+  <div class="stat"><div class="stat-n">99.2%</div><div class="stat-l">uptime over 90 days</div></div>
+</div>
+
+<h2>Handling Portal Changes</h2>
+<p>The biggest operational challenge in UAE TPA automation isn't building the initial system — it's keeping it running when portals change. TPA portals update their UIs, change their authentication flows, and modify their file format requirements without warning.</p>
+<p>Our system handles this through a monitoring layer that detects when an adapter starts failing and triggers an alert. Most portal changes can be addressed within 24–48 hours. In the meantime, the affected claims are queued for manual processing, ensuring nothing falls through the cracks.</p>
+
+<h2>Integration With Clinic Management Systems</h2>
+<p>The unified layer integrates with the major clinic management systems used in the UAE: iCliniq, Shafaa, Wareed (for DHA facilities), and international systems like Meditech and Epic. The integration handles bidirectional data flow — claim data goes out to TPA portals, and status updates, EOBs, and payment data come back into the clinic system.</p>
+
+<h2>Results After 90 Days</h2>
+<p>For a 12-physician specialty clinic in Dubai Healthcare City, the unified automation produced these results in the first 90 days of operation: staff time spent on TPA submissions dropped from 6 hours daily to 45 minutes for exception handling only, first-pass acceptance rate improved from 82% to 96%, and average time from claim creation to portal submission dropped from 2.4 days to same-day.</p>
+
+
+<div class="cta-box">
+  <h3>Ready to Automate?</h3>
+  <p>Talk to our team about building a custom AI solution for your workflow. POC in 3 days, live in 6 weeks.</p>
+  <a href="/#s-contact" class="cta-btn">Book a Free Discovery Call →</a>
+</div>
+</div>
+
+<script>
+const canvas = document.getElementById('cover');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+ctx.fillStyle = '#0d0010';
+ctx.fillRect(0,0,W,H);
+ctx.strokeStyle = '#ff44cc';
+ctx.globalAlpha = 0.06;
+ctx.lineWidth = 1;
+for(let x=0;x<W;x+=60){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+for(let y=0;y<H;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+ctx.globalAlpha = 1;
+const grd = ctx.createRadialGradient(W*.25,H*.35,0,W*.25,H*.35,W*.55);
+grd.addColorStop(0,'#ff44cc'+'44');
+grd.addColorStop(1,'transparent');
+ctx.fillStyle=grd;
+ctx.fillRect(0,0,W,H);
+const grd2 = ctx.createRadialGradient(W*.8,H*.7,0,W*.8,H*.7,W*.4);
+grd2.addColorStop(0,'#00ffcc'+'22');
+grd2.addColorStop(1,'transparent');
+ctx.fillStyle=grd2;
+ctx.fillRect(0,0,W,H);
+ctx.globalAlpha=0.7;
+ctx.strokeStyle='#ff44cc';
+ctx.lineWidth=2;
+ctx.beginPath();ctx.moveTo(0,H*.72);ctx.lineTo(W*.5,H*.72);ctx.stroke();
+ctx.globalAlpha=0.25;
+ctx.strokeStyle='#00ffcc';
+ctx.lineWidth=1;
+ctx.beginPath();ctx.moveTo(W*.08,H*.82);ctx.lineTo(W*.65,H*.82);ctx.stroke();
+ctx.globalAlpha=0.5;
+ctx.fillStyle='#ff44cc';
+for(let i=0;i<8;i++){ctx.beginPath();ctx.arc(W*.06+i*W*.07,H*.68,3,0,Math.PI*2);ctx.fill();}
+ctx.globalAlpha=1;
+ctx.fillStyle='#ff44cc';
+ctx.font='bold 11px JetBrains Mono, monospace';
+ctx.fillText('CLAUDETER.AI',W*.06,H*.9);
+</script>
+</body>
+</html>
