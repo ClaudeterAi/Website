@@ -204,6 +204,21 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .ml-num{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;color:rgba(0,255,204,.25);flex-shrink:0;line-height:1.3}
 .ml-text{font-size:.6rem;color:rgba(255,255,255,.62);letter-spacing:.04em;line-height:1.7}
 
+/* ========== TESTIMONIALS ========== */
+#s-testimonials{background:linear-gradient(180deg,#000 0%,#020a06 50%,#000 100%)}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:56px;border:1px solid rgba(0,255,204,.06)}
+.testi-card{padding:32px 28px;border:1px solid rgba(0,255,204,.06);background:#000;transition:background .3s,border-color .3s;position:relative}
+.testi-card:hover{background:#030f09;border-color:rgba(0,255,204,.15)}
+.testi-stars{display:flex;gap:3px;margin-bottom:16px}
+.testi-stars span{color:#00ffcc;font-size:.7rem}
+.testi-quote{font-size:.6rem;color:rgba(255,255,255,.7);line-height:1.9;letter-spacing:.03em;margin-bottom:20px;font-style:italic}
+.testi-quote::before{content:'"';font-size:1.4rem;color:#00ffcc;opacity:.4;font-family:'Bebas Neue',sans-serif;line-height:0;vertical-align:-.3em;margin-right:4px}
+.testi-author{display:flex;align-items:center;gap:12px;margin-top:auto;padding-top:16px;border-top:1px solid rgba(0,255,204,.06)}
+.testi-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#002b1c,#00ffcc);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:.9rem;color:#000;flex-shrink:0}
+.testi-name{font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.1em;color:#fff}
+.testi-role{font-size:.48rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(0,255,204,.5);margin-top:2px}
+.testi-flag{font-size:.7rem;margin-left:auto}
+
 /* ========== CONTACT ========== */
 #s-contact{background:linear-gradient(180deg,#000 0%,#020c06 100%)}
 .contact-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
@@ -243,7 +258,7 @@ a.cd-val:hover{color:#00ffcc}
 /* ===== TABLET ===== */
 @media(max-width:900px){
   .sec-inner{padding:0 28px}
-  .srv-grid,.ind-grid{grid-template-columns:1fr 1fr}
+  .srv-grid,.ind-grid,.testi-grid{grid-template-columns:1fr 1fr}
   .about-layout,.contact-layout{grid-template-columns:1fr;gap:40px}
   .proc-track{flex-direction:column;gap:30px}
   .proc-line{width:1px;height:30px;background:linear-gradient(180deg,rgba(0,255,204,.2),transparent);margin:0 0 0 14px;align-self:auto}
@@ -277,7 +292,7 @@ a.cd-val:hover{color:#00ffcc}
   .sec-sub{font-size:.62rem}
 
   /* Grids */
-  .srv-grid,.ind-grid{grid-template-columns:1fr}
+  .srv-grid,.ind-grid,.testi-grid{grid-template-columns:1fr}
   .srv-card,.ind-card{padding:28px 22px}
   .about-layout,.contact-layout{grid-template-columns:1fr;gap:36px}
   .about-stats{grid-template-columns:1fr 1fr}
@@ -1208,6 +1223,148 @@ async function toggleVoice(){
           <li><span class="ml-num">006</span><span class="ml-text">Small team. Senior people. No junior dev on client work.</span></li>
         </ul>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS SECTION -->
+<section id="s-testimonials">
+  <div class="sec-inner">
+    <div class="sec-label">// 06 · Client Stories</div>
+    <h2 class="sec-title">Trusted by <span class="hl">Teams</span> Globally</h2>
+    <p class="sec-sub">From healthcare providers in Dubai to RCM firms in Texas — here's what our clients say.</p>
+    <div class="testi-grid">
+
+      <div class="testi-card reveal">
+        <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="testi-quote">We were spending 40 hours a week on insurance follow-up calls. Claudeter built us a voice agent that handles it autonomously. Our collections team now focuses on exceptions only. ROI was visible in the first month.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">MR</div>
+          <div>
+            <div class="testi-name">Marcus Reynolds</div>
+            <div class="testi-role">VP Revenue Cycle · Apex Medical Group, Texas</div>
+          </div>
+          <div class="testi-flag">🇺🇸</div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="testi-quote">Our prior auth process was a nightmare — 3 staff, constant hold times, rejections we'd miss. The AI they built now handles Availity submissions end to end. Denial rate dropped by 34% in 8 weeks.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">SP</div>
+          <div>
+            <div class="testi-name">Sarah Patel</div>
+            <div class="testi-role">Director of Operations · Clearview Orthopedics, Illinois</div>
+          </div>
+          <div class="testi-flag">🇺🇸</div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="testi-quote">I was skeptical about AI for something as nuanced as claims follow-up. Six weeks later I'm a convert. The agent handles payer hold times, navigates IVR trees, and logs everything back into our EHR. Genuinely impressive.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">DK</div>
+          <div>
+            <div class="testi-name">Dr. Daniel Kim</div>
+            <div class="testi-role">CMO · Pacific Coast Health Partners, California</div>
+          </div>
+          <div class="testi-flag">🇺🇸</div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="testi-quote">Claudeter automated our NextCare and Neuron submissions completely. What used to take my team half a day now runs overnight without anyone touching it. The DHA compliance piece was handled without us even asking.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">FA</div>
+          <div>
+            <div class="testi-name">Fatima Al Hashimi</div>
+            <div class="testi-role">Head of Billing · MedFirst Clinic, Dubai Healthcare City</div>
+          </div>
+          <div class="testi-flag">🇦🇪</div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="testi-quote">We needed a TPA portal automation that worked across NAS, Neuron and AlMadallah. Every vendor said it was too complex. Claudeter delivered in 5 weeks. It runs daily and hasn't broken once in three months.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">KM</div>
+          <div>
+            <div class="testi-name">Khalid Mansouri</div>
+            <div class="testi-role">CEO · Gulf Medical Management, Abu Dhabi</div>
+          </div>
+          <div class="testi-flag">🇦🇪</div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="testi-quote">The team understood UAE insurance workflows from day one — DHA eClaims, resubmission logic, all of it. I didn't have to explain the basics. They built exactly what we needed and handed it over cleanly.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">NA</div>
+          <div>
+            <div class="testi-name">Noura Al Zaabi</div>
+            <div class="testi-role">Operations Manager · Pinnacle Specialty Hospital, Dubai</div>
+          </div>
+          <div class="testi-flag">🇦🇪</div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="testi-quote">We're a Series A healthtech and needed an AI layer across our patient intake flow fast. Claudeter got us from zero to a working voice agent in under 6 weeks. The latency is sub-500ms — patients genuinely can't tell it's AI.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">RV</div>
+          <div>
+            <div class="testi-name">Rohan Verma</div>
+            <div class="testi-role">Co-Founder & CTO · CareSync Technologies, Bengaluru</div>
+          </div>
+          <div class="testi-flag">🇮🇳</div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="testi-quote">Our insurance desk was a bottleneck. Claudeter built a full RPA pipeline for our TPA submissions and eligibility checks. Cut our turnaround from 3 days to 4 hours. The team is sharp, no-nonsense, and they actually deliver.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">PS</div>
+          <div>
+            <div class="testi-name">Priya Subramaniam</div>
+            <div class="testi-role">COO · Healthbridge India, Chennai</div>
+          </div>
+          <div class="testi-flag">🇮🇳</div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="testi-quote">We evaluated four AI agencies before choosing Claudeter. What stood out was they showed us a working prototype in the discovery call — not a deck, not a proposal, actual code. That said everything about how they operate.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">AM</div>
+          <div>
+            <div class="testi-name">Arjun Mehta</div>
+            <div class="testi-role">Founder · Zolvit Automation, Mumbai</div>
+          </div>
+          <div class="testi-flag">🇮🇳</div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="testi-quote">Full IP transfer, no retainer lock-in, senior engineers on every call. Refreshing to work with a team that operates on principles. Our AI agent has handled 12,000+ calls without a single escalation we didn't plan for.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">JT</div>
+          <div>
+            <div class="testi-name">James Thornton</div>
+            <div class="testi-role">President · NovaCare Revenue Solutions, Florida</div>
+          </div>
+          <div class="testi-flag">🇺🇸</div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
