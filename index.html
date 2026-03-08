@@ -1282,4 +1282,11 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
   });
 });
 
-// Init reveal on loa
+// Init reveal on load
+document.querySelectorAll('.reveal').forEach(el=>{
+  const r=el.getBoundingClientRect();
+  if(r.top<window.innerHeight*0.88) el.classList.add('visible');
+});
+</script>
+</body>
+</html>
