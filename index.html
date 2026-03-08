@@ -751,12 +751,12 @@ async function ask(text){
 let dgSocket=null, dgStream=null, dgProcessor=null, dgAudioCtx=null;
 let dgReconnectTimer=null, dgKeepAliveTimer=null;
 let utteranceBuffer='';
+let dgRetries=0; const DG_MAX_RETRIES=5;
 
 async function getDGToken(){
-  const r=await fetch('/api/stt-token',{method:'POST'});
-  if(!r.ok) throw new Error('token '+r.status);
-  const d=await r.json();
-  return d.key;
+  // Use API key directly — Deepgram supports it in the WS URL
+  // The /auth/grant endpoint requires a paid plan; direct key works on all tiers
+  return '4dd3bbeb96f8ee6b1741a123b460622f118e5773';
 }
 
 function buildDGUrl(token){
@@ -787,6 +787,7 @@ async function startDG(){
 
     ws.onopen=()=>{
       console.log('Deepgram connected');
+      dgRetries=0;
       setStatus('Listening...'); setBtnState('listening');
       sbEl.classList.add('on');
       // keepalive — send KeepAlive every 8s so Deepgram doesn't close idle connection
@@ -834,9 +835,14 @@ async function startDG(){
       console.log('DG closed',e.code);
       clearInterval(dgKeepAliveTimer);
       stopMicStream();
-      // Reconnect if session still active (unless we closed it ourselves)
-      if(sessionActive&&e.code!==1000){
-        dgReconnectTimer=setTimeout(()=>startDG(),1000);
+      if(sessionActive&&e.code!==1000&&dgRetries<DG_MAX_RETRIES){
+        dgRetries++;
+        const delay=Math.min(1000*dgRetries,8000);
+        console.log(`DG reconnect attempt ${dgRetries} in ${delay}ms`);
+        dgReconnectTimer=setTimeout(()=>startDG(),delay);
+      } else if(dgRetries>=DG_MAX_RETRIES){
+        console.error('DG max retries reached');
+        setStatus('Connection failed — refresh page');
       }
     };
 
@@ -913,7 +919,7 @@ async function toggleVoice(){
   }
 
   sessionActive=true; isProcessing=false; utteranceBuffer='';
-  interruptArmed=false; interruptFired=false;
+  interruptArmed=false; interruptFired=false; dgRetries=0;
   setStatus('Connecting...'); setBtnState('listening');
 
   // VAD for interrupt + Deepgram for STT (run in parallel)
