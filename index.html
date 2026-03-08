@@ -124,7 +124,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 
 /* ========== PAGE LAYOUT ========== */
 html,body{overflow-x:hidden}
-#page{position:relative;z-index:10;margin-top:55vh;overflow:visible;background:#020108}
+#page{position:relative;z-index:10;margin-top:70vh;overflow:visible;background:#020108}
 /* Star layers — small, medium, large stars using repeating background-image tiles */
 #page::before,#page::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none}
 #page::before{
@@ -164,11 +164,11 @@ html,body{overflow-x:hidden}
 #page>section{position:relative;z-index:1}
 
 /* Scroll hint */
-#scroll-hint{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:25;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fi 1s 2.5s forwards}
+#scroll-hint{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fi 1s 2.5s forwards;padding:20px 0}
 #scroll-hint span{font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(0,255,204,.4)}
 .sh-line{width:1px;height:32px;background:linear-gradient(to bottom,rgba(0,255,204,.4),transparent);animation:shpulse 2s ease-in-out infinite}
 @keyframes shpulse{0%,100%{opacity:.3}50%{opacity:1}}
-#s-hero{height:100vh}
+#s-hero{height:auto;padding:20px 0}
 
 /* ========== SECTION BASE ========== */
 section{position:relative;padding:100px 0;overflow:hidden}
