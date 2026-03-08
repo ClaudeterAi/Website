@@ -3,6 +3,9 @@
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/logo/(.*)", "dest": "/logo/$1" },
+    { "src": "/sitemap.xml", "dest": "/sitemap.xml" },
+    { "src": "/robots.txt", "dest": "/robots.txt" },
+    { "src": "/google(.*)\\.html", "dest": "/google$1.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
