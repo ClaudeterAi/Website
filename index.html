@@ -569,6 +569,13 @@ function render(){
   frame++;
   ctx.fillStyle='#020108'; ctx.fillRect(0,0,W,H);
 
+  // Subtle space tint on the canvas to match the page background
+  const spaceGrad=ctx.createLinearGradient(0,H*0.5,0,H);
+  spaceGrad.addColorStop(0,'transparent');
+  spaceGrad.addColorStop(0.6,'rgba(20,0,50,0.15)');
+  spaceGrad.addColorStop(1,'rgba(20,0,50,0.35)');
+  ctx.fillStyle=spaceGrad; ctx.fillRect(0,0,W,H);
+
   // Breath idle micro-movement
   breathPhase+=0.011;
   const breathY=Math.sin(breathPhase)*0.004;
