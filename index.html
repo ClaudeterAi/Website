@@ -1148,7 +1148,7 @@ async function toggleVoice(){
       <div class="contact-details">
         <div class="cd-row">
           <div class="cd-label">Email</div>
-          <a href="/cdn-cgi/l/email-protection#98f0fdf4f4f7d8fbf4f9edfcfdecfdeab6fbf7f5" class="cd-val"><span class="__cf_email__" data-cfemail="8ce4e9e0e0e3ccefe0edf9e8e9f8e9fea2efe3e1">[email&#160;protected]</span></a>
+          <a href="mailto:nova@claudeter.ai" class="cd-val">nova@claudeter.ai</a>
         </div>
         <div class="cd-row">
           <div class="cd-label">Markets</div>
@@ -1195,7 +1195,7 @@ async function toggleVoice(){
       <a href="#s-industries">Industries</a>
       <a href="#s-contact">Contact</a>
     </div>
-    <div class="foot-copy">© 2025 Claudeter LLC · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5139343d3d3e11323d302435342534237f323e3c">[email&#160;protected]</a> · All rights reserved</div>
+    <div class="foot-copy">© 2025 Claudeter LLC · <a href="mailto:nova@claudeter.ai">nova@claudeter.ai</a> · All rights reserved</div>
   </div>
 </footer>
 
@@ -1217,8 +1217,7 @@ function submitForm(){
   }
   btn.textContent='Sending...';
   btnEl.disabled=true;
-  /* Replace YOUR_FORM_ID below with your Formspree form ID from formspree.io */
-  fetch('https://formspree.io/f/YOUR_FORM_ID',{
+  fetch('https://formspree.io/f/xbdzlwgv',{
     method:'POST',
     headers:{'Content-Type':'application/json','Accept':'application/json'},
     body:JSON.stringify({name,email,message:msg})
