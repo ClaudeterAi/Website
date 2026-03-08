@@ -3,298 +3,548 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AI for Healthcare RCM — Claudeter</title>
-<meta name="description" content="AI-powered revenue cycle management: auto-coding, EOB analysis, voice agents for patient engagement. HIPAA compliant. Built by Claudeter."/>
-<link rel="canonical" href="https://www.claudeter.ai/industries/healthcare-rcm/"/>
-<meta property="og:title" content="AI for Healthcare RCM — Claudeter"/>
-<meta property="og:description" content="Auto-coding, EOB analysis, and voice AI for healthcare revenue cycle management."/>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>AI-Powered RCM Dashboard — Claudeter</title>
+<meta name="description" content="Live demo: AI-powered healthcare revenue cycle management dashboard with auto-coding, EOB analysis, and denial management."/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;background:#020108;font-family:'JetBrains Mono',monospace;color:#fff}
-/* Space bg */
-body::before,body::after{content:"";position:fixed;top:0;left:0;right:0;bottom:0;z-index:-1;pointer-events:none}
-body::before{background-image:radial-gradient(1px 1px at 20px 30px,rgba(255,255,255,.4),transparent),radial-gradient(1px 1px at 80px 10px,rgba(255,255,255,.3),transparent),radial-gradient(1.5px 1.5px at 130px 50px,rgba(0,255,204,.2),transparent),radial-gradient(1px 1px at 50px 120px,rgba(255,255,255,.3),transparent),radial-gradient(1px 1px at 170px 20px,rgba(0,207,255,.2),transparent);background-size:200px 160px;animation:twinkle 8s ease-in-out infinite alternate}
-body::after{background:radial-gradient(ellipse 80% 50% at 10% 20%,rgba(40,0,100,.25),transparent 60%),radial-gradient(ellipse 60% 40% at 85% 50%,rgba(0,50,110,.2),transparent 55%)}
-@keyframes twinkle{0%{opacity:.6}50%{opacity:1}100%{opacity:.7}}
-nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:20px 44px;background:rgba(2,1,8,.95);border-bottom:1px solid rgba(0,255,204,.06)}
-.nlogo{display:flex;align-items:center;text-decoration:none}
-.nlogo span{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.18em;background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.nlinks{display:flex;gap:28px}
-.nlinks a{font-size:.54rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);text-decoration:none;transition:color .25s}
-.nlinks a:hover{color:#00ffcc}
-.ncta{font-size:.54rem;letter-spacing:.16em;text-transform:uppercase;padding:9px 20px;border:1px solid #00ffcc;color:#00ffcc;text-decoration:none;transition:all .3s}
-.ncta:hover{color:#000;background:#00ffcc}
-.hero{padding:140px 44px 80px;max-width:1200px;margin:0 auto}
-.hero-label{font-size:.54rem;letter-spacing:.22em;text-transform:uppercase;color:#00ffcc;opacity:.85;margin-bottom:16px;display:flex;align-items:center;gap:12px}
-.hero-label::before{content:'';width:40px;height:1px;background:#00ffcc;opacity:.5}
-.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.6rem,5vw,4.5rem);letter-spacing:.06em;line-height:1.08;margin-bottom:28px}
-.hero-title .hl{background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-sub{font-size:.82rem;color:rgba(255,255,255,.6);line-height:1.9;max-width:700px;margin-bottom:40px}
-.hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:48px}
-.hero-tags span{font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;padding:6px 14px;border:1px solid rgba(0,255,204,.2);color:rgba(0,255,204,.6)}
-.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;border:1px solid rgba(0,255,204,.08);margin-bottom:60px}
-.hstat{padding:24px 20px;background:rgba(2,1,8,.85);text-align:center}
-.hstat-n{font-family:'Bebas Neue',sans-serif;font-size:2rem;background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hstat-l{font-size:.46rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-top:4px}
+:root{
+  --bg:#0a0e17;--bg2:#0f1420;--bg3:#141925;--bg4:#1a2030;
+  --border:#1e2a3a;--border2:#2a3648;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --accent:#00d4aa;--accent2:#00b894;--accent-dim:rgba(0,212,170,.1);
+  --red:#ef4444;--yellow:#f59e0b;--blue:#3b82f6;--green:#22c55e;
+  --sidebar-w:240px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;overflow:hidden}
 
-/* Section */
-.sec{max-width:1200px;margin:0 auto;padding:80px 44px}
-.sec-label{font-size:.54rem;letter-spacing:.22em;text-transform:uppercase;color:#00ffcc;opacity:.85;margin-bottom:16px}
-.sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4vw,3.2rem);letter-spacing:.06em;margin-bottom:16px}
-.sec-title .hl{background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.sec-sub{font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.8;max-width:700px;margin-bottom:48px}
+/* Layout */
+.app{display:flex;height:100vh}
+.sidebar{width:var(--sidebar-w);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:52px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+.content{flex:1;overflow-y:auto;padding:24px}
 
-/* Demo apps */
-.demos{display:grid;grid-template-columns:1fr;gap:48px}
-.demo-card{border:1px solid rgba(0,255,204,.1);background:rgba(2,1,8,.85);overflow:hidden}
-.demo-header{padding:24px 28px;border-bottom:1px solid rgba(0,255,204,.08);display:flex;align-items:center;justify-content:space-between}
-.demo-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.08em}
-.demo-badge{font-size:.42rem;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(0,255,204,.3);color:#00ffcc}
-.demo-body{padding:28px}
-.demo-desc{font-size:.72rem;color:rgba(255,255,255,.5);line-height:1.8;margin-bottom:24px}
-.demo-input{width:100%;min-height:120px;background:rgba(0,255,204,.02);border:1px solid rgba(0,255,204,.1);color:rgba(255,255,255,.8);font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:16px;outline:none;resize:vertical;line-height:1.7;letter-spacing:.02em;margin-bottom:16px;transition:border-color .2s}
-.demo-input:focus{border-color:rgba(0,255,204,.3)}
-.demo-input::placeholder{color:rgba(255,255,255,.15)}
-.demo-btn{padding:12px 28px;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;background:linear-gradient(135deg,#002b1c,#00ffcc);border:none;color:#000;cursor:pointer;transition:all .25s}
-.demo-btn:hover{box-shadow:0 0 30px rgba(0,255,204,.3)}
-.demo-btn:disabled{opacity:.4;cursor:not-allowed}
-.demo-result{margin-top:24px;padding:20px;border:1px solid rgba(0,255,204,.08);background:rgba(0,255,204,.02);min-height:80px;font-size:.76rem;color:rgba(255,255,255,.75);line-height:1.9;letter-spacing:.02em;white-space:pre-wrap;display:none}
-.demo-result.show{display:block}
-.demo-result h4{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.08em;color:#00ffcc;margin-bottom:12px}
-.demo-loading{color:rgba(0,255,204,.5);font-size:.62rem;letter-spacing:.1em}
-.demo-sample{font-size:.52rem;color:rgba(0,255,204,.4);cursor:pointer;text-decoration:underline;text-underline-offset:3px;transition:color .2s;margin-bottom:12px;display:inline-block}
-.demo-sample:hover{color:#00ffcc}
+/* Sidebar */
+.sb-logo{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sb-logo-icon{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--blue));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:#000}
+.sb-logo-text{font-weight:700;font-size:14px;letter-spacing:-.02em}
+.sb-logo-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.sb-section{padding:12px 0}
+.sb-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:0 20px;margin-bottom:8px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:8px 20px;cursor:pointer;transition:all .15s;color:var(--text2);font-size:13px;font-weight:500;border-left:2px solid transparent}
+.sb-item:hover{background:var(--bg3);color:var(--text)}
+.sb-item.active{background:var(--accent-dim);color:var(--accent);border-left-color:var(--accent)}
+.sb-item svg{width:16px;height:16px;opacity:.6;flex-shrink:0}
+.sb-item.active svg{opacity:1}
+.sb-badge{margin-left:auto;font-size:10px;font-weight:600;padding:2px 6px;border-radius:10px;background:var(--red);color:#fff}
+.sb-bottom{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
+.sb-powered{font-size:10px;color:var(--text3);text-align:center}
+.sb-powered a{color:var(--accent);text-decoration:none}
 
-/* CTA */
-.cta-section{text-align:center;padding:80px 44px;max-width:800px;margin:0 auto}
-.cta-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4vw,3rem);letter-spacing:.06em;margin-bottom:16px}
-.cta-sub{font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.8;margin-bottom:36px}
-.cta-btn{display:inline-block;padding:15px 40px;background:linear-gradient(135deg,#002b1c,#00ffcc);color:#000;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;transition:all .25s}
-.cta-btn:hover{box-shadow:0 0 40px rgba(0,255,204,.4)}
-footer{background:rgba(2,1,8,.95);border-top:1px solid rgba(0,255,204,.06);padding:40px 44px;text-align:center}
-footer a{color:rgba(0,255,204,.4);text-decoration:none;font-size:.52rem;letter-spacing:.14em;text-transform:uppercase}
-footer a:hover{color:#00ffcc}
-@media(max-width:768px){nav{padding:14px 20px}.nlinks{display:none}.hero{padding:100px 20px 60px}.sec{padding:60px 20px}.hero-stats{grid-template-columns:1fr 1fr}.demo-body{padding:20px}.cta-section{padding:60px 20px}}
-@media(max-width:480px){.hero-stats{grid-template-columns:1fr}}
+/* Topbar */
+.tb-title{font-weight:600;font-size:15px}
+.tb-right{display:flex;align-items:center;gap:16px}
+.tb-badge{font-size:11px;padding:4px 10px;border-radius:4px;background:var(--accent-dim);color:var(--accent);font-weight:500}
+.tb-demo{font-size:10px;padding:4px 10px;border-radius:4px;background:rgba(245,158,11,.15);color:var(--yellow);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+
+/* Cards */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-weight:600;font-size:14px}
+.card-badge{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:500}
+.card-body{padding:20px}
+
+/* Grid */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* Stats */
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px}
+.stat-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.stat-value{font-size:28px;font-weight:700;letter-spacing:-.02em}
+.stat-value.green{color:var(--green)}
+.stat-value.accent{color:var(--accent)}
+.stat-value.blue{color:var(--blue)}
+.stat-value.yellow{color:var(--yellow)}
+.stat-change{font-size:11px;color:var(--green);margin-top:4px}
+.stat-change.down{color:var(--red)}
+
+/* Table */
+.table{width:100%;border-collapse:collapse}
+.table th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);text-align:left;padding:10px 16px;border-bottom:1px solid var(--border)}
+.table td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2)}
+.table tr:hover td{background:var(--bg3)}
+.table tr.clickable{cursor:pointer}
+.table tr.clickable:hover td{color:var(--text)}
+.status{display:inline-block;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.status.paid{background:rgba(34,197,94,.12);color:var(--green)}
+.status.pending{background:rgba(245,158,11,.12);color:var(--yellow)}
+.status.denied{background:rgba(239,68,68,.12);color:var(--red)}
+.status.submitted{background:rgba(59,130,246,.12);color:var(--blue)}
+
+/* Forms */
+.textarea{width:100%;min-height:140px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;padding:14px;outline:none;resize:vertical;line-height:1.7}
+.textarea:focus{border-color:var(--accent)}
+.textarea::placeholder{color:var(--text3)}
+.btn{padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:12px;transition:all .15s}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{background:var(--accent2);box-shadow:0 0 20px rgba(0,212,170,.2)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-sm{padding:6px 14px;font-size:11px}
+.btn-row{display:flex;gap:10px;margin-top:16px}
+
+/* Results */
+.result-box{margin-top:20px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:20px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;color:var(--text2);white-space:pre-wrap;display:none;max-height:400px;overflow-y:auto}
+.result-box.show{display:block}
+.result-box h4{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--accent);margin-bottom:12px}
+.loading{color:var(--accent);font-size:12px}
+
+/* Patient detail */
+.patient-header{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.patient-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--blue));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#000;flex-shrink:0}
+.patient-info h3{font-size:16px;font-weight:600}
+.patient-info p{font-size:12px;color:var(--text3);margin-top:2px}
+.patient-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px}
+.patient-tab{padding:10px 20px;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.patient-tab:hover{color:var(--text)}
+.patient-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* Superbill */
+.superbill{border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:16px}
+.superbill-header{background:var(--bg3);padding:12px 16px;font-weight:600;font-size:12px;display:flex;justify-content:space-between;border-bottom:1px solid var(--border)}
+.superbill-row{display:flex;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);font-size:12px;font-family:'JetBrains Mono',monospace}
+.superbill-row:last-child{border-bottom:none}
+.superbill-row .code{color:var(--accent);font-weight:500}
+.superbill-row .desc{color:var(--text2);flex:1;margin:0 16px}
+.superbill-row .amt{color:var(--text);font-weight:500}
+.superbill-total{background:var(--bg3);padding:12px 16px;font-weight:600;font-size:13px;display:flex;justify-content:space-between}
+
+/* Sample data link */
+.sample-link{font-size:11px;color:var(--accent);opacity:.6;cursor:pointer;text-decoration:underline;text-underline-offset:3px;transition:opacity .15s}
+.sample-link:hover{opacity:1}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
 </style>
 </head>
 <body>
-<nav>
-  <a href="/" class="nlogo"><span>CLAUDETER</span></a>
-  <div class="nlinks">
-    <a href="/#s-services">Services</a>
-    <a href="/#s-about">About</a>
-    <a href="/#s-stack">Stack</a>
-    <a href="/#s-industries">Industries</a>
-    <a href="/blog/">Blog</a>
-  </div>
-  <a href="/#s-contact" class="ncta">Book a Call ↗</a>
-</nav>
-
-<div class="hero">
-  <div class="hero-label">Healthcare &amp; RCM</div>
-  <h1 class="hero-title">AI-Native <span class="hl">Revenue Cycle</span> Management</h1>
-  <p class="hero-sub">From clinical notes to clean claims in seconds. We build AI that handles coding, EOB analysis, denial management, and patient engagement — HIPAA and UAE DHA compliant from day one.</p>
-  <div class="hero-tags">
-    <span>Auto-Coding</span>
-    <span>EOB Analysis</span>
-    <span>Prior Auth</span>
-    <span>Denial Management</span>
-    <span>Voice AI</span>
-    <span>HIPAA Compliant</span>
-    <span>DHA Ready</span>
-  </div>
-  <div class="hero-stats">
-    <div class="hstat"><div class="hstat-n">94%</div><div class="hstat-l">Coding Accuracy</div></div>
-    <div class="hstat"><div class="hstat-n">3.2s</div><div class="hstat-l">Avg Processing</div></div>
-    <div class="hstat"><div class="hstat-n">67%</div><div class="hstat-l">Denial Reduction</div></div>
-    <div class="hstat"><div class="hstat-n">24/7</div><div class="hstat-l">Voice Coverage</div></div>
-  </div>
-</div>
-
-<div class="sec">
-  <div class="sec-label">// Try It Live</div>
-  <h2 class="sec-title">Working <span class="hl">Demos</span></h2>
-  <p class="sec-sub">These are real AI models running on our infrastructure. Paste your own data or use the sample — results are generated in real time.</p>
-
-  <div class="demos">
-
-    <!-- DEMO 1: Auto-Coder -->
-    <div class="demo-card">
-      <div class="demo-header">
-        <div class="demo-title">AI Medical Coder</div>
-        <div class="demo-badge">Live Demo</div>
-      </div>
-      <div class="demo-body">
-        <div class="demo-desc">Paste a clinical note or encounter summary. The AI extracts CPT, ICD-10, and HCPCS codes with reasoning — like having a certified coder review in seconds.</div>
-        <span class="demo-sample" onclick="loadSample('coder')">Load sample clinical note →</span>
-        <textarea class="demo-input" id="coder-input" placeholder="Paste clinical note here...&#10;&#10;Example: Patient presents with acute exacerbation of COPD with pneumonia. Chest X-ray performed. Nebulizer treatment administered. Follow-up in 2 weeks."></textarea>
-        <button class="demo-btn" id="coder-btn" onclick="runDemo('coder')">Generate Codes →</button>
-        <div class="demo-result" id="coder-result"></div>
+<div class="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon">RC</div>
+      <div>
+        <div class="sb-logo-text">RCM Suite</div>
+        <div class="sb-logo-sub">by Claudeter AI</div>
       </div>
     </div>
-
-    <!-- DEMO 2: EOB Analyzer -->
-    <div class="demo-card">
-      <div class="demo-header">
-        <div class="demo-title">EOB / ERA Analyzer</div>
-        <div class="demo-badge">Live Demo</div>
-      </div>
-      <div class="demo-body">
-        <div class="demo-desc">Paste an EOB or remittance text. The AI extracts payment details, identifies underpayments, flags denial codes, and suggests appeal actions.</div>
-        <span class="demo-sample" onclick="loadSample('eob')">Load sample EOB data →</span>
-        <textarea class="demo-input" id="eob-input" placeholder="Paste EOB / ERA text here...&#10;&#10;Include: claim number, billed amount, allowed amount, paid amount, adjustment codes, patient responsibility..."></textarea>
-        <button class="demo-btn" id="eob-btn" onclick="runDemo('eob')">Analyze EOB →</button>
-        <div class="demo-result" id="eob-result"></div>
+    <div class="sb-section">
+      <div class="sb-label">Dashboard</div>
+      <div class="sb-item active" onclick="showView('overview')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Overview
       </div>
     </div>
-
-    <!-- DEMO 3: Denial Appeal Writer -->
-    <div class="demo-card">
-      <div class="demo-header">
-        <div class="demo-title">Denial Appeal Generator</div>
-        <div class="demo-badge">Live Demo</div>
+    <div class="sb-section">
+      <div class="sb-label">Billing</div>
+      <div class="sb-item" onclick="showView('patients')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Patients
       </div>
-      <div class="demo-body">
-        <div class="demo-desc">Enter the denial details — reason code, procedure, and context. The AI generates a ready-to-send appeal letter with clinical justification and regulatory citations.</div>
-        <span class="demo-sample" onclick="loadSample('appeal')">Load sample denial →</span>
-        <textarea class="demo-input" id="appeal-input" placeholder="Enter denial details...&#10;&#10;Example: Claim denied for CPT 99214 with reason code CO-4 (procedure modifier inconsistent). Patient had a 25-minute visit for diabetes management with A1C review and medication adjustment."></textarea>
-        <button class="demo-btn" id="appeal-btn" onclick="runDemo('appeal')">Generate Appeal →</button>
-        <div class="demo-result" id="appeal-result"></div>
+      <div class="sb-item" onclick="showView('autocoder')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Auto-Coder
+        <span class="sb-badge" style="background:var(--accent);color:#000">AI</span>
       </div>
     </div>
+    <div class="sb-section">
+      <div class="sb-label">Payments</div>
+      <div class="sb-item" onclick="showView('eob')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        EOB Posting
+        <span class="sb-badge" style="background:var(--accent);color:#000">AI</span>
+      </div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Claims</div>
+      <div class="sb-item" onclick="showView('claims')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Claim Tracker
+        <span class="sb-badge">3</span>
+      </div>
+      <div class="sb-item" onclick="showView('appeals')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Denial Appeals
+        <span class="sb-badge" style="background:var(--accent);color:#000">AI</span>
+      </div>
+    </div>
+    <div class="sb-bottom">
+      <div class="sb-powered">Demo by <a href="/">Claudeter AI</a></div>
+    </div>
+  </div>
 
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-title" id="view-title">Dashboard Overview</div>
+      <div class="tb-right">
+        <div class="tb-demo">Interactive Demo</div>
+        <div class="tb-badge">HIPAA Compliant</div>
+      </div>
+    </div>
+    <div class="content" id="content">
+      <!-- Views injected here -->
+    </div>
   </div>
 </div>
-
-<div class="cta-section">
-  <h2 class="cta-title">Ready to Automate Your <span class="hl">Revenue Cycle?</span></h2>
-  <p class="cta-sub">These demos run on general models. The production versions we build for clients are fine-tuned on your payer mix, fee schedules, and specialty — 94%+ accuracy from week one.</p>
-  <a href="/#s-contact" class="cta-btn">Book a Free Discovery Call →</a>
-</div>
-
-<footer>
-  <a href="/">← Back to Claudeter.ai</a>
-</footer>
 
 <script>
-const SAMPLES = {
-  coder: `Patient: 67-year-old male
-Chief Complaint: Shortness of breath, productive cough x 5 days
-History: COPD (diagnosed 2019), Type 2 Diabetes, Hypertension
-Exam: Temp 101.2F, O2 sat 89% on room air, bilateral wheezing with rhonchi in right lower lobe
-Assessment: Acute exacerbation of COPD with community-acquired pneumonia
+// ── Sample Data ──
+const PATIENTS = [
+  {id:1,name:'Robert Chen',dob:'1957-03-14',mrn:'MRN-00482',ins:'Aetna PPO',status:'Active',balance:'$142.50'},
+  {id:2,name:'Maria Santos',dob:'1982-09-22',mrn:'MRN-00491',ins:'BCBS HMO',status:'Active',balance:'$0.00'},
+  {id:3,name:'James Wilson',dob:'1971-06-08',mrn:'MRN-00503',ins:'Medicare Part B',status:'Active',balance:'$37.80'},
+  {id:4,name:'Aisha Khan',dob:'1990-12-01',mrn:'MRN-00517',ins:'UHC Choice Plus',status:'Active',balance:'$285.00'},
+  {id:5,name:'David Park',dob:'1965-01-30',mrn:'MRN-00528',ins:'Cigna OAP',status:'Active',balance:'$0.00'},
+];
+
+const CLAIMS = [
+  {id:'CLM-2401',patient:'Robert Chen',dos:'01/15/24',cpt:'99215',billed:'$285.00',status:'paid',paid:'$187.50'},
+  {id:'CLM-2402',patient:'Maria Santos',dos:'01/16/24',cpt:'99214',billed:'$205.00',status:'submitted',paid:'—'},
+  {id:'CLM-2403',patient:'James Wilson',dos:'01/16/24',cpt:'99213, 93000',billed:'$320.00',status:'denied',paid:'$0.00'},
+  {id:'CLM-2404',patient:'Aisha Khan',dos:'01/17/24',cpt:'99204',billed:'$350.00',status:'pending',paid:'—'},
+  {id:'CLM-2405',patient:'David Park',dos:'01/18/24',cpt:'99215, 36415',billed:'$310.00',status:'paid',paid:'$224.60'},
+];
+
+const SAMPLE_NOTE = `ENCOUNTER NOTE
+Patient: Robert Chen | DOB: 03/14/1957 | DOS: 01/15/2024
+
+Chief Complaint: Follow-up COPD exacerbation, worsening dyspnea x 3 days
+
+HPI: 67-year-old male with known COPD (GOLD Stage III), Type 2 DM, HTN presents with increased dyspnea, productive cough with yellow-green sputum. Reports using albuterol inhaler 6-8x daily (baseline 2x). No fever, no hemoptysis. Oxygen at home 2L NC.
+
+ROS: (+) dyspnea, cough, fatigue. (-) chest pain, edema, weight change.
+
+Vitals: BP 142/88, HR 92, RR 22, T 99.1F, O2 89% RA → 94% on 2L NC
+
+Exam:
+- General: Mild respiratory distress, speaking in short sentences
+- Lungs: Bilateral expiratory wheezes, rhonchi RLL, decreased breath sounds bases
+- CV: Tachycardic, regular rhythm, no murmurs
+- Ext: No edema
+
+Labs ordered: CBC, BMP, procalcitonin, ABG
+Imaging: Chest X-ray PA/Lat — ordered and interpreted: RLL infiltrate c/w pneumonia
+
+Assessment:
+1. Acute exacerbation of COPD (J44.1)
+2. Community-acquired pneumonia (J18.9)
+3. Type 2 diabetes mellitus, uncontrolled (E11.65)
+4. Essential hypertension (I10)
+
 Plan:
-- Chest X-ray PA and lateral
-- CBC, BMP, procalcitonin
-- Nebulizer treatment x3
-- Azithromycin 500mg IV
-- Admit for observation (23-hour)
-- Pulmonology consult
-Procedure: Bedside spirometry performed and interpreted
-Time spent: 45 minutes, >50% counseling and coordination`,
+- Duoneb q4h, prednisone burst 40mg x 5 days
+- Azithromycin 500mg x 5 days
+- Chest X-ray performed and interpreted in office
+- Spirometry performed and interpreted
+- Diabetes management: Reviewed A1C (8.2%), adjusted metformin
+- Return 1 week or sooner if worsening
+- Total face-to-face time: 40 minutes, >50% in counseling/coordination
 
-  eob: `EXPLANATION OF BENEFITS
-Payer: Aetna PPO
-Claim #: CLM-2024-88432
-DOS: 01/15/2024
-Provider: Dr. Smith, Internal Medicine
-Patient: John Doe (Member ID: AET-99281)
+Signed: Dr. Sarah Mitchell, MD — Internal Medicine`;
 
-Line 1: CPT 99215 - Office visit, established
-  Billed: $285.00 | Allowed: $187.50 | Paid: $150.00 | Adj: $97.50 (CO-45)
-  Patient Resp: $37.50 (PR-2 coinsurance)
+const SAMPLE_EOB = `EXPLANATION OF BENEFITS — Aetna PPO
+Claim #: CLM-2024-88432 | DOS: 01/15/2024
+Provider: Dr. Sarah Mitchell, Internal Medicine (NPI: 1234567890)
+Patient: Robert Chen | Member ID: AET-99281
 
-Line 2: CPT 93000 - EKG interpretation
-  Billed: $125.00 | Allowed: $0.00 | Paid: $0.00
-  Denied: CO-97 (bundled/included in primary procedure)
+LINE 1: CPT 99215 — Office visit, established, Level 5
+  Billed: $285.00 | Allowed: $187.50 | Paid: $150.00
+  Adj: $97.50 (CO-45 contractual) | Patient: $37.50 (PR-2 coinsurance)
 
-Line 3: CPT 36415 - Venipuncture
-  Billed: $36.00 | Allowed: $12.00 | Paid: $9.60 | Adj: $24.00 (CO-45)
-  Patient Resp: $2.40 (PR-2)
+LINE 2: CPT 71046 — Chest X-ray, 2 views
+  Billed: $145.00 | Allowed: $82.00 | Paid: $65.60
+  Adj: $63.00 (CO-45) | Patient: $16.40 (PR-2)
 
-Total Billed: $446.00 | Total Paid: $159.60 | Patient Owes: $39.90`,
+LINE 3: CPT 94060 — Spirometry with bronchodilator
+  Billed: $165.00 | Allowed: $0.00 | Paid: $0.00
+  DENIED — CO-97: Payment adjusted — bundled with primary procedure
+  Remark: N362 — service not separately payable per payer policy
 
-  appeal: `Denial Details:
-Claim #: CLM-2024-88432
-CPT: 93000 (Electrocardiogram, routine, with interpretation and report)
-Denial Code: CO-97 (Payment adjusted because this procedure/service is not paid separately)
-Payer: Aetna PPO
-DOS: 01/15/2024
-Provider: Dr. Smith, Internal Medicine
+LINE 4: CPT 94640 — Nebulizer treatment
+  Billed: $95.00 | Allowed: $48.00 | Paid: $38.40
+  Adj: $47.00 (CO-45) | Patient: $9.60 (PR-2)
 
-Context: Patient presented for follow-up of newly diagnosed atrial fibrillation with rapid ventricular response. EKG was performed to assess rate control after medication titration. This was a separately identifiable diagnostic service, not routine to the E/M visit. The EKG findings directly changed the treatment plan (dose adjustment of metoprolol).`
-};
+TOTALS: Billed $690.00 | Allowed $317.50 | Paid $254.00 | Patient $63.50`;
 
-function loadSample(type) {
-  document.getElementById(type + '-input').value = SAMPLES[type];
+// ── Views ──
+function showView(view) {
+  document.querySelectorAll('.sb-item').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  const titles = {overview:'Dashboard Overview',patients:'Patient List',autocoder:'AI Auto-Coder',eob:'EOB Payment Posting',claims:'Claim Tracker',appeals:'Denial Appeal Generator'};
+  document.getElementById('view-title').textContent = titles[view] || view;
+  const c = document.getElementById('content');
+  
+  if(view==='overview') c.innerHTML = renderOverview();
+  else if(view==='patients') c.innerHTML = renderPatients();
+  else if(view==='autocoder') c.innerHTML = renderAutoCoder();
+  else if(view==='eob') c.innerHTML = renderEOB();
+  else if(view==='claims') c.innerHTML = renderClaims();
+  else if(view==='appeals') c.innerHTML = renderAppeals();
 }
 
-const SYSTEMS = {
-  coder: `You are an expert AAPC-certified medical coder. Given a clinical note, extract and output:
-
-1. CPT CODES — list each code with description and justification
-2. ICD-10-CM CODES — list each diagnosis code with rationale  
-3. MODIFIERS — any applicable modifiers with explanation
-4. E/M LEVEL — if applicable, the E/M level with MDM complexity reasoning
-5. ALERTS — any coding compliance concerns or documentation gaps
-
-Format cleanly with headers. Be specific and cite guidelines where relevant. Output plain text, no markdown formatting characters.`,
-
-  eob: `You are an expert medical billing analyst. Given EOB/ERA data, analyze and output:
-
-1. PAYMENT SUMMARY — total billed, allowed, paid, patient responsibility
-2. UNDERPAYMENT CHECK — flag any lines where paid amount seems below expected contractual rate
-3. DENIAL ANALYSIS — for any denied lines, explain the reason code and whether it's appealable
-4. ACTION ITEMS — specific next steps (appeal, rebill with modifier, write off, patient billing)
-5. RED FLAGS — any suspicious patterns or potential payer errors
-
-Format cleanly with headers. Be specific about dollar amounts and codes. Output plain text, no markdown.`,
-
-  appeal: `You are an expert medical billing appeals specialist. Given denial details, generate a professional appeal letter that includes:
-
-1. HEADER — To the payer's appeals department, with claim reference
-2. OPENING — Clear statement of the appeal request
-3. CLINICAL JUSTIFICATION — Why the service was medically necessary and separately identifiable
-4. REGULATORY CITATIONS — Reference relevant CMS guidelines, CPT guidelines, or LCD/NCD policies
-5. SUPPORTING EVIDENCE — What documentation supports the appeal
-6. REQUESTED ACTION — Specific ask (overturn denial, reprocess claim)
-
-Write as a formal letter ready to send. Professional tone. Output plain text, no markdown formatting.`
-};
-
-async function runDemo(type) {
-  const input = document.getElementById(type + '-input').value.trim();
-  if (!input) return;
-  
-  const btn = document.getElementById(type + '-btn');
-  const result = document.getElementById(type + '-result');
-  
-  btn.disabled = true;
-  btn.textContent = 'Processing...';
-  result.className = 'demo-result show';
-  result.innerHTML = '<div class="demo-loading">⟳ AI is analyzing...</div>';
-  
-  try {
-    const res = await fetch('/api/demo', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        system: SYSTEMS[type],
-        prompt: input,
-        max_tokens: 1200
-      })
-    });
-    const data = await res.json();
-    result.innerHTML = (data.result || 'Error processing.').replace(/\n/g, '<br/>');
-  } catch(e) {
-    result.innerHTML = 'Error: ' + e.message;
-  }
-  
-  btn.disabled = false;
-  btn.textContent = type === 'coder' ? 'Generate Codes →' : type === 'eob' ? 'Analyze EOB →' : 'Generate Appeal →';
+function renderOverview(){
+  return `
+    <div class="grid-3" style="margin-bottom:24px">
+      <div class="stat-card"><div class="stat-label">Clean Claim Rate</div><div class="stat-value green">96.2%</div><div class="stat-change">↑ 3.1% vs last month</div></div>
+      <div class="stat-card"><div class="stat-label">Days in A/R</div><div class="stat-value accent">28.4</div><div class="stat-change">↓ 4.2 days improved</div></div>
+      <div class="stat-card"><div class="stat-label">Denial Rate</div><div class="stat-value yellow">4.8%</div><div class="stat-change">↓ 2.1% reduction</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent Claims</div></div>
+        <table class="table">
+          <tr><th>Claim</th><th>Patient</th><th>Billed</th><th>Status</th></tr>
+          ${CLAIMS.map(c=>`<tr><td>${c.id}</td><td>${c.patient}</td><td>${c.billed}</td><td><span class="status ${c.status}">${c.status}</span></td></tr>`).join('')}
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">AI Activity Log</div></div>
+        <div class="card-body" style="font-size:12px;color:var(--text2);line-height:2.2">
+          <div>✓ <span style="color:var(--accent)">Auto-coded</span> encounter for Robert Chen — 4 CPT, 4 ICD-10 <span style="color:var(--text3)">2m ago</span></div>
+          <div>✓ <span style="color:var(--blue)">EOB posted</span> for CLM-2401 — $254.00 applied <span style="color:var(--text3)">15m ago</span></div>
+          <div>⚠ <span style="color:var(--yellow)">Denial detected</span> CLM-2403 — CO-97 bundling <span style="color:var(--text3)">1h ago</span></div>
+          <div>✓ <span style="color:var(--green)">Appeal generated</span> for CLM-2403 — ready to send <span style="color:var(--text3)">1h ago</span></div>
+          <div>✓ <span style="color:var(--accent)">Eligibility verified</span> for Aisha Khan — UHC active <span style="color:var(--text3)">2h ago</span></div>
+        </div>
+      </div>
+    </div>`;
 }
+
+function renderPatients(){
+  return `
+    <div class="card">
+      <div class="card-header"><div class="card-title">Active Patients</div><button class="btn btn-sm btn-outline">+ Add Patient</button></div>
+      <table class="table">
+        <tr><th>MRN</th><th>Name</th><th>DOB</th><th>Insurance</th><th>Balance</th><th>Status</th></tr>
+        ${PATIENTS.map(p=>`<tr class="clickable"><td style="color:var(--accent)">${p.mrn}</td><td style="font-weight:500;color:var(--text)">${p.name}</td><td>${p.dob}</td><td>${p.ins}</td><td>${p.balance==='$0.00'?'<span style="color:var(--green)">$0.00</span>':'<span style="color:var(--yellow)">'+p.balance+'</span>'}</td><td><span class="status paid">${p.status}</span></td></tr>`).join('')}
+      </table>
+    </div>`;
+}
+
+function renderAutoCoder(){
+  return `
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Visit Note / Encounter</div>
+          <span class="sample-link" onclick="document.getElementById('note-input').value=SAMPLE_NOTE">Load sample note →</span>
+        </div>
+        <div class="card-body">
+          <textarea class="textarea" id="note-input" placeholder="Paste clinical encounter note here..." style="min-height:400px"></textarea>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="code-btn" onclick="runAutoCoder()">⚡ Generate Codes</button>
+            <button class="btn btn-outline" onclick="document.getElementById('note-input').value=''">Clear</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header"><div class="card-title">AI Coding Output</div><span class="card-badge" style="background:var(--accent-dim);color:var(--accent)">GPT-4o Powered</span></div>
+          <div class="card-body">
+            <div class="result-box" id="code-result" style="display:block;min-height:200px;color:var(--text3)">Paste a visit note and click "Generate Codes" to see AI auto-coding in action.</div>
+          </div>
+        </div>
+        <div class="card" id="superbill-card" style="display:none">
+          <div class="card-header"><div class="card-title">Generated Superbill</div></div>
+          <div class="card-body" id="superbill-body"></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderEOB(){
+  return `
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">EOB / ERA Data</div>
+          <span class="sample-link" onclick="document.getElementById('eob-input').value=SAMPLE_EOB">Load sample EOB →</span>
+        </div>
+        <div class="card-body">
+          <textarea class="textarea" id="eob-input" placeholder="Paste EOB / remittance advice here..." style="min-height:360px"></textarea>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="eob-btn" onclick="runEOBAnalyzer()">⚡ Analyze & Post</button>
+            <button class="btn btn-outline" onclick="document.getElementById('eob-input').value=''">Clear</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Payment Analysis</div><span class="card-badge" style="background:var(--accent-dim);color:var(--accent)">AI Powered</span></div>
+        <div class="card-body">
+          <div class="result-box" id="eob-result" style="display:block;min-height:300px;color:var(--text3)">Paste EOB data and click "Analyze & Post" to see AI-powered payment analysis, underpayment detection, and denial flagging.</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderClaims(){
+  return `
+    <div class="card">
+      <div class="card-header"><div class="card-title">All Claims</div><div style="display:flex;gap:8px"><button class="btn btn-sm btn-outline">Filter</button><button class="btn btn-sm btn-primary">+ New Claim</button></div></div>
+      <table class="table">
+        <tr><th>Claim ID</th><th>Patient</th><th>DOS</th><th>CPT</th><th>Billed</th><th>Paid</th><th>Status</th></tr>
+        ${CLAIMS.map(c=>`<tr class="clickable"><td style="color:var(--accent)">${c.id}</td><td>${c.patient}</td><td>${c.dos}</td><td style="font-family:'JetBrains Mono',monospace;font-size:11px">${c.cpt}</td><td>${c.billed}</td><td>${c.paid}</td><td><span class="status ${c.status}">${c.status}</span></td></tr>`).join('')}
+      </table>
+    </div>`;
+}
+
+function renderAppeals(){
+  return `
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Denial Details</div><span class="sample-link" onclick="loadDenialSample()">Load sample denial →</span></div>
+        <div class="card-body">
+          <div style="margin-bottom:12px"><label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">Claim ID</label><input id="appeal-claim" style="width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;outline:none" placeholder="CLM-2403"/></div>
+          <div style="margin-bottom:12px"><label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">Denial Code</label><input id="appeal-code" style="width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;outline:none" placeholder="CO-97"/></div>
+          <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">Context & Clinical Justification</label>
+          <textarea class="textarea" id="appeal-input" placeholder="Describe why the service was medically necessary and separately identifiable..." style="min-height:200px"></textarea>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="appeal-btn" onclick="runAppeal()">⚡ Generate Appeal Letter</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Generated Appeal</div><span class="card-badge" style="background:var(--accent-dim);color:var(--accent)">AI Powered</span></div>
+        <div class="card-body">
+          <div class="result-box" id="appeal-result" style="display:block;min-height:300px;color:var(--text3)">Enter denial details and click "Generate Appeal Letter" to create a ready-to-send appeal with clinical justification and regulatory citations.</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── AI Functions ──
+async function callAI(system, prompt, maxTokens=1200) {
+  const res = await fetch('/api/demo', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({system, prompt, max_tokens:maxTokens})
+  });
+  const data = await res.json();
+  return data.result || 'Error processing request.';
+}
+
+async function runAutoCoder(){
+  const note = document.getElementById('note-input').value.trim();
+  if(!note) return;
+  const btn = document.getElementById('code-btn');
+  const result = document.getElementById('code-result');
+  btn.disabled=true; btn.textContent='Processing...';
+  result.style.display='block'; result.style.color=''; result.innerHTML='<div class="loading">⟳ AI is analyzing the clinical note...</div>';
+  
+  const system = `You are an AAPC-certified medical coder with 15 years experience. Given a clinical encounter note, output EXACTLY this format:
+
+CPT CODES:
+[code] — [description] — [justification]
+
+ICD-10 CODES:
+[code] — [description]
+
+MODIFIERS:
+[any applicable modifiers]
+
+E/M LEVEL:
+[level with MDM reasoning]
+
+ESTIMATED CHARGES:
+[code]: $[amount] (based on Medicare national average)
+Total: $[sum]
+
+Output clean plain text. No markdown. Be specific.`;
+  
+  const text = await callAI(system, note);
+  result.innerHTML = text.replace(/\n/g,'<br/>');
+  btn.disabled=false; btn.textContent='⚡ Generate Codes';
+}
+
+async function runEOBAnalyzer(){
+  const eob = document.getElementById('eob-input').value.trim();
+  if(!eob) return;
+  const btn = document.getElementById('eob-btn');
+  const result = document.getElementById('eob-result');
+  btn.disabled=true; btn.textContent='Analyzing...';
+  result.style.display='block'; result.style.color=''; result.innerHTML='<div class="loading">⟳ AI is parsing EOB data...</div>';
+  
+  const system = `You are an expert medical billing analyst. Given EOB/ERA data, output EXACTLY:
+
+PAYMENT SUMMARY:
+Total Billed: $X | Allowed: $X | Paid: $X | Patient Resp: $X
+
+LINE-BY-LINE ANALYSIS:
+[For each line: code, billed, paid, status, any issues]
+
+DENIALS FOUND:
+[List any denied lines with reason code explanation and appealability]
+
+UNDERPAYMENT FLAGS:
+[Any lines paid below expected rate]
+
+RECOMMENDED ACTIONS:
+1. [specific action items]
+
+Output clean plain text. No markdown. Dollar amounts must be exact.`;
+  
+  const text = await callAI(system, eob);
+  result.innerHTML = text.replace(/\n/g,'<br/>');
+  btn.disabled=false; btn.textContent='⚡ Analyze & Post';
+}
+
+async function runAppeal(){
+  const claim = document.getElementById('appeal-claim').value.trim();
+  const code = document.getElementById('appeal-code').value.trim();
+  const context = document.getElementById('appeal-input').value.trim();
+  if(!context) return;
+  const btn = document.getElementById('appeal-btn');
+  const result = document.getElementById('appeal-result');
+  btn.disabled=true; btn.textContent='Generating...';
+  result.style.display='block'; result.style.color=''; result.innerHTML='<div class="loading">⟳ AI is drafting appeal letter...</div>';
+  
+  const system = `You are a medical billing appeals expert. Generate a professional, ready-to-send appeal letter. Include:
+- Formal header with claim reference
+- Clear appeal statement  
+- Clinical justification citing medical necessity
+- Regulatory citations (CMS, CPT guidelines, applicable LCDs/NCDs)
+- Request for reconsideration
+Format as a formal business letter. Plain text, no markdown.`;
+  
+  const prompt = `Claim: ${claim||'N/A'}\nDenial Code: ${code||'N/A'}\nDetails: ${context}`;
+  const text = await callAI(system, prompt);
+  result.innerHTML = text.replace(/\n/g,'<br/>');
+  btn.disabled=false; btn.textContent='⚡ Generate Appeal Letter';
+}
+
+function loadDenialSample(){
+  document.getElementById('appeal-claim').value='CLM-2403';
+  document.getElementById('appeal-code').value='CO-97';
+  document.getElementById('appeal-input').value=`Patient James Wilson had a follow-up visit for newly diagnosed atrial fibrillation with rapid ventricular response. EKG (CPT 93000) was performed to assess rate control after medication titration from the previous visit.
+
+The EKG was a separately identifiable diagnostic service — not routine screening. Findings showed persistent RVR at 112 bpm, which directly led to a dosage increase of metoprolol from 25mg to 50mg BID.
+
+The E/M service (99213) addressed the overall cardiac follow-up, while the EKG was a distinct diagnostic test that changed the treatment plan. These services should not be bundled under CO-97.`;
+}
+
+// Init
+showView('overview');
+// Hack to re-activate the overview sidebar item
+document.querySelector('.sb-item').classList.add('active');
 </script>
 </body>
 </html>
