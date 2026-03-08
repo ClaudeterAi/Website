@@ -27,7 +27,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 .back:hover{color:#00ffcc}
 .post-tag{font-size:.48rem;letter-spacing:.22em;text-transform:uppercase;color:#00ffcc;opacity:.85;margin-bottom:16px}
 .post-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,5vw,3.8rem);letter-spacing:.06em;line-height:1.08;margin-bottom:24px}
-.post-meta{display:flex;align-items:center;gap:24px;padding:20px 0;border-top:1px solid rgba(0,255,204,.08);border-bottom:1px solid rgba(0,255,204,.08);margin-bottom:48px}
+.post-meta{display:flex;align-items:center;gap:24px;padding:20px 0;border-top:1px solid rgba(0,255,204,.08);border-bottom:1px solid rgba(0,255,204,.08);margin-bottom:16px}
 .post-meta span{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35)}
 .post-meta .author{color:rgba(0,255,204,.6)}
 .cover{width:100%;max-width:800px;margin:0 auto 48px;display:block}
@@ -58,12 +58,13 @@ body::before{background-image:radial-gradient(1px 1px at 20px 30px,rgba(255,255,
 body::after{background:radial-gradient(ellipse 80% 50% at 10% 20%,rgba(40,0,100,.3),transparent 60%),radial-gradient(ellipse 60% 40% at 85% 50%,rgba(0,50,110,.25),transparent 55%),radial-gradient(ellipse 70% 50% at 50% 80%,rgba(0,80,60,.15),transparent 55%)}
 @keyframes twinkle{0%{opacity:.6}50%{opacity:1}100%{opacity:.7}}
 /* Share buttons */
-.share-bar{display:flex;align-items:center;gap:12px;margin:24px 0 0}
-.share-label{font-size:.42rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.3)}
-.share-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;border:1px solid rgba(0,255,204,.15);background:transparent;cursor:pointer;transition:all .25s;text-decoration:none}
+.share-bar{display:flex;align-items:center;gap:10px;margin:20px 0 0;padding:0}
+.share-label{font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-right:4px}
+.share-btn{display:inline-flex !important;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1px solid rgba(0,255,204,.2);background:transparent;cursor:pointer;transition:all .25s;text-decoration:none;flex-shrink:0}
 .share-btn:hover{border-color:#00ffcc;background:rgba(0,255,204,.1)}
-.share-btn svg{width:15px;height:15px;fill:rgba(255,255,255,.5)}
-.share-btn:hover svg{fill:#00ffcc}
+.share-btn svg{width:14px;height:14px;display:block}
+.share-btn path{fill:rgba(255,255,255,.5)}
+.share-btn:hover path{fill:#00ffcc}
 </style>
 </head>
 <body>
