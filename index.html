@@ -124,7 +124,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 
 /* ========== PAGE LAYOUT ========== */
 html,body{overflow-x:hidden}
-#page{position:relative;z-index:10;margin-top:70vh;overflow:visible;background:#020108}
+#page{position:relative;z-index:10;margin-top:100vh;overflow:visible;background:#020108}
 /* Star layers — small, medium, large stars using repeating background-image tiles */
 #page::before,#page::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none}
 #page::before{
@@ -1087,15 +1087,6 @@ function novaFabClick(){
 <!-- MAIN SCROLLABLE WRAPPER -->
 <div id="page">
 <div class="nebula-bg"></div>
-
-<!-- HERO SECTION (full screen, scroll indicator) -->
-<section id="s-hero">
-  <div id="scroll-hint" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="cursor:pointer;pointer-events:auto">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(0,255,204,.5)" stroke-width="2" stroke-linecap="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
-    <span>Back to top</span>
-    <div class="sh-line"></div>
-  </div>
-</section>
 
 <!-- SERVICES SECTION -->
 <section id="s-services">
