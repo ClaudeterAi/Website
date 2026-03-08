@@ -595,9 +595,9 @@ function render(){
 render();
 
 // ============================================================
-// NOVA VOICE ENGINE v6 — dead simple, bulletproof
-// SR runs ONLY when listening. Completely stopped while thinking/speaking.
-// No VAD. Stop button = only interrupt. Zero race conditions.
+// NOVA VOICE ENGINE v7 — Deepgram WebSocket STT
+// Web Speech API dies silently after AudioContext playback.
+// Deepgram streaming is production-grade and actually works.
 // ============================================================
 
 let sessionActive=false, micGranted=false, isProcessing=false;
@@ -614,91 +614,132 @@ function setBtnState(s){
   else{b.className='bv';l.textContent='Talk to NOVA';}
 }
 
-// ── SR ──────────────────────────────────────────────────────
+// ── Deepgram STT via WebSocket ─────────────────────────────
+let dgSocket=null, micStream=null, micCtx=null, micSrc=null, micProc=null;
 let pendingText='', silenceTimer=null;
-let rec=null, recRunning=false, srWatchdog=null;
 
-function startRec(){
-  if(recRunning||!sessionActive||isTalking) return;
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){setStatus('SR not supported');return;}
-  const r=new SR();
-  r.continuous=true; r.interimResults=true; r.lang='en-US';
-  rec=r; recRunning=true;
+async function startListening(){
+  if(dgSocket||!sessionActive||isTalking||isProcessing) return;
+  console.log('[STT] Starting Deepgram...');
+  setStatus('Listening...'); setBtnState('listening');
 
-  let interimText='', interimTimer=null;
-  r.onresult=e=>{
-    console.log('SR result',{isTalking,isProcessing});
-    if(isTalking){return;}
-    let fi='', interim='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal) fi+=e.results[i][0].transcript;
-      else interim+=e.results[i][0].transcript;
+  try{
+    // 1. Get ephemeral Deepgram token
+    const tres=await fetch('/api/stt-token',{method:'POST'});
+    if(!tres.ok){const t=await tres.text();throw new Error('stt-token '+tres.status+': '+t);}
+    const tdata=await tres.json();
+    if(!tdata.key) throw new Error('No key in stt-token response');
+
+    // 2. Mic stream (reuse if we already have one)
+    if(!micStream||!micStream.active){
+      micStream=await navigator.mediaDevices.getUserMedia({
+        audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}
+      });
     }
-    // Track interim as fallback
-    if(interim){
-      interimText=interim;
-      if(interimTimer) clearTimeout(interimTimer);
-      // If we get interim but never get final, use interim after 1.5s silence
-      interimTimer=setTimeout(()=>{
-        interimTimer=null;
-        if(interimText&&!pendingText){
-          console.log('SR: using interim as fallback:',interimText);
-          const t=interimText; interimText='';
+
+    // 3. AudioContext for mic at 16kHz (separate from TTS audioCtx)
+    if(!micCtx||micCtx.state==='closed')
+      micCtx=new(window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
+    if(micCtx.state==='suspended') await micCtx.resume();
+
+    micSrc=micCtx.createMediaStreamSource(micStream);
+    micProc=micCtx.createScriptProcessor(4096,1,1);
+
+    // 4. Open Deepgram WebSocket
+    const url='wss://api.deepgram.com/v1/listen'
+      +'?model=nova-2&language=en&encoding=linear16&sample_rate=16000&channels=1'
+      +'&punctuate=true&interim_results=true&endpointing=400'
+      +'&utterance_end_ms=1200&smart_format=true';
+
+    dgSocket=new WebSocket(url,['token',tdata.key]);
+
+    dgSocket.onopen=()=>{
+      console.log('[STT] Deepgram connected');
+      micSrc.connect(micProc);
+      micProc.connect(micCtx.destination);
+      micProc.onaudioprocess=e=>{
+        if(!dgSocket||dgSocket.readyState!==1) return;
+        if(isTalking||isProcessing) return;
+        const f=e.inputBuffer.getChannelData(0);
+        const buf=new Int16Array(f.length);
+        for(let i=0;i<f.length;i++) buf[i]=Math.max(-32768,Math.min(32767,f[i]*32767|0));
+        dgSocket.send(buf.buffer);
+      };
+    };
+
+    dgSocket.onmessage=ev=>{
+      if(isTalking||isProcessing) return;
+      const d=JSON.parse(ev.data);
+
+      // UtteranceEnd = Deepgram says speaker stopped
+      if(d.type==='UtteranceEnd'){
+        if(pendingText.trim()){
+          const t=pendingText.trim(); pendingText='';
+          if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}
+          console.log('[STT] UtteranceEnd →',t);
           ask(t);
         }
-      },1500);
-    }
-    if(!fi){console.log('SR: no final result yet, interim:',interim);return;}
-    // Got final — clear interim fallback
-    if(interimTimer){clearTimeout(interimTimer);interimTimer=null;}
-    interimText='';
-    pendingText=(pendingText+' '+fi).trim();
-    console.log('SR pending:',pendingText);
-    if(silenceTimer) clearTimeout(silenceTimer);
-    silenceTimer=setTimeout(()=>{
-      silenceTimer=null;
-      const t=pendingText; pendingText='';
-      const words=t.trim().split(/\s+/).length;
-      console.log('SR silence fired',{t,words,isProcessing});
-      if(words>=1) ask(t);
-    },700);
-  };
+        return;
+      }
 
-  r.onerror=e=>{
-    console.warn('SR error:',e.error);
-    recRunning=false; rec=null;
-    if(e.error==='not-allowed'){setStatus('Mic denied');sessionActive=false;return;}
-    if(e.error==='aborted') return; // We aborted it ourselves, don't restart
-    if(sessionActive&&!isTalking) setTimeout(startRec,400);
-  };
+      const alt=d.channel?.alternatives?.[0];
+      if(!alt?.transcript) return;
+      const txt=alt.transcript.trim();
+      if(!txt) return;
 
-  r.onstart=()=>{
-    console.log('SR started successfully');
-  };
+      console.log('[STT]',d.is_final?'FINAL':'interim',d.speech_final?'(speech_final)':'',txt);
 
-  r.onend=()=>{
-    console.log('SR ended, sessionActive:',sessionActive,'isTalking:',isTalking);
-    recRunning=false; rec=null;
-    if(sessionActive&&!isTalking) setTimeout(startRec,300);
-  };
+      if(d.is_final){
+        pendingText=(pendingText+' '+txt).trim();
+        if(d.speech_final){
+          // Speaker paused — send immediately
+          const t=pendingText.trim(); pendingText='';
+          if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}
+          console.log('[STT] speech_final →',t);
+          ask(t);
+        } else {
+          // Might be more coming — wait 800ms
+          if(silenceTimer) clearTimeout(silenceTimer);
+          silenceTimer=setTimeout(()=>{
+            silenceTimer=null;
+            if(pendingText.trim()&&!isProcessing&&!isTalking){
+              const t=pendingText.trim(); pendingText='';
+              console.log('[STT] silence →',t);
+              ask(t);
+            }
+          },800);
+        }
+      }
+    };
 
-  if(srWatchdog) clearInterval(srWatchdog);
-  srWatchdog=setInterval(()=>{
-    if(!sessionActive){clearInterval(srWatchdog);srWatchdog=null;return;}
-    if(isTalking) return;
-    if(!recRunning) startRec();
-  },8000);
+    dgSocket.onerror=e=>console.error('[STT] WS error',e);
 
-  try{r.start();}catch(e){recRunning=false;rec=null;if(sessionActive&&!isTalking) setTimeout(startRec,500);}
+    dgSocket.onclose=e=>{
+      console.log('[STT] WS closed',e.code,e.reason);
+      dgSocket=null; disconnectMic();
+      // Auto-reconnect if session alive and not speaking
+      if(sessionActive&&!isTalking&&!isProcessing)
+        setTimeout(()=>{if(sessionActive&&!isTalking) startListening();},600);
+    };
+
+  }catch(e){
+    console.error('[STT] Failed:',e.message);
+    dgSocket=null;
+    // Fallback: retry in 2s
+    if(sessionActive) setTimeout(()=>{if(sessionActive&&!isTalking) startListening();},2000);
+  }
 }
 
-function stopRec(){
-  if(srWatchdog){clearInterval(srWatchdog);srWatchdog=null;}
+function disconnectMic(){
+  if(micProc){micProc.onaudioprocess=null;try{micProc.disconnect();}catch(e){} micProc=null;}
+  if(micSrc){try{micSrc.disconnect();}catch(e){} micSrc=null;}
+}
+
+function stopListening(){
   if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}
   pendingText='';
-  recRunning=false;
-  if(rec){try{rec.abort();}catch(e){} rec=null;}
+  disconnectMic();
+  if(dgSocket){try{dgSocket.close();}catch(e){} dgSocket=null;}
 }
 
 // ── TTS ────────────────────────────────────────────────────
@@ -714,30 +755,25 @@ function stopSpeaking(){
 }
 
 async function speak(text){
-  stopRec();       // SR must be dead before audio plays
+  stopListening();
   stopSpeaking();
   isTalking=true; isProcessing=true;
   sbEl.classList.add('on'); setStatus('Speaking...'); setBtnState('speaking');
 
-  let finished=false, safetyTimeout=null;
-  let audioSrc=null;
+  let finished=false, safetyTimeout=null, audioSrc=null;
   const done=()=>{
-    if(finished) return;
-    finished=true;
-    console.log('done() called');
+    if(finished) return; finished=true;
+    console.log('[TTS] done()');
     isTalking=false; mouthOpen=0; analyser=null;
     isProcessing=false; sbEl.classList.remove('on');
-    // Disconnect audio nodes so mic pipeline is clean for SR
     if(audioSrc){try{audioSrc.disconnect();}catch(e){} audioSrc=null;}
     if(safetyTimeout){clearTimeout(safetyTimeout);safetyTimeout=null;}
     if(sessionActive){
-      setStatus('Listening...');setBtnState('listening');
-      // Delay SR start — browser needs time to release audio focus after TTS
-      setTimeout(()=>{if(sessionActive&&!isTalking) startRec();},350);
+      setStatus('Connecting...'); setBtnState('listening');
+      setTimeout(()=>{if(sessionActive&&!isTalking) startListening();},250);
     }
   };
-  // Safety net: if done() never fires (silent TTS failure), force recovery
-  safetyTimeout=setTimeout(()=>{console.warn('speak() safety timeout');done();},30000);
+  safetyTimeout=setTimeout(()=>{console.warn('[TTS] safety timeout');done();},30000);
 
   try{
     const r=await fetch('/api/speak',{method:'POST',
@@ -761,14 +797,13 @@ async function speak(text){
     audio.onerror=()=>{URL.revokeObjectURL(url);currentAudio=null;done();};
     await audio.play();
   }catch(e){
-    console.warn('TTS:',e.message);
+    console.warn('[TTS] fail:',e.message);
     try{
       const u=new SpeechSynthesisUtterance(text);
       u.rate=1.0; u.onend=done; u.onerror=done;
       window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
-      // Browser TTS can silently fail — shorter safety net
       if(safetyTimeout) clearTimeout(safetyTimeout);
-      safetyTimeout=setTimeout(()=>{console.warn('Browser TTS timeout');done();},15000);
+      safetyTimeout=setTimeout(()=>{console.warn('[TTS] browser timeout');done();},15000);
     }catch(e2){done();}
   }
 }
@@ -777,7 +812,7 @@ async function speak(text){
 async function ask(text){
   if(!text||!text.trim()||isProcessing) return;
   isProcessing=true;
-  stopRec();
+  stopListening();
   const isGreet=(text==='__greet__');
   if(!isGreet) persistentHist.push({role:'user',content:text.trim()});
   setStatus('Thinking...'); setBtnState('thinking');
@@ -792,33 +827,34 @@ async function ask(text){
     if(!isGreet) persistentHist.push({role:'assistant',content:reply});
     speak(reply);
   }catch(e){
-    console.error('ask:',e); isProcessing=false;
-    if(sessionActive){setStatus('Listening...');setBtnState('listening');startRec();}
+    console.error('[LLM] error:',e); isProcessing=false;
+    if(sessionActive){setStatus('Listening...');setBtnState('listening');startListening();}
   }
 }
 
 // ── Session ─────────────────────────────────────────────────
 function stopSession(){
   sessionActive=false; isProcessing=false;
-  stopRec(); stopSpeaking();
+  stopListening(); stopSpeaking();
+  // Release mic
+  if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null;}
+  if(micCtx){try{micCtx.close();}catch(e){} micCtx=null;}
   sbEl.classList.remove('on');
   setBtnState('idle'); setStatus('Online · Ready to Talk');
 }
 
 async function toggleVoice(){
   if(sessionActive){stopSession();return;}
-  if(!micGranted){
-    setStatus('Requesting mic...');
-    document.getElementById('vlbl').textContent='...';
-    try{
-      const s=await navigator.mediaDevices.getUserMedia({audio:true});
-      s.getTracks().forEach(t=>t.stop());
-      micGranted=true;
-    }catch(e){setStatus('Mic denied');setBtnState('idle');return;}
-  }
+  setStatus('Requesting mic...');
+  document.getElementById('vlbl').textContent='...';
+  try{
+    micStream=await navigator.mediaDevices.getUserMedia({
+      audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}
+    });
+    micGranted=true;
+  }catch(e){setStatus('Mic denied');setBtnState('idle');return;}
   sessionActive=true; isProcessing=false; pendingText='';
   isTalking=false;
-  // Greet first — SR starts after greeting finishes via done()
   ask('__greet__');
 }
 </script>

@@ -33,7 +33,15 @@ export default async function handler(req) {
     }
 
     const data = await res.json();
-    return new Response(JSON.stringify({ key: data.key }), {
+    // Deepgram may return { key: "..." } or { access_token: "..." }
+    const token = data.key || data.access_token;
+    if (!token) {
+      console.error('Deepgram token response missing key:', JSON.stringify(data));
+      return new Response(JSON.stringify({ error: 'No token in response', raw: data }), {
+        status: 500, headers: { 'Content-Type': 'application/json', ...cors },
+      });
+    }
+    return new Response(JSON.stringify({ key: token }), {
       headers: { 'Content-Type': 'application/json', ...cors },
     });
   } catch (e) {
