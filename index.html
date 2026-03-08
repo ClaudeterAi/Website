@@ -1237,6 +1237,19 @@ async function toggleVoice(){
 
       <div class="testi-card reveal">
         <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="testi-quote">We were spending 40 hours a week on insurance follow-up calls. Claudeter built a voice agent that handles it autonomously — navigates IVR trees, gets to a live rep, and logs everything back into our system. Our collections team now works exceptions only. ROI showed in month one.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">JT</div>
+          <div>
+            <div class="testi-name">James Thornton</div>
+            <div class="testi-role">President · NovaCare Revenue Solutions, Florida</div>
+          </div>
+          <div class="testi-flag">🇺🇸</div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
         <p class="testi-quote">We were missing 35% of incoming reservation calls during dinner service. Claudeter built an AI voice agent that now answers every call, takes bookings, and handles dietary questions. Revenue from recaptured reservations paid for the whole project in 6 weeks.</p>
         <div class="testi-author">
           <div class="testi-avatar">LB</div>
@@ -1612,6 +1625,7 @@ document.querySelectorAll('.reveal').forEach(el=>{
 
 <script>
 (function(){
+const OAI_KEY = 'OPENAI_API_KEY_PLACEHOLDER';
 const SYSTEM_PROMPT = `You are NOVA, an intelligent AI assistant for Claudeter — a premium AI agency that builds voice agents, AI automation systems, and intelligent products for clients across the USA, UAE, and India. You speak with precision, warmth, and confidence. You are conversational but efficient.
 
 ## About Claudeter
@@ -1734,19 +1748,18 @@ function cwHideTyping(){ const d=document.getElementById('cw-typing-ind'); if(d)
 async function cwThink(userMsg){
   cwShowTyping();
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
+    const res = await fetch('https://api.openai.com/v1/chat/completions',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer ' + OAI_KEY},
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'gpt-4o',
         max_tokens:1000,
-        system: SYSTEM_PROMPT,
-        messages: cwHistory
+        messages: [{role:'system',content:SYSTEM_PROMPT}, ...cwHistory]
       })
     });
     const data = await res.json();
     cwHideTyping();
-    let reply = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : "Let me connect you with our team directly — reach us at nova@claudeter.ai";
+    let reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) ? data.choices[0].message.content : "Let me connect you with our team directly — reach us at nova@claudeter.ai";
     
     // Check for lead data
     if(reply.includes('LEAD_DATA:')){
