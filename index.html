@@ -1625,7 +1625,6 @@ document.querySelectorAll('.reveal').forEach(el=>{
 
 <script>
 (function(){
-const OAI_KEY = 'OPENAI_API_KEY_PLACEHOLDER';
 const SYSTEM_PROMPT = `You are NOVA, an intelligent AI assistant for Claudeter — a premium AI agency that builds voice agents, AI automation systems, and intelligent products for clients across the USA, UAE, and India. You speak with precision, warmth, and confidence. You are conversational but efficient.
 
 ## About Claudeter
@@ -1748,18 +1747,17 @@ function cwHideTyping(){ const d=document.getElementById('cw-typing-ind'); if(d)
 async function cwThink(userMsg){
   cwShowTyping();
   try {
-    const res = await fetch('https://api.openai.com/v1/chat/completions',{
+    const res = await fetch('/api/nova',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer ' + OAI_KEY},
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'gpt-4o',
-        max_tokens:1000,
-        messages: [{role:'system',content:SYSTEM_PROMPT}, ...cwHistory]
+        messages: cwHistory,
+        max_tokens: 300
       })
     });
     const data = await res.json();
     cwHideTyping();
-    let reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) ? data.choices[0].message.content : "Let me connect you with our team directly — reach us at nova@claudeter.ai";
+    let reply = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : "Let me connect you with our team directly — reach us at nova@claudeter.ai";
     
     // Check for lead data
     if(reply.includes('LEAD_DATA:')){
