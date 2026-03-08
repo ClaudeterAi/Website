@@ -81,7 +81,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 .nlinks a:hover{color:#00ffcc}
 .ncta{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:9px 20px;border:1px solid #00ffcc;color:#00ffcc;text-decoration:none;transition:all .3s;opacity:0;animation:fi .8s .6s forwards}
 .ncta:hover{color:#000;background:#00ffcc}
-#bot{position:fixed;bottom:0;left:0;right:0;z-index:30;background:linear-gradient(to top,rgba(0,0,0,.97) 0%,rgba(0,0,0,.6) 50%,transparent 100%);padding:0 0 28px;display:flex;flex-direction:column;align-items:center;gap:10px}
+#bot{position:fixed;bottom:0;left:0;right:0;z-index:30;background:linear-gradient(to top,rgba(0,0,0,.97) 0%,rgba(0,0,0,.6) 50%,transparent 100%);padding:0 0 28px;display:flex;flex-direction:column;align-items:center;gap:10px;transition:opacity .3s,transform .3s}
+#bot.hidden{opacity:0;pointer-events:none;transform:translateY(40px)}
 #ntitle{text-align:center;opacity:0;animation:fi 1s 1.4s forwards}
 .nn{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,5.5vw,5rem);letter-spacing:.45em;background:linear-gradient(90deg,#00ffcc,#00cfff,#6c00ff,#00cfff);background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 6s linear infinite;line-height:1}
 .ns{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-top:5px}
@@ -1019,15 +1020,18 @@ function novaFabClick(){
   setTimeout(()=>{if(!sessionActive) toggleVoice();},600);
 }
 
-// Show/hide fab based on scroll position
+// Show/hide fab and NOVA panel based on scroll position
 (function(){
   const fab=document.getElementById('nova-fab');
-  if(!fab) return;
+  const bot=document.getElementById('bot');
+  if(!fab||!bot) return;
   let ticking=false;
   window.addEventListener('scroll',()=>{
     if(!ticking){
       requestAnimationFrame(()=>{
-        fab.classList.toggle('show',window.scrollY>window.innerHeight*0.7);
+        const pastHero=window.scrollY>window.innerHeight*0.7;
+        fab.classList.toggle('show',pastHero);
+        bot.classList.toggle('hidden',pastHero);
         ticking=false;
       });
       ticking=true;
