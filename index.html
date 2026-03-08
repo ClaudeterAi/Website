@@ -626,9 +626,12 @@ async function startListening(){
   try{
     // 1. Get ephemeral Deepgram token
     const tres=await fetch('/api/stt-token',{method:'POST'});
-    if(!tres.ok){const t=await tres.text();throw new Error('stt-token '+tres.status+': '+t);}
-    const tdata=await tres.json();
-    if(!tdata.key) throw new Error('No key in stt-token response');
+    const ttext=await tres.text();
+    console.log('[STT] Token response:',tres.status,ttext);
+    if(!tres.ok) throw new Error('stt-token '+tres.status+': '+ttext);
+    let tdata;
+    try{tdata=JSON.parse(ttext);}catch(e){throw new Error('stt-token parse error: '+ttext);}
+    if(!tdata.key) throw new Error('No key in response: '+ttext);
 
     // 2. Mic stream (reuse if we already have one)
     if(!micStream||!micStream.active){
@@ -661,15 +664,27 @@ async function startListening(){
         if(!dgSocket||dgSocket.readyState!==1) return;
         if(isTalking||isProcessing) return;
         const f=e.inputBuffer.getChannelData(0);
+        // Check if there's actual audio (not silence)
+        let maxVal=0;
         const buf=new Int16Array(f.length);
-        for(let i=0;i<f.length;i++) buf[i]=Math.max(-32768,Math.min(32767,f[i]*32767|0));
+        for(let i=0;i<f.length;i++){
+          buf[i]=Math.max(-32768,Math.min(32767,f[i]*32767|0));
+          if(Math.abs(buf[i])>maxVal) maxVal=Math.abs(buf[i]);
+        }
         dgSocket.send(buf.buffer);
       };
     };
 
     dgSocket.onmessage=ev=>{
-      if(isTalking||isProcessing) return;
       const d=JSON.parse(ev.data);
+      // Log ALL messages including state
+      if(d.channel?.alternatives?.[0]?.transcript){
+        console.log('[STT] RAW msg:',d.channel.alternatives[0].transcript,'| isTalking:',isTalking,'isProcessing:',isProcessing,'is_final:',d.is_final);
+      }
+      if(isTalking||isProcessing){
+        if(d.channel?.alternatives?.[0]?.transcript) console.warn('[STT] DROPPED — blocked by',{isTalking,isProcessing});
+        return;
+      }
 
       // UtteranceEnd = Deepgram says speaker stopped
       if(d.type==='UtteranceEnd'){

@@ -19,8 +19,7 @@ export default async function handler(req) {
         'Authorization': `Token ${process.env.DEEPGRAM_API_KEY}`,
       },
       body: JSON.stringify({
-        // Token valid for 30 seconds — long enough to open the WS
-        time_to_live_in_seconds: 30,
+        ttl_seconds: 30,
       }),
     });
 
