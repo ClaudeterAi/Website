@@ -650,14 +650,13 @@ async function startListening(){
     micSrc=micCtx.createMediaStreamSource(micStream);
     micProc=micCtx.createScriptProcessor(4096,1,1);
 
-    // 4. Open Deepgram WebSocket — JWT tokens go as query param, not subprotocol
+    // 4. Open Deepgram WebSocket — API keys use subprotocol auth
     const url='wss://api.deepgram.com/v1/listen'
-      +'?token='+encodeURIComponent(tdata.key)
-      +'&model=nova-2&language=en&encoding=linear16&sample_rate=16000&channels=1'
+      +'?model=nova-2&language=en&encoding=linear16&sample_rate=16000&channels=1'
       +'&punctuate=true&interim_results=true&endpointing=400'
       +'&utterance_end_ms=1200&smart_format=true';
 
-    dgSocket=new WebSocket(url);
+    dgSocket=new WebSocket(url,['token',tdata.key]);
 
     dgSocket.onopen=()=>{
       console.log('[STT] Deepgram connected');
