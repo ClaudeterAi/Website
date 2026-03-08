@@ -124,10 +124,25 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 
 /* ========== PAGE LAYOUT ========== */
 html,body{overflow-x:hidden}
-#page{position:relative;z-index:10;margin-top:100vh;overflow:visible}
+#page{position:relative;z-index:10;margin-top:100vh;overflow:visible;background:#020108}
+#page::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 15%,rgba(20,0,60,.4),transparent 70%),
+    radial-gradient(ellipse 60% 40% at 75% 45%,rgba(0,40,80,.3),transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 80%,rgba(0,60,50,.2),transparent 60%),
+    radial-gradient(1px 1px at 10% 20%,rgba(255,255,255,.15),transparent),
+    radial-gradient(1px 1px at 30% 65%,rgba(255,255,255,.1),transparent),
+    radial-gradient(1px 1px at 55% 10%,rgba(255,255,255,.12),transparent),
+    radial-gradient(1px 1px at 70% 40%,rgba(255,255,255,.08),transparent),
+    radial-gradient(1px 1px at 85% 75%,rgba(255,255,255,.1),transparent),
+    radial-gradient(1px 1px at 15% 85%,rgba(255,255,255,.1),transparent),
+    radial-gradient(1px 1px at 45% 35%,rgba(0,255,204,.12),transparent),
+    radial-gradient(1px 1px at 92% 15%,rgba(0,207,255,.1),transparent)
+}
+#page>section{position:relative;z-index:1}
 
 /* Scroll hint */
-#scroll-hint{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:25;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fi 1s 2.5s forwards;pointer-events:none}
+#scroll-hint{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:25;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fi 1s 2.5s forwards}
 #scroll-hint span{font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(0,255,204,.4)}
 .sh-line{width:1px;height:32px;background:linear-gradient(to bottom,rgba(0,255,204,.4),transparent);animation:shpulse 2s ease-in-out infinite}
 @keyframes shpulse{0%,100%{opacity:.3}50%{opacity:1}}
@@ -143,7 +158,7 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .sec-sub{font-size:.82rem;letter-spacing:.02em;color:rgba(255,255,255,.75);max-width:560px;line-height:1.8}
 
 /* ========== SERVICES ========== */
-#s-services{background:#000}
+#s-services{background:transparent}
 #s-services::before{background:radial-gradient(ellipse 60% 50% at 80% 50%,rgba(0,255,204,.04),transparent)}
 .srv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:56px;border:1px solid rgba(0,255,204,.06)}
 .srv-card{padding:36px 30px;border:1px solid rgba(0,255,204,.06);background:#000;transition:background .3s,border-color .3s;position:relative;overflow:hidden}
@@ -169,7 +184,7 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .proc-line{width:60px;flex-shrink:0;height:1px;background:linear-gradient(90deg,rgba(0,255,204,.2),rgba(0,255,204,.05));margin-top:28px;align-self:flex-start}
 
 /* ========== INDUSTRIES ========== */
-#s-industries{background:#000}
+#s-industries{background:transparent}
 #s-industries::before{background:radial-gradient(ellipse 60% 50% at 20% 50%,rgba(0,207,255,.04),transparent)}
 .ind-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:56px;border:1px solid rgba(0,255,204,.06)}
 .ind-card{padding:32px 28px;border:1px solid rgba(0,255,204,.06);background:#000;transition:background .3s}
@@ -180,7 +195,7 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .ind-markets span{font-size:.58rem;letter-spacing:.06em;padding:4px 10px;border:1px solid rgba(0,207,255,.3);color:rgba(0,207,255,.85)}
 
 /* ========== STACK ========== */
-#s-stack{background:linear-gradient(180deg,#000 0%,#020a06 50%,#000 100%)}
+#s-stack{background:linear-gradient(180deg,transparent 0%,rgba(2,10,6,.5) 50%,transparent 100%)}
 .stack-cats{display:flex;flex-direction:column;gap:30px;margin-top:56px}
 .stack-cat{display:flex;align-items:flex-start;gap:40px;padding:24px 0;border-bottom:1px solid rgba(0,255,204,.05)}
 .stack-cat:last-child{border-bottom:none}
@@ -190,7 +205,7 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .stack-items span:hover{border-color:#00ffcc;color:#00ffcc;background:rgba(0,255,204,.04)}
 
 /* ========== ABOUT ========== */
-#s-about{background:#000}
+#s-about{background:transparent}
 #s-about::before{background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(108,0,255,.04),transparent)}
 .about-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
 .about-body{font-size:.78rem;color:rgba(255,255,255,.75);line-height:1.9;letter-spacing:.02em;margin-bottom:20px}
@@ -206,7 +221,7 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .ml-text{font-size:.76rem;color:rgba(255,255,255,.75);letter-spacing:.02em;line-height:1.8}
 
 /* ========== TESTIMONIALS ========== */
-#s-testimonials{background:linear-gradient(180deg,#000 0%,#020a06 50%,#000 100%)}
+#s-testimonials{background:linear-gradient(180deg,transparent 0%,rgba(2,10,6,.3) 50%,transparent 100%)}
 .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:56px;border:1px solid rgba(0,255,204,.06)}
 .testi-card{padding:32px 28px;border:1px solid rgba(0,255,204,.06);background:#000;transition:background .3s,border-color .3s;position:relative}
 .testi-card:hover{background:#030f09;border-color:rgba(0,255,204,.15)}
@@ -221,7 +236,7 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .testi-flag{font-size:.7rem;margin-left:auto}
 
 /* ========== CONTACT ========== */
-#s-contact{background:linear-gradient(180deg,#000 0%,#020c06 100%)}
+#s-contact{background:linear-gradient(180deg,transparent 0%,rgba(2,12,6,.6) 100%)}
 .contact-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
 .contact-details{margin-top:40px;display:flex;flex-direction:column;gap:0}
 .cd-row{display:flex;gap:0;border-bottom:1px solid rgba(0,255,204,.05);padding:14px 0}
@@ -1045,8 +1060,9 @@ function novaFabClick(){
 
 <!-- HERO SECTION (full screen, scroll indicator) -->
 <section id="s-hero">
-  <div id="scroll-hint">
-    <span>Scroll to explore</span>
+  <div id="scroll-hint" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="cursor:pointer;pointer-events:auto">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(0,255,204,.5)" stroke-width="2" stroke-linecap="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+    <span>Back to top</span>
     <div class="sh-line"></div>
   </div>
 </section>
@@ -1055,8 +1071,8 @@ function novaFabClick(){
 <section id="s-services">
   <div class="sec-inner">
     <div class="sec-label">// 01 · Services</div>
-    <h2 class="sec-title">What We <span class="hl">Build</span></h2>
-    <p class="sec-sub">End-to-end AI services — voice agents, automation systems, and intelligent products — that go live in weeks, not quarters. We build across industries, markets, and scale.</p>
+    <h2 class="sec-title">You Run the Business. We Automate the <span class="hl">Rest.</span></h2>
+    <p class="sec-sub">From customer calls to back-office workflows — we build AI that handles the repetitive, the complex, and the time-consuming. Voice agents, automation systems, and intelligent products that go live in weeks, not quarters.</p>
     <div class="srv-grid">
       <div class="srv-card">
         <div class="srv-icon"><svg class="sico" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" ><circle cx="16" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="22" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="25" cy="22" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="22" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="16" y1="10.5" x2="7" y2="19.5" stroke="currentColor" stroke-width="1.5"/><line x1="16" y1="10.5" x2="16" y2="19.5" stroke="currentColor" stroke-width="1.5"/><line x1="16" y1="10.5" x2="25" y2="19.5" stroke="currentColor" stroke-width="1.5"/><line x1="7" y1="24.5" x2="16" y2="24.5" stroke="currentColor" stroke-width="1.5"/><line x1="16" y1="24.5" x2="25" y2="24.5" stroke="currentColor" stroke-width="1.5"/></svg></div>
@@ -1197,13 +1213,19 @@ function novaFabClick(){
       <div class="stack-cat">
         <div class="stack-cat-label">AI / Models</div>
         <div class="stack-items">
-          <span>Claude</span><span>GPT-4o</span><span>Gemini</span><span>Llama 3</span><span>Whisper</span><span>ElevenLabs</span><span>Stable Diffusion</span><span>DALL·E</span>
+          <span>Claude</span><span>OpenAI</span><span>Gemini</span><span>Llama 3</span><span>Whisper</span><span>Stable Diffusion</span>
+        </div>
+      </div>
+      <div class="stack-cat">
+        <div class="stack-cat-label">Voice &amp; Speech</div>
+        <div class="stack-items">
+          <span>ElevenLabs</span><span>Deepgram</span><span>Retell AI</span><span>Twilio</span><span>LiveKit</span>
         </div>
       </div>
       <div class="stack-cat">
         <div class="stack-cat-label">Orchestration</div>
         <div class="stack-items">
-          <span>LangChain</span><span>LangGraph</span><span>CrewAI</span><span>AutoGen</span><span>n8n</span><span>Make</span><span>Zapier</span>
+          <span>LangChain</span><span>LangGraph</span><span>CrewAI</span><span>AutoGen</span><span>n8n</span><span>Make</span>
         </div>
       </div>
       <div class="stack-cat">
@@ -1222,12 +1244,6 @@ function novaFabClick(){
         <div class="stack-cat-label">Backend &amp; Infra</div>
         <div class="stack-items">
           <span>Node.js</span><span>Python</span><span>FastAPI</span><span>AWS</span><span>Vercel</span><span>Cloudflare</span><span>Docker</span>
-        </div>
-      </div>
-      <div class="stack-cat">
-        <div class="stack-cat-label">Telephony &amp; Voice</div>
-        <div class="stack-items">
-          <span>Twilio</span><span>Deepgram</span><span>ElevenLabs</span><span>Retell AI</span><span>Whisper</span><span>LiveKit</span>
         </div>
       </div>
     </div>
