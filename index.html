@@ -263,7 +263,7 @@ a.cd-val:hover{color:#00ffcc}
 <div id="vig"></div>
 <div id="glitch"></div>
 <nav>
-  <div class="nlogo"><img src="/logo/claudeter_logo_transparent.png" alt="Claudeter" style="height:36px;width:auto;display:block;"></div>
+  <div class="nlogo"><img src="/logo/claudeter_logo_transparent.png" alt="Claudeter" style="height:36px;width:auto;display:block;"><span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.18em;background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-left:10px;">CLAUDETER</span></div>
   <div class="nlinks"><a href="#s-services">Services</a><a href="#s-about">About</a><a href="#s-stack">Stack</a><a href="#s-industries">Industries</a></div>
   <a href="#s-contact" class="ncta">Book a Call ↗</a>
 </nav>
@@ -654,11 +654,10 @@ async function startListening(){
     const url='wss://api.deepgram.com/v1/listen'
       +'?model=nova-2&language=en&encoding=linear16&sample_rate=16000&channels=1'
       +'&punctuate=true&interim_results=true'
-      +'&endpointing=300'
-      +'&utterance_end_ms=1000'
+      +'&endpointing=600'
+      +'&utterance_end_ms=1500'
       +'&smart_format=true'
-      +'&filler_words=false'
-      +'&keywords=Claudeter:2&keywords=NOVA:2&keywords=RCM:1.5&keywords=AI:1';
+      +'&keywords=Claudeter:1.5';
 
     dgSocket=new WebSocket(url,['token',tdata.key]);
 
@@ -720,24 +719,18 @@ async function startListening(){
 
       if(d.is_final){
         pendingText=(pendingText+' '+txt).trim();
-        if(d.speech_final){
-          // Speaker paused — send immediately
-          const t=pendingText.trim(); pendingText='';
-          if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}
-          console.log('[STT] speech_final →',t);
-          ask(t);
-        } else {
-          // Might be more coming — wait 500ms
-          if(silenceTimer) clearTimeout(silenceTimer);
-          silenceTimer=setTimeout(()=>{
-            silenceTimer=null;
-            if(pendingText.trim()&&!isProcessing&&!isTalking){
-              const t=pendingText.trim(); pendingText='';
-              console.log('[STT] silence →',t);
-              ask(t);
-            }
-          },500);
-        }
+        // Don't send immediately on speech_final — give the person time to continue
+        // UtteranceEnd (above) is the reliable "they stopped talking" signal
+        // This timer is a fallback in case UtteranceEnd doesn't fire
+        if(silenceTimer) clearTimeout(silenceTimer);
+        silenceTimer=setTimeout(()=>{
+          silenceTimer=null;
+          if(pendingText.trim()&&!isProcessing&&!isTalking){
+            const t=pendingText.trim(); pendingText='';
+            console.log('[STT] silence timeout →',t);
+            ask(t);
+          }
+        }, d.speech_final ? 1200 : 2000);
       }
     };
 
@@ -746,10 +739,16 @@ async function startListening(){
     dgSocket.onclose=e=>{
       console.log('[STT] WS closed',e.code,e.reason);
       dgSocket=null; disconnectMic();
-      if(sessionActive&&!isTalking&&!isProcessing&&dgReconnects<DG_MAX_RECONNECTS){
+      if(sessionActive&&dgReconnects<DG_MAX_RECONNECTS){
         dgReconnects++;
         console.log('[STT] Reconnecting ('+dgReconnects+'/'+DG_MAX_RECONNECTS+')...');
-        setTimeout(()=>{if(sessionActive&&!isTalking) startListening();},600);
+        // Wait until not speaking/thinking to reconnect
+        const tryReconnect=()=>{
+          if(!sessionActive) return;
+          if(isTalking||isProcessing){setTimeout(tryReconnect,500);return;}
+          startListening();
+        };
+        setTimeout(tryReconnect,600);
       } else if(dgReconnects>=DG_MAX_RECONNECTS){
         console.error('[STT] Max reconnects reached. Stopped.');
         setStatus('Voice error — refresh to retry');
@@ -769,12 +768,23 @@ function disconnectMic(){
   if(micSrc){try{micSrc.disconnect();}catch(e){} micSrc=null;}
 }
 
-function stopListening(){
+function pauseListening(){
+  // Pause sending audio but keep WebSocket alive
   if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}
-  if(dgKeepAlive){clearInterval(dgKeepAlive);dgKeepAlive=null;}
   pendingText='';
+  // Don't disconnect mic or close socket — just stop sending via the isTalking/isProcessing guards
+}
+
+function stopListening(){
+  // Full shutdown — close everything
+  pauseListening();
+  if(dgKeepAlive){clearInterval(dgKeepAlive);dgKeepAlive=null;}
   disconnectMic();
-  if(dgSocket){try{dgSocket.close();}catch(e){} dgSocket=null;}
+  if(dgSocket){
+    try{dgSocket.send(JSON.stringify({type:'CloseStream'}));}catch(e){}
+    try{dgSocket.close();}catch(e){}
+    dgSocket=null;
+  }
 }
 
 // ── TTS ────────────────────────────────────────────────────
@@ -790,7 +800,7 @@ function stopSpeaking(){
 }
 
 async function speak(text){
-  stopListening();
+  pauseListening(); // Pause STT but keep WS alive
   stopSpeaking();
   isTalking=true; isProcessing=true;
   sbEl.classList.add('on'); setStatus('Speaking...'); setBtnState('speaking');
@@ -804,8 +814,13 @@ async function speak(text){
     if(audioSrc){try{audioSrc.disconnect();}catch(e){} audioSrc=null;}
     if(safetyTimeout){clearTimeout(safetyTimeout);safetyTimeout=null;}
     if(sessionActive){
-      setStatus('Connecting...'); setBtnState('listening');
-      setTimeout(()=>{if(sessionActive&&!isTalking) startListening();},250);
+      setStatus('Listening...'); setBtnState('listening');
+      // If WS still alive, just resume. If dead, reconnect.
+      if(dgSocket&&dgSocket.readyState===1){
+        console.log('[STT] Resuming (WS alive)');
+      } else {
+        setTimeout(()=>{if(sessionActive&&!isTalking) startListening();},250);
+      }
     }
   };
   safetyTimeout=setTimeout(()=>{console.warn('[TTS] safety timeout');done();},30000);
@@ -847,7 +862,7 @@ async function speak(text){
 async function ask(text){
   if(!text||!text.trim()||isProcessing) return;
   isProcessing=true;
-  stopListening();
+  pauseListening(); // Pause STT but keep WS alive
   const isGreet=(text==='__greet__');
   if(!isGreet) persistentHist.push({role:'user',content:text.trim()});
   setStatus('Thinking...'); setBtnState('thinking');
