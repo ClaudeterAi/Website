@@ -621,7 +621,7 @@ let dgReconnects=0, dgKeepAlive=null;
 const DG_MAX_RECONNECTS=3;
 
 async function startListening(){
-  if(dgSocket||!sessionActive||isTalking||isProcessing) return;
+  if(dgSocket||!sessionActive) return; // Only block if WS already exists or session dead
   console.log('[STT] Starting Deepgram...');
   setStatus('Listening...'); setBtnState('listening');
 
@@ -904,7 +904,11 @@ async function toggleVoice(){
   }catch(e){setStatus('Mic denied');setBtnState('idle');return;}
   sessionActive=true; isProcessing=false; pendingText='';
   isTalking=false;
+  // Start greeting AND pre-connect Deepgram in parallel
+  // The isTalking/isProcessing guards prevent audio from being sent during greeting
   ask('__greet__');
+  // Pre-connect STT so it's ready instantly when greeting ends
+  setTimeout(()=>{if(sessionActive) startListening();},500);
 }
 </script>
 
