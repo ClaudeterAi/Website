@@ -41,7 +41,7 @@ export default async function handler(req) {
       body: JSON.stringify({
         comment: 'nova-temp',
         scopes: ['usage:write'],
-        time_to_live_in_seconds: 60,
+        time_to_live_in_seconds: 300,
       }),
     });
     if (!keyRes.ok) {

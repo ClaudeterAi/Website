@@ -719,18 +719,17 @@ async function startListening(){
 
       if(d.is_final){
         pendingText=(pendingText+' '+txt).trim();
-        // Don't send immediately on speech_final — give the person time to continue
-        // UtteranceEnd (above) is the reliable "they stopped talking" signal
-        // This timer is a fallback in case UtteranceEnd doesn't fire
+        // UtteranceEnd (above) is the PRIMARY trigger for sending to LLM.
+        // This timer is ONLY a safety fallback if UtteranceEnd never fires.
         if(silenceTimer) clearTimeout(silenceTimer);
         silenceTimer=setTimeout(()=>{
           silenceTimer=null;
           if(pendingText.trim()&&!isProcessing&&!isTalking){
             const t=pendingText.trim(); pendingText='';
-            console.log('[STT] silence timeout →',t);
+            console.log('[STT] safety fallback →',t);
             ask(t);
           }
-        }, d.speech_final ? 1200 : 2000);
+        }, 5000); // 5 seconds — only fires if UtteranceEnd never comes
       }
     };
 
