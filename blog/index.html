@@ -4,11 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Blog — Claudeter AI Agency</title>
-<meta name="description" content="Insights on AI voice agents, RCM automation, healthcare AI, and intelligent automation from the Claudeter team."/>
+<meta name="description" content="Insights on AI voice agents, automation, and intelligent systems across healthcare, restaurants, airlines, retail, banking, logistics, real estate, and more."/>
 <link rel="canonical" href="https://www.claudeter.ai/blog/"/>
-<meta property="og:title" content="Blog — Claudeter AI Agency"/>
-<meta property="og:description" content="Insights on AI voice agents, RCM automation, healthcare AI, and intelligent automation."/>
-<meta property="og:url" content="https://www.claudeter.ai/blog/"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -21,15 +18,19 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 .nlinks a:hover{color:#00ffcc}
 .ncta{font-size:.54rem;letter-spacing:.16em;text-transform:uppercase;padding:9px 20px;border:1px solid #00ffcc;color:#00ffcc;text-decoration:none;transition:all .3s}
 .ncta:hover{color:#000;background:#00ffcc}
-.hero{padding:140px 44px 80px;max-width:1200px;margin:0 auto}
+.hero{padding:140px 44px 60px;max-width:1200px;margin:0 auto}
 .hero-label{font-size:.48rem;letter-spacing:.22em;text-transform:uppercase;color:#00ffcc;opacity:.85;margin-bottom:16px}
 .hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,6vw,5rem);letter-spacing:.08em;line-height:1.05;margin-bottom:20px}
 .hero-title .hl{background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-sub{font-size:.62rem;color:rgba(255,255,255,.5);line-height:1.8;max-width:500px}
-.blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:0;border-top:1px solid rgba(0,255,204,.06)}
+.hero-sub{font-size:.62rem;color:rgba(255,255,255,.5);line-height:1.8;max-width:560px;margin-bottom:36px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:48px}
+.filter-btn{font-size:.44rem;letter-spacing:.14em;text-transform:uppercase;padding:6px 14px;border:1px solid rgba(0,255,204,.2);color:rgba(0,255,204,.6);background:transparent;cursor:pointer;transition:all .2s;font-family:'JetBrains Mono',monospace}
+.filter-btn:hover,.filter-btn.active{background:rgba(0,255,204,.1);border-color:#00ffcc;color:#00ffcc}
+.blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;border-top:1px solid rgba(0,255,204,.06)}
 .blog-card{background:#000;border:1px solid rgba(0,255,204,.06);transition:background .3s,border-color .3s;text-decoration:none;color:inherit;display:flex;flex-direction:column}
 .blog-card:hover{background:#030f09;border-color:rgba(0,255,204,.18)}
-.blog-img{width:100%;aspect-ratio:16/9;overflow:hidden;position:relative}
+.blog-card.hidden{display:none}
+.blog-img{width:100%;aspect-ratio:16/9;overflow:hidden}
 .blog-img canvas{width:100%;height:100%;display:block}
 .blog-body{padding:28px 28px 32px;flex:1;display:flex;flex-direction:column}
 .blog-tag{font-size:.42rem;letter-spacing:.16em;text-transform:uppercase;color:#00ffcc;opacity:.7;margin-bottom:12px}
@@ -39,8 +40,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 .blog-date{font-size:.44rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3)}
 .blog-read{font-size:.44rem;letter-spacing:.12em;text-transform:uppercase;color:#00ffcc;opacity:.6}
 .container{max-width:1200px;margin:0 auto;padding:0 44px 100px}
-@keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:900px){.blog-grid{grid-template-columns:1fr 1fr}nav{padding:14px 20px}.nlinks{display:none}.hero{padding:120px 20px 60px}.container{padding:0 20px 80px}}
+@media(max-width:900px){.blog-grid{grid-template-columns:1fr 1fr}nav{padding:14px 20px}.nlinks{display:none}.hero{padding:120px 20px 50px}.container{padding:0 20px 80px}}
 @media(max-width:600px){.blog-grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -48,95 +48,98 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 <nav>
   <a href="/" class="nlogo"><span>CLAUDETER</span></a>
   <div class="nlinks">
-    <a href="/#s-services">Services</a>
-    <a href="/#s-about">About</a>
-    <a href="/#s-stack">Stack</a>
-    <a href="/#s-industries">Industries</a>
+    <a href="/#s-services">Services</a><a href="/#s-about">About</a><a href="/#s-stack">Stack</a><a href="/#s-industries">Industries</a>
     <a href="/blog/" style="color:#00ffcc">Blog</a>
   </div>
   <a href="/#s-contact" class="ncta">Book a Call ↗</a>
 </nav>
-
 <div class="hero">
   <div class="hero-label">// Claudeter Insights</div>
   <h1 class="hero-title">AI That <span class="hl">Actually</span> Ships</h1>
-  <p class="hero-sub">Practical thinking on voice agents, RCM automation, healthcare AI, and building intelligent systems that work in the real world.</p>
+  <p class="hero-sub">Practical thinking on AI voice agents, automation, and intelligent systems across healthcare, restaurants, airlines, retail, banking, logistics, and more.</p>
+  <div class="filters">
+    <button class="filter-btn active" onclick="filter('all')">All (20)</button>
+    <button class="filter-btn" onclick="filter('Healthcare')">Healthcare</button>
+    <button class="filter-btn" onclick="filter('Voice AI')">Voice AI</button>
+    <button class="filter-btn" onclick="filter('Restaurant')">Restaurants</button>
+    <button class="filter-btn" onclick="filter('Airlines')">Airlines</button>
+    <button class="filter-btn" onclick="filter('Retail')">Retail</button>
+    <button class="filter-btn" onclick="filter('Logistics')">Logistics</button>
+    <button class="filter-btn" onclick="filter('Banking')">Banking</button>
+    <button class="filter-btn" onclick="filter('Education')">Education</button>
+    <button class="filter-btn" onclick="filter('Real Estate')">Real Estate</button>
+    <button class="filter-btn" onclick="filter('Hospitality')">Hospitality</button>
+    <button class="filter-btn" onclick="filter('Construction')">Construction</button>
+  </div>
 </div>
-
 <div class="container">
   <div class="blog-grid" id="grid"></div>
 </div>
-
 <script>
 const posts = [
-  {slug:"ai-voice-agents-insurance-follow-up",tag:"Voice AI · RCM",title:"How AI Voice Agents Are Replacing Insurance Follow-Up Calls in 2026",excerpt:"Manual claims follow-up is costing RCM teams thousands of hours annually. Here's how AI voice agents are changing the economics of healthcare collections.",date:"Mar 5, 2026",read:"8 min read",colors:["#001a10","#00ffcc","#00cfff"]},
-  {slug:"prior-auth-automation-denial-rates",tag:"Healthcare AI · RCM",title:"Prior Authorization Automation: How We Cut Denial Rates by 34%",excerpt:"A deep dive into how automating prior auth submissions through Availity and payer portals can dramatically reduce denials and administrative burden.",date:"Mar 3, 2026",read:"10 min read",colors:["#0a0010","#b44fff","#00ffcc"]},
-  {slug:"real-cost-manual-claims-follow-up",tag:"RCM · Operations",title:"The Real Cost of Manual Claims Follow-Up (And How to Fix It)",excerpt:"Beyond the obvious labor costs, manual claims follow-up creates invisible revenue leaks that most billing managers never fully account for.",date:"Feb 28, 2026",read:"7 min read",colors:["#100a00","#ff9f00","#00ffcc"]},
-  {slug:"ai-agents-payer-ivr-navigation",tag:"Voice AI · Payers",title:"Ambetter, UHC, Aetna — How AI Agents Navigate Payer IVR Systems",excerpt:"Every major payer has a different IVR tree. Here's how we train voice agents to handle hold times, prompts, and authentication flows for the top US payers.",date:"Feb 24, 2026",read:"9 min read",colors:["#000d1a","#00cfff","#00ffcc"]},
-  {slug:"dha-eclaims-tpa-automation-uae",tag:"UAE · Healthcare",title:"Automating DHA eClaims and TPA Portals in the UAE — A Complete Guide",excerpt:"A practical guide to automating insurance submissions across the UAE's major TPA portals: NextCare, NAS, Neuron, AlMadallah, and DHA eClaims.",date:"Feb 20, 2026",read:"12 min read",colors:["#001510","#00ff88","#00ffcc"]},
-  {slug:"nextcare-nas-neuron-automation",tag:"UAE · RPA",title:"NextCare, NAS, Neuron, AlMadallah — One Automation to Rule Them All",excerpt:"UAE healthcare providers deal with 5+ TPA portals daily. We built a unified RPA layer that handles all of them — here's how it works.",date:"Feb 17, 2026",read:"11 min read",colors:["#0d0010","#ff44cc","#00ffcc"]},
-  {slug:"what-ai-agencies-wont-tell-you",tag:"AI Agency · Opinion",title:"What Most AI Agencies Won't Tell You About Building Voice Agents",excerpt:"After building 50+ AI systems, here are the uncomfortable truths about voice agent development that most vendors gloss over in sales calls.",date:"Feb 13, 2026",read:"6 min read",colors:["#100000","#ff4444","#ff9f00"]},
-  {slug:"why-we-ship-in-6-weeks",tag:"Process · Engineering",title:"Why We Ship AI in 6 Weeks While Others Take 6 Months",excerpt:"The difference isn't working harder. It's a fundamentally different approach to scoping, building, and validating AI systems from day one.",date:"Feb 10, 2026",read:"8 min read",colors:["#001020","#0088ff","#00ffcc"]},
-  {slug:"ai-agents-vs-rpa",tag:"AI · Technology",title:"AI Agents vs RPA: Which One Actually Solves Your Problem?",excerpt:"RPA is deterministic and fragile. AI agents are flexible but unpredictable. Most workflows need both — here's how to decide which goes where.",date:"Feb 6, 2026",read:"9 min read",colors:["#001a0d","#00ffcc","#00ff44"]},
-  {slug:"hipaa-compliant-ai-what-devs-get-wrong",tag:"Healthcare AI · Compliance",title:"Building HIPAA-Compliant AI: What Developers Get Wrong",excerpt:"HIPAA compliance in AI isn't just about encryption. Most engineering teams miss the harder parts — data residency, audit logs, and model inference risks.",date:"Feb 3, 2026",read:"10 min read",colors:["#0a001a","#7744ff","#00ffcc"]}
+  {slug:"ai-automation-restaurant-industry",tag:"Restaurants · AI Automation",cat:"Restaurant",title:"How AI Is Quietly Transforming the Restaurant Industry in 2026",excerpt:"From AI voice ordering to inventory prediction and staff scheduling — restaurants are using AI to cut costs and increase covers.",date:"Mar 8, 2026",read:"9 min read",colors:["#1a0800","#ff6b00","#ffcc00"]},
+  {slug:"ai-voice-agents-airline-industry",tag:"Airlines · Voice AI",cat:"Airlines",title:"How Airlines Are Using AI Voice Agents to Handle Millions of Customer Calls",excerpt:"Flight disruptions, rebooking, refunds, baggage claims — AI voice agents are handling airline customer service at a scale humans never could.",date:"Mar 7, 2026",read:"10 min read",colors:["#00101a","#00aaff","#00ffcc"]},
+  {slug:"ai-voice-agents-across-industries",tag:"Voice AI · All Industries",cat:"Voice AI",title:"AI Voice Agents Are Eating the Phone Call — Across Every Industry",excerpt:"From healthcare to real estate to banking — AI voice agents are replacing phone-based workflows across every sector.",date:"Mar 6, 2026",read:"11 min read",colors:["#0a0015","#aa44ff","#00ffcc"]},
+  {slug:"ai-automation-retail-ecommerce",tag:"Retail · AI Automation",cat:"Retail",title:"AI Automation in Retail: How Smart Stores Are Winning in 2026",excerpt:"Personalization, inventory intelligence, returns automation, and AI customer service — retail's AI transformation is here.",date:"Mar 4, 2026",read:"8 min read",colors:["#1a0010","#ff44aa","#ffaa00"]},
+  {slug:"ai-automation-logistics-supply-chain",tag:"Logistics · AI Automation",cat:"Logistics",title:"AI in Logistics: How Supply Chains Are Getting Smarter in 2026",excerpt:"Route optimization, demand forecasting, warehouse AI, and autonomous tracking — logistics is being transformed end to end.",date:"Mar 2, 2026",read:"9 min read",colors:["#001015","#00ddff","#00ffaa"]},
+  {slug:"ai-automation-banking-fintech",tag:"Banking · Fintech · AI",cat:"Banking",title:"AI in Banking: Beyond the Chatbot — What Real Financial AI Looks Like",excerpt:"Fraud detection, credit decisioning, and regulatory compliance — this is where the real transformation in financial services is happening.",date:"Feb 27, 2026",read:"10 min read",colors:["#000d1a","#0066ff","#00ffcc"]},
+  {slug:"ai-automation-education-edtech",tag:"Education · EdTech · AI",cat:"Education",title:"AI in Education: Personalized Learning at Scale Is Finally Here",excerpt:"Adaptive learning, AI tutors, automated grading, and student retention AI — every student gets their own curriculum.",date:"Feb 25, 2026",read:"8 min read",colors:["#0d1500","#88ff00","#00ffcc"]},
+  {slug:"ai-automation-real-estate-proptech",tag:"Real Estate · PropTech · AI",cat:"Real Estate",title:"AI in Real Estate: How PropTech Is Changing the Way Properties Are Bought and Sold",excerpt:"Lead qualification, valuation, document automation, and AI voice agents — real estate AI is moving faster than most agents realize.",date:"Feb 22, 2026",read:"9 min read",colors:["#150800","#ff8800","#ffdd00"]},
+  {slug:"ai-automation-hospitality-hotels",tag:"Hospitality · Hotels · AI",cat:"Hospitality",title:"AI in Hospitality: How Hotels Are Using AI to Deliver Five-Star Experiences at Scale",excerpt:"From AI concierge to dynamic pricing — hospitality AI is making luxury-level personalization accessible at every tier.",date:"Feb 19, 2026",read:"8 min read",colors:["#100015","#cc44ff","#ff88cc"]},
+  {slug:"ai-automation-construction-engineering",tag:"Construction · Engineering · AI",cat:"Construction",title:"AI in Construction: How the Industry Is Finally Getting Smart About Data",excerpt:"Project delay prediction, safety monitoring, procurement automation — construction AI is solving the industry's oldest problems.",date:"Feb 16, 2026",read:"9 min read",colors:["#101000","#aacc00","#00ffcc"]},
+  {slug:"ai-voice-agents-insurance-follow-up",tag:"Voice AI · RCM",cat:"Healthcare",title:"How AI Voice Agents Are Replacing Insurance Follow-Up Calls in 2026",excerpt:"Manual claims follow-up is costing RCM teams thousands of hours annually. Here's how AI voice agents are changing the economics.",date:"Mar 5, 2026",read:"8 min read",colors:["#001a10","#00ffcc","#00cfff"]},
+  {slug:"prior-auth-automation-denial-rates",tag:"Healthcare AI · RCM",cat:"Healthcare",title:"Prior Authorization Automation: How We Cut Denial Rates by 34%",excerpt:"How automating prior auth submissions through Availity dramatically reduces denials and administrative burden.",date:"Mar 3, 2026",read:"10 min read",colors:["#0a0010","#b44fff","#00ffcc"]},
+  {slug:"real-cost-manual-claims-follow-up",tag:"RCM · Operations",cat:"Healthcare",title:"The Real Cost of Manual Claims Follow-Up (And How to Fix It)",excerpt:"Beyond labor costs, manual claims follow-up creates invisible revenue leaks most billing managers never fully account for.",date:"Feb 28, 2026",read:"7 min read",colors:["#100a00","#ff9f00","#00ffcc"]},
+  {slug:"ai-agents-payer-ivr-navigation",tag:"Voice AI · Payers",cat:"Healthcare",title:"Ambetter, UHC, Aetna — How AI Agents Navigate Payer IVR Systems",excerpt:"Every major payer has a different IVR tree. Here's how we train voice agents to handle them all.",date:"Feb 24, 2026",read:"9 min read",colors:["#000d1a","#00cfff","#00ffcc"]},
+  {slug:"dha-eclaims-tpa-automation-uae",tag:"UAE · Healthcare",cat:"Healthcare",title:"Automating DHA eClaims and TPA Portals in the UAE — A Complete Guide",excerpt:"A practical guide to automating across UAE's major TPA portals: NextCare, NAS, Neuron, AlMadallah, and DHA eClaims.",date:"Feb 20, 2026",read:"12 min read",colors:["#001510","#00ff88","#00ffcc"]},
+  {slug:"nextcare-nas-neuron-automation",tag:"UAE · RPA",cat:"Healthcare",title:"NextCare, NAS, Neuron, AlMadallah — One Automation to Rule Them All",excerpt:"UAE healthcare providers deal with 5+ TPA portals daily. We built a unified RPA layer that handles all of them.",date:"Feb 17, 2026",read:"11 min read",colors:["#0d0010","#ff44cc","#00ffcc"]},
+  {slug:"what-ai-agencies-wont-tell-you",tag:"AI Agency · Opinion",cat:"Voice AI",title:"What Most AI Agencies Won't Tell You About Building Voice Agents",excerpt:"After building 50+ AI systems, here are the uncomfortable truths about voice agent development most vendors gloss over.",date:"Feb 13, 2026",read:"6 min read",colors:["#100000","#ff4444","#ff9f00"]},
+  {slug:"why-we-ship-in-6-weeks",tag:"Process · Engineering",cat:"Voice AI",title:"Why We Ship AI in 6 Weeks While Others Take 6 Months",excerpt:"The difference isn't working harder. It's a fundamentally different approach to scoping, building, and validating AI.",date:"Feb 10, 2026",read:"8 min read",colors:["#001020","#0088ff","#00ffcc"]},
+  {slug:"ai-agents-vs-rpa",tag:"AI · Technology",cat:"Voice AI",title:"AI Agents vs RPA: Which One Actually Solves Your Problem?",excerpt:"RPA is deterministic and fragile. AI agents are flexible but unpredictable. Most workflows need both.",date:"Feb 6, 2026",read:"9 min read",colors:["#001a0d","#00ffcc","#00ff44"]},
+  {slug:"hipaa-compliant-ai-what-devs-get-wrong",tag:"Healthcare AI · Compliance",cat:"Healthcare",title:"Building HIPAA-Compliant AI: What Developers Get Wrong",excerpt:"HIPAA compliance in AI isn't just about encryption. Most teams miss data residency, audit logs, and inference risks.",date:"Feb 3, 2026",read:"10 min read",colors:["#0a001a","#7744ff","#00ffcc"]}
 ];
 
-function drawCover(canvas, colors, title) {
+function drawCover(canvas, colors) {
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
-  ctx.fillStyle = colors[0];
-  ctx.fillRect(0, 0, W, H);
-  // Grid lines
-  ctx.strokeStyle = colors[1];
-  ctx.globalAlpha = 0.08;
-  ctx.lineWidth = 1;
-  for(let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
-  for(let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
-  // Glow circle
-  ctx.globalAlpha = 1;
-  const grd = ctx.createRadialGradient(W*.3, H*.4, 0, W*.3, H*.4, W*.6);
-  grd.addColorStop(0, colors[1]+'33');
-  grd.addColorStop(1, 'transparent');
-  ctx.fillStyle = grd;
-  ctx.fillRect(0,0,W,H);
-  // Accent lines
-  ctx.globalAlpha = 0.6;
-  ctx.strokeStyle = colors[1];
-  ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(0, H*.7); ctx.lineTo(W*.4, H*.7); ctx.stroke();
-  ctx.globalAlpha = 0.3;
-  ctx.strokeStyle = colors[2];
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(W*.1, H*.8); ctx.lineTo(W*.6, H*.8); ctx.stroke();
-  // Dots
-  ctx.globalAlpha = 0.5;
-  ctx.fillStyle = colors[1];
-  for(let i=0;i<6;i++){
-    ctx.beginPath();
-    ctx.arc(W*.05+i*W*.08, H*.65, 2, 0, Math.PI*2);
-    ctx.fill();
-  }
-  ctx.globalAlpha = 1;
+  const [c1,c2,c3] = colors;
+  ctx.fillStyle = c1; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = c2; ctx.globalAlpha = 0.07; ctx.lineWidth = 1;
+  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  ctx.globalAlpha=1;
+  const g=ctx.createRadialGradient(W*.3,H*.35,0,W*.3,H*.35,W*.55);
+  g.addColorStop(0,c2+'44');g.addColorStop(1,'transparent');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  ctx.globalAlpha=0.6;ctx.strokeStyle=c2;ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(0,H*.72);ctx.lineTo(W*.45,H*.72);ctx.stroke();
+  ctx.globalAlpha=0.4;ctx.fillStyle=c2;
+  for(let i=0;i<6;i++){ctx.beginPath();ctx.arc(W*.05+i*W*.08,H*.65,2.5,0,Math.PI*2);ctx.fill();}
+  ctx.globalAlpha=1;
+}
+
+function filter(cat) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.blog-card').forEach(c=>{
+    if(cat==='all'||c.dataset.cat===cat) c.classList.remove('hidden');
+    else c.classList.add('hidden');
+  });
 }
 
 const grid = document.getElementById('grid');
 posts.forEach(p => {
   const a = document.createElement('a');
-  a.className = 'blog-card';
-  a.href = `/blog/${p.slug}/`;
-  a.innerHTML = `
-    <div class="blog-img"><canvas width="640" height="360"></canvas></div>
+  a.className = 'blog-card'; a.href = `/blog/${p.slug}/`; a.dataset.cat = p.cat;
+  a.innerHTML = `<div class="blog-img"><canvas width="640" height="360"></canvas></div>
     <div class="blog-body">
       <div class="blog-tag">${p.tag}</div>
       <div class="blog-title">${p.title}</div>
       <div class="blog-excerpt">${p.excerpt}</div>
-      <div class="blog-meta">
-        <span class="blog-date">${p.date}</span>
-        <span class="blog-read">${p.read}</span>
-      </div>
+      <div class="blog-meta"><span class="blog-date">${p.date}</span><span class="blog-read">${p.read}</span></div>
     </div>`;
   grid.appendChild(a);
-  drawCover(a.querySelector('canvas'), p.colors, p.title);
+  drawCover(a.querySelector('canvas'), p.colors);
 });
 </script>
 </body>
