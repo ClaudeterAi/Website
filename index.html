@@ -617,7 +617,7 @@ function setBtnState(s){
 // ── Deepgram STT via WebSocket ─────────────────────────────
 let dgSocket=null, micStream=null, micCtx=null, micSrc=null, micProc=null;
 let pendingText='', silenceTimer=null;
-let dgReconnects=0;
+let dgReconnects=0, dgKeepAlive=null;
 const DG_MAX_RECONNECTS=3;
 
 async function startListening(){
@@ -653,14 +653,25 @@ async function startListening(){
     // 4. Open Deepgram WebSocket — API keys use subprotocol auth
     const url='wss://api.deepgram.com/v1/listen'
       +'?model=nova-2&language=en&encoding=linear16&sample_rate=16000&channels=1'
-      +'&punctuate=true&interim_results=true&endpointing=400'
-      +'&utterance_end_ms=1200&smart_format=true';
+      +'&punctuate=true&interim_results=true'
+      +'&endpointing=300'
+      +'&utterance_end_ms=1000'
+      +'&smart_format=true'
+      +'&filler_words=false'
+      +'&keywords=Claudeter:2&keywords=NOVA:2&keywords=RCM:1.5&keywords=AI:1';
 
     dgSocket=new WebSocket(url,['token',tdata.key]);
 
     dgSocket.onopen=()=>{
       console.log('[STT] Deepgram connected');
       dgReconnects=0; // reset on success
+      // Send KeepAlive every 8s to prevent timeout during silence
+      if(dgKeepAlive) clearInterval(dgKeepAlive);
+      dgKeepAlive=setInterval(()=>{
+        if(dgSocket&&dgSocket.readyState===1){
+          dgSocket.send(JSON.stringify({type:'KeepAlive'}));
+        }
+      },8000);
       micSrc.connect(micProc);
       micProc.connect(micCtx.destination);
       micProc.onaudioprocess=e=>{
@@ -716,7 +727,7 @@ async function startListening(){
           console.log('[STT] speech_final →',t);
           ask(t);
         } else {
-          // Might be more coming — wait 800ms
+          // Might be more coming — wait 500ms
           if(silenceTimer) clearTimeout(silenceTimer);
           silenceTimer=setTimeout(()=>{
             silenceTimer=null;
@@ -725,7 +736,7 @@ async function startListening(){
               console.log('[STT] silence →',t);
               ask(t);
             }
-          },800);
+          },500);
         }
       }
     };
@@ -760,6 +771,7 @@ function disconnectMic(){
 
 function stopListening(){
   if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}
+  if(dgKeepAlive){clearInterval(dgKeepAlive);dgKeepAlive=null;}
   pendingText='';
   disconnectMic();
   if(dgSocket){try{dgSocket.close();}catch(e){} dgSocket=null;}
@@ -843,7 +855,7 @@ async function ask(text){
     const msgs=isGreet?[{role:'user',content:'__greet__'}]:persistentHist;
     const r=await fetch('/api/nova',{method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({max_tokens:180,messages:msgs})});
+      body:JSON.stringify({max_tokens:120,messages:msgs})});
     if(!r.ok) throw new Error('LLM '+r.status);
     const d=await r.json();
     const reply=(d.content?.[0]?.text||'').trim()||'Say that again?';
