@@ -761,9 +761,9 @@ let dgRetries=0; const DG_MAX_RETRIES=5;
 const DG_KEY='4dd3bbeb96f8ee6b1741a123b460622f118e5773';
 
 function buildDGUrl(){
-  // encoding + sample_rate MUST match what ScriptProcessor sends
-  // endpointing=600ms → UtteranceEnd fires after 600ms silence
+  // Deepgram browser auth: ?token= in URL (subprotocol method rejected by DG free tier)
   const p=[
+    `token=${DG_KEY}`,
     'model=nova-2',
     'language=en-US',
     'punctuate=true',
@@ -784,8 +784,8 @@ async function startDG(){
   if(dgReconnectTimer){clearTimeout(dgReconnectTimer);dgReconnectTimer=null;}
 
   try{
-    // Auth via subprotocol — the ONLY way to pass Authorization from browser WebSocket
-    const ws=new WebSocket(buildDGUrl(), ['token', DG_KEY]);
+    // Auth via ?token= in URL — Deepgram's documented browser method
+    const ws=new WebSocket(buildDGUrl());
     dgSocket=ws;
 
     ws.onopen=()=>{
@@ -841,7 +841,7 @@ async function startDG(){
     ws.onerror=e=>console.warn('DG error',e);
 
     ws.onclose=e=>{
-      console.log('DG closed',e.code);
+      console.log('DG closed code='+e.code+' reason="'+e.reason+'"');
       clearInterval(dgKeepAliveTimer);
       stopMicStream();
       if(sessionActive&&e.code!==1000&&dgRetries<DG_MAX_RETRIES){
