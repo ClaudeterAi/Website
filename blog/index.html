@@ -27,7 +27,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 .filter-btn{font-size:.44rem;letter-spacing:.14em;text-transform:uppercase;padding:6px 14px;border:1px solid rgba(0,255,204,.2);color:rgba(0,255,204,.6);background:transparent;cursor:pointer;transition:all .2s;font-family:'JetBrains Mono',monospace}
 .filter-btn:hover,.filter-btn.active{background:rgba(0,255,204,.1);border-color:#00ffcc;color:#00ffcc}
 .blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;border-top:1px solid rgba(0,255,204,.06)}
-.blog-card{background:rgba(2,1,8,.8);border:1px solid rgba(0,255,204,.06);transition:background .3s,border-color .3s;text-decoration:none;color:inherit;display:flex;flex-direction:column}
+.blog-card{background:#000;border:1px solid rgba(0,255,204,.06);transition:background .3s,border-color .3s;text-decoration:none;color:inherit;display:flex;flex-direction:column}
 .blog-card:hover{background:#030f09;border-color:rgba(0,255,204,.18)}
 .blog-card.hidden{display:none}
 .blog-img{width:100%;aspect-ratio:16/9;overflow:hidden}
@@ -42,10 +42,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 .container{max-width:1200px;margin:0 auto;padding:0 44px 100px}
 @media(max-width:900px){.blog-grid{grid-template-columns:1fr 1fr}nav{padding:14px 20px}.nlinks{display:none}.hero{padding:120px 20px 50px}.container{padding:0 20px 80px}}
 @media(max-width:600px){.blog-grid{grid-template-columns:1fr}}
+
 /* Space background */
 body::before,body::after{content:"";position:fixed;top:0;left:0;right:0;bottom:0;z-index:-1;pointer-events:none}
-body::before{background-image:radial-gradient(1px 1px at 20px 30px,rgba(255,255,255,.4),transparent),radial-gradient(1px 1px at 40px 70px,rgba(255,255,255,.3),transparent),radial-gradient(1px 1px at 80px 10px,rgba(255,255,255,.35),transparent),radial-gradient(1.5px 1.5px at 130px 50px,rgba(0,255,204,.25),transparent),radial-gradient(1px 1px at 160px 90px,rgba(255,255,255,.25),transparent),radial-gradient(1px 1px at 50px 120px,rgba(255,255,255,.35),transparent),radial-gradient(1px 1px at 110px 140px,rgba(0,207,255,.25),transparent);background-size:200px 160px;animation:twinkle 8s ease-in-out infinite alternate}
-body::after{background:radial-gradient(ellipse 80% 50% at 10% 20%,rgba(40,0,100,.3),transparent 60%),radial-gradient(ellipse 60% 40% at 85% 50%,rgba(0,50,110,.25),transparent 55%),radial-gradient(ellipse 70% 50% at 50% 80%,rgba(0,80,60,.15),transparent 55%)}
+body::before{background-image:radial-gradient(1px 1px at 20px 30px,rgba(255,255,255,.4),transparent),radial-gradient(1px 1px at 80px 10px,rgba(255,255,255,.3),transparent),radial-gradient(1.5px 1.5px at 130px 50px,rgba(0,255,204,.2),transparent),radial-gradient(1px 1px at 50px 120px,rgba(255,255,255,.3),transparent),radial-gradient(1px 1px at 170px 20px,rgba(0,207,255,.2),transparent);background-size:200px 160px;animation:twinkle 8s ease-in-out infinite alternate}
+body::after{background:radial-gradient(ellipse 80% 50% at 10% 20%,rgba(40,0,100,.25),transparent 60%),radial-gradient(ellipse 60% 40% at 85% 50%,rgba(0,50,110,.2),transparent 55%),radial-gradient(ellipse 70% 50% at 50% 80%,rgba(0,80,60,.12),transparent 55%)}
 @keyframes twinkle{0%{opacity:.6}50%{opacity:1}100%{opacity:.7}}
 </style>
 </head>
