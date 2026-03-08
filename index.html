@@ -753,27 +753,26 @@ let dgReconnectTimer=null, dgKeepAliveTimer=null;
 let utteranceBuffer='';
 let dgRetries=0; const DG_MAX_RETRIES=5;
 
-async function getDGToken(){
-  // Use API key directly — Deepgram supports it in the WS URL
-  // The /auth/grant endpoint requires a paid plan; direct key works on all tiers
-  return '4dd3bbeb96f8ee6b1741a123b460622f118e5773';
-}
+// Deepgram browser WS auth: subprotocol trick (browsers can't set Authorization header)
+const DG_KEY='4dd3bbeb96f8ee6b1741a123b460622f118e5773';
 
-function buildDGUrl(token){
-  // endpointing=600 → fires UtteranceEnd after 600ms silence (natural sentence pause)
-  // utterance_end_ms=1000 → extra safety net
-  // vad_events=true → SpeechStarted event for interrupt detection
-  const p=new URLSearchParams({
-    model:'nova-2',
-    language:'en-US',
-    punctuate:'true',
-    interim_results:'true',
-    endpointing:'600',
-    utterance_end_ms:'1000',
-    vad_events:'true',
-    smart_format:'true',
-  });
-  return `wss://api.deepgram.com/v1/listen?${p}&token=${token}`;
+function buildDGUrl(){
+  // encoding + sample_rate MUST match what ScriptProcessor sends
+  // endpointing=600ms → UtteranceEnd fires after 600ms silence
+  const p=[
+    'model=nova-2',
+    'language=en-US',
+    'punctuate=true',
+    'interim_results=true',
+    'endpointing=600',
+    'utterance_end_ms=1000',
+    'vad_events=true',
+    'smart_format=true',
+    'encoding=linear16',
+    'sample_rate=16000',
+    'channels=1',
+  ].join('&');
+  return `wss://api.deepgram.com/v1/listen?${p}`;
 }
 
 async function startDG(){
@@ -781,8 +780,8 @@ async function startDG(){
   if(dgReconnectTimer){clearTimeout(dgReconnectTimer);dgReconnectTimer=null;}
 
   try{
-    const token=await getDGToken();
-    const ws=new WebSocket(buildDGUrl(token));
+    // Auth via subprotocol — the ONLY way to pass Authorization from browser WebSocket
+    const ws=new WebSocket(buildDGUrl(), ['token', DG_KEY]);
     dgSocket=ws;
 
     ws.onopen=()=>{
@@ -865,36 +864,41 @@ function stopDG(){
 
 async function startMicStream(ws){
   try{
-    // Use the same vadStream if already open, otherwise open new
-    const stream=vadStream||await navigator.mediaDevices.getUserMedia({audio:{
+    // Don't request sampleRate:16000 on getUserMedia — most devices reject it
+    // Instead get native rate stream and let AudioContext resample to 16kHz
+    dgStream=await navigator.mediaDevices.getUserMedia({audio:{
       echoCancellation:true,
       noiseSuppression:true,
       autoGainControl:true,
-      sampleRate:16000,
     }});
-    dgStream=stream;
 
-    // Use ScriptProcessor to pipe raw PCM to Deepgram WebSocket
+    // AudioContext at 16kHz forces browser to resample device's native rate
     dgAudioCtx=new(window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
-    const src=dgAudioCtx.createMediaStreamSource(stream);
-    // bufferSize 4096 → ~256ms chunks at 16kHz, good balance of latency vs overhead
-    dgProcessor=dgAudioCtx.createScriptProcessor(4096,1,1);
+    const src=dgAudioCtx.createMediaStreamSource(dgStream);
+
+    // bufferSize 2048 at 16kHz = 128ms chunks — good latency/overhead balance
+    dgProcessor=dgAudioCtx.createScriptProcessor(2048,1,1);
     dgProcessor.onaudioprocess=ev=>{
-      if(ws.readyState!==WebSocket.OPEN) return;
-      // Send raw Linear16 PCM — Deepgram nova-2 accepts it natively
+      if(!ws||ws.readyState!==WebSocket.OPEN) return;
       const input=ev.inputBuffer.getChannelData(0);
       const pcm=new Int16Array(input.length);
-      for(let i=0;i<input.length;i++) pcm[i]=Math.max(-32768,Math.min(32767,input[i]*32768));
+      for(let i=0;i<input.length;i++){
+        const s=Math.max(-1,Math.min(1,input[i]));
+        pcm[i]=s<0?s*32768:s*32767;
+      }
       ws.send(pcm.buffer);
     };
-    src.connect(dgProcessor); dgProcessor.connect(dgAudioCtx.destination);
-  }catch(e){console.error('mic stream:',e);}
+    // Must connect to destination — Chrome won't fire onaudioprocess otherwise
+    src.connect(dgProcessor);
+    dgProcessor.connect(dgAudioCtx.destination);
+    console.log('Mic stream OK, ctx sampleRate='+dgAudioCtx.sampleRate);
+  }catch(e){console.error('Mic stream failed:',e);}
 }
 
 function stopMicStream(){
   if(dgProcessor){try{dgProcessor.disconnect();}catch(e){} dgProcessor=null;}
   if(dgAudioCtx){try{dgAudioCtx.close();}catch(e){} dgAudioCtx=null;}
-  // Don't stop dgStream tracks — vadStream reuses them, and we need mic for VAD
+  if(dgStream){dgStream.getTracks().forEach(t=>t.stop()); dgStream=null;}
 }
 
 // ── Session ─────────────────────────────────────────────────
