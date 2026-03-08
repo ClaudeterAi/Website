@@ -1324,4 +1324,209 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
   });
 });
 
-// Init reveal on loa
+// Init reveal on load
+document.querySelectorAll('.reveal').forEach(el=>{
+  const r=el.getBoundingClientRect();
+  if(r.top<window.innerHeight*0.88) el.classList.add('visible');
+});
+</script>
+
+<!-- ============================================================
+     CLAUDETER AI CHAT WIDGET
+============================================================ -->
+<style>
+#cw-fab{position:fixed;bottom:28px;right:28px;z-index:9999;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#002b1c,#00ffcc);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(0,255,204,.35),0 4px 20px rgba(0,0,0,.6);transition:all .3s;animation:cw-pulse 3s infinite}
+@keyframes cw-pulse{0%,100%{box-shadow:0 0 30px rgba(0,255,204,.35),0 4px 20px rgba(0,0,0,.6)}50%{box-shadow:0 0 50px rgba(0,255,204,.6),0 4px 20px rgba(0,0,0,.6)}}
+#cw-fab:hover{transform:scale(1.08)}
+#cw-fab svg{width:26px;height:26px;color:#000}
+#cw-badge{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#00ffcc;border-radius:50%;border:2px solid #000;animation:cw-blink 2s infinite}
+@keyframes cw-blink{0%,100%{opacity:1}50%{opacity:.4}}
+#cw-panel{position:fixed;bottom:100px;right:28px;z-index:9998;width:380px;max-height:600px;background:#050e08;border:1px solid rgba(0,255,204,.18);border-radius:4px;display:flex;flex-direction:column;box-shadow:0 20px 80px rgba(0,0,0,.8),0 0 60px rgba(0,255,204,.06);transform:translateY(20px) scale(.96);opacity:0;pointer-events:none;transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+#cw-panel.open{transform:translateY(0) scale(1);opacity:1;pointer-events:all}
+#cw-header{padding:16px 18px;border-bottom:1px solid rgba(0,255,204,.1);display:flex;align-items:center;gap:12px;flex-shrink:0}
+#cw-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#002b1c,#00ffcc);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#000;flex-shrink:0}
+#cw-header-info{flex:1}
+#cw-header-name{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.12em;color:#fff}
+#cw-header-status{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:#00ffcc;opacity:.8;margin-top:2px}
+#cw-close{background:none;border:none;color:rgba(255,255,255,.3);cursor:pointer;font-size:1.1rem;padding:4px;transition:color .2s;line-height:1}
+#cw-close:hover{color:#fff}
+#cw-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+#cw-msgs::-webkit-scrollbar{width:3px}
+#cw-msgs::-webkit-scrollbar-track{background:transparent}
+#cw-msgs::-webkit-scrollbar-thumb{background:rgba(0,255,204,.2);border-radius:2px}
+.cw-msg{max-width:85%;display:flex;flex-direction:column;gap:4px;animation:cw-fadein .3s ease}
+@keyframes cw-fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.cw-msg.bot{align-self:flex-start}
+.cw-msg.user{align-self:flex-end}
+.cw-bubble{padding:10px 14px;border-radius:3px;font-size:.74rem;line-height:1.8;letter-spacing:.02em}
+.cw-msg.bot .cw-bubble{background:rgba(0,255,204,.06);border:1px solid rgba(0,255,204,.1);color:rgba(255,255,255,.85)}
+.cw-msg.user .cw-bubble{background:linear-gradient(135deg,#002b1c,#004a2e);border:1px solid rgba(0,255,204,.25);color:#fff}
+.cw-time{font-size:.54rem;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.25);padding:0 4px}
+.cw-msg.user .cw-time{text-align:right}
+.cw-typing{display:flex;gap:4px;align-items:center;padding:12px 14px}
+.cw-dot{width:5px;height:5px;border-radius:50%;background:#00ffcc;opacity:.5;animation:cw-bounce .9s infinite}
+.cw-dot:nth-child(2){animation-delay:.15s}
+.cw-dot:nth-child(3){animation-delay:.3s}
+@keyframes cw-bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.cw-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 4px}
+.cw-chip{font-size:.62rem;letter-spacing:.06em;padding:6px 12px;border:1px solid rgba(0,255,204,.25);color:rgba(0,255,204,.8);background:transparent;cursor:pointer;border-radius:2px;font-family:'JetBrains Mono',monospace;transition:all .2s}
+.cw-chip:hover{background:rgba(0,255,204,.1);border-color:#00ffcc;color:#00ffcc}
+#cw-footer{padding:12px;border-top:1px solid rgba(0,255,204,.08);flex-shrink:0}
+#cw-form{display:flex;gap:8px;align-items:center}
+#cw-input{flex:1;background:rgba(0,255,204,.04);border:1px solid rgba(0,255,204,.12);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:10px 14px;outline:none;border-radius:2px;transition:border-color .2s;letter-spacing:.03em}
+#cw-input:focus{border-color:rgba(0,255,204,.4)}
+#cw-input::placeholder{color:rgba(255,255,255,.25)}
+#cw-send{background:linear-gradient(135deg,#002b1c,#00ffcc);border:none;width:36px;height:36px;border-radius:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+#cw-send:hover{box-shadow:0 0 20px rgba(0,255,204,.4)}
+#cw-send svg{width:15px;height:15px;color:#000}
+#cw-branding{text-align:center;padding:6px 0 2px;font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.18)}
+/* Move NOVA fab to the left of chat fab */
+#nova-fab{right:96px !important}
+@media(max-width:440px){#cw-panel{width:calc(100vw - 24px);right:12px;bottom:88px}#cw-fab{bottom:16px;right:16px}#nova-fab{right:84px !important;bottom:16px !important}}
+</style>
+
+<button id="cw-fab" onclick="cwToggle()" aria-label="Chat with Claudeter AI">
+  <div id="cw-badge"></div>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+</button>
+
+<div id="cw-panel">
+  <div id="cw-header">
+    <div id="cw-avatar">N</div>
+    <div id="cw-header-info">
+      <div id="cw-header-name">NOVA · Claudeter AI</div>
+      <div id="cw-header-status">● Online · Ready to help</div>
+    </div>
+    <button id="cw-close" onclick="cwToggle()">✕</button>
+  </div>
+  <div id="cw-msgs"></div>
+  <div id="cw-footer">
+    <div id="cw-form">
+      <input id="cw-input" type="text" placeholder="Ask me anything..." autocomplete="off" onkeydown="if(event.key==='Enter')cwSend()"/>
+      <button id="cw-send" onclick="cwSend()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+    <div id="cw-branding">Powered by Claudeter AI</div>
+  </div>
+</div>
+
+<script>
+(function(){
+const CW_SYSTEM = `You are NOVA, an intelligent AI assistant for Claudeter — a premium AI agency. You speak with precision, warmth, and confidence. You are conversational but efficient.
+
+About Claudeter: AI-native product studio that ships production-ready AI in 6 weeks. Serving clients across USA, UAE, and India.
+
+Core Services: AI Agents & Workflow Automation, Voice & Conversational AI (sub-500ms latency), SaaS Product Engineering, Data & Analytics Infrastructure, Integrations & APIs.
+
+Industries: Healthcare & RCM, Restaurants, Airlines, Retail, Logistics, Banking & Fintech, Real Estate, Education, Hospitality, Construction, Legal, Enterprise SaaS.
+
+How we work: Discovery Sprint (3 days) → Architecture (1 week) → Rapid Build (3-4 weeks) → Launch & Handoff. Full IP transfer, zero lock-in.
+
+Contact: nova@claudeter.ai | www.claudeter.ai
+
+When someone seems interested, naturally collect: 1) name, 2) email, 3) phone (optional), 4) what they need. ONE AT A TIME. After collecting, output: LEAD_DATA:{"name":"...","email":"...","phone":"...","requirement":"..."}
+
+Keep responses 2-4 sentences max. Be genuinely helpful, not salesy.`;
+
+let cwOpen=false, cwHistory=[], cwLead={}, cwAutoOpened=false;
+
+function cwToggle(){
+  cwOpen=!cwOpen;
+  document.getElementById('cw-panel').classList.toggle('open',cwOpen);
+  if(cwOpen&&cwHistory.length===0) cwGreet();
+  if(cwOpen) setTimeout(()=>document.getElementById('cw-input').focus(),350);
+}
+
+function cwGreet(){
+  setTimeout(()=>{
+    cwAddMsg('bot',"Hey there! 👋 I'm NOVA, Claudeter's AI assistant. I can tell you about our services, how we work, or help you explore what we could build for you.\n\nWhat brings you here today?");
+    cwShowChips(['Tell me about your services','How does it work?','Voice AI agents','Pricing & timeline','I want to get started']);
+  },400);
+}
+
+function cwShowChips(chips){
+  const msgs=document.getElementById('cw-msgs');
+  const div=document.createElement('div');
+  div.className='cw-chips'; div.id='cw-chips-row';
+  chips.forEach(c=>{
+    const btn=document.createElement('button');
+    btn.className='cw-chip'; btn.textContent=c;
+    btn.onclick=()=>{div.remove();cwHandleChip(c);};
+    div.appendChild(btn);
+  });
+  msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
+}
+
+function cwHandleChip(text){cwAddMsg('user',text);cwThink(text);}
+
+function cwAddMsg(role,text){
+  const msgs=document.getElementById('cw-msgs');
+  const chips=document.getElementById('cw-chips-row');
+  if(chips) chips.remove();
+  const div=document.createElement('div');
+  div.className='cw-msg '+role;
+  const now=new Date();
+  const t=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  div.innerHTML='<div class="cw-bubble">'+text.replace(/\n/g,'<br/>')+'</div><div class="cw-time">'+t+'</div>';
+  msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
+  if(role==='user') cwHistory.push({role:'user',content:text});
+}
+
+function cwShowTyping(){
+  const msgs=document.getElementById('cw-msgs');
+  const d=document.createElement('div');
+  d.className='cw-msg bot'; d.id='cw-typing-ind';
+  d.innerHTML='<div class="cw-bubble cw-typing"><div class="cw-dot"></div><div class="cw-dot"></div><div class="cw-dot"></div></div>';
+  msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight;
+}
+function cwHideTyping(){const d=document.getElementById('cw-typing-ind');if(d)d.remove();}
+
+async function cwThink(userMsg){
+  cwShowTyping();
+  try{
+    const res=await fetch('/api/nova',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:[{role:'system',content:CW_SYSTEM},...cwHistory],max_tokens:300})});
+    const data=await res.json();
+    cwHideTyping();
+    let reply=(data.content&&data.content[0]&&data.content[0].text)?data.content[0].text:"Let me connect you with our team — reach us at nova@claudeter.ai";
+    if(reply.includes('LEAD_DATA:')){
+      const parts=reply.split('LEAD_DATA:');
+      const vis=parts[0].trim();
+      try{const lead=JSON.parse(parts[1].trim());cwSubmitLead(lead);}catch(e){}
+      if(vis) cwAddMsg('bot',vis);
+    } else {cwAddMsg('bot',reply);}
+    cwHistory.push({role:'assistant',content:reply.split('LEAD_DATA:')[0].trim()});
+    if(cwHistory.length<=4&&!reply.toLowerCase().includes('name')&&!reply.toLowerCase().includes('email')){
+      setTimeout(()=>cwShowChips(['How fast can you ship?','Which industries?','What does it cost?','Book a call']),300);
+    }
+  }catch(e){
+    cwHideTyping();
+    cwAddMsg('bot','I\'m having a moment — please email us directly at nova@claudeter.ai.');
+  }
+}
+
+async function cwSubmitLead(lead){
+  try{await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify({source:'NOVA Chatbot',name:lead.name||'Unknown',email:lead.email||'',phone:lead.phone||'',requirement:lead.requirement||'',_subject:'New Lead from NOVA Chat: '+lead.name})});
+  }catch(e){console.error('Lead submit failed',e);}
+}
+
+function cwSend(){
+  const inp=document.getElementById('cw-input');
+  const txt=inp.value.trim();
+  if(!txt) return;
+  inp.value='';
+  cwAddMsg('user',txt);
+  cwThink(txt);
+}
+
+setTimeout(()=>{if(!cwOpen&&!cwAutoOpened){cwAutoOpened=true;cwToggle();}},4000);
+window.cwToggle=cwToggle;
+window.cwSend=cwSend;
+})();
+</script>
+</body>
+</html>
