@@ -67,7 +67,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;background:#000;cursor:none;font-family:'JetBrains Mono',monospace}
+html,body{width:100%;background:#020108;cursor:none;font-family:'JetBrains Mono',monospace}
 #cur{position:fixed;width:6px;height:6px;background:#00ffcc;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen;box-shadow:0 0 8px #00ffcc}
 #cur2{position:fixed;width:24px;height:24px;border:1px solid rgba(0,255,204,.3);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left .08s,top .08s}
 #cv{position:fixed;inset:0;z-index:1}
@@ -552,7 +552,7 @@ setInterval(()=>{if(Math.random()>0.82)triggerGlitch();},3800);
 
 function render(){
   frame++;
-  ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#020108'; ctx.fillRect(0,0,W,H);
 
   // Breath idle micro-movement
   breathPhase+=0.011;
