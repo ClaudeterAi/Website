@@ -626,13 +626,33 @@ function startRec(){
   r.continuous=true; r.interimResults=true; r.lang='en-US';
   rec=r; recRunning=true;
 
+  let interimText='', interimTimer=null;
   r.onresult=e=>{
     console.log('SR result',{isTalking,isProcessing});
     if(isTalking){return;}
-    let fi='';
-    for(let i=e.resultIndex;i<e.results.length;i++)
+    let fi='', interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
       if(e.results[i].isFinal) fi+=e.results[i][0].transcript;
-    if(!fi){console.log('SR: no final result');return;}
+      else interim+=e.results[i][0].transcript;
+    }
+    // Track interim as fallback
+    if(interim){
+      interimText=interim;
+      if(interimTimer) clearTimeout(interimTimer);
+      // If we get interim but never get final, use interim after 1.5s silence
+      interimTimer=setTimeout(()=>{
+        interimTimer=null;
+        if(interimText&&!pendingText){
+          console.log('SR: using interim as fallback:',interimText);
+          const t=interimText; interimText='';
+          ask(t);
+        }
+      },1500);
+    }
+    if(!fi){console.log('SR: no final result yet, interim:',interim);return;}
+    // Got final — clear interim fallback
+    if(interimTimer){clearTimeout(interimTimer);interimTimer=null;}
+    interimText='';
     pendingText=(pendingText+' '+fi).trim();
     console.log('SR pending:',pendingText);
     if(silenceTimer) clearTimeout(silenceTimer);
@@ -646,14 +666,21 @@ function startRec(){
   };
 
   r.onerror=e=>{
+    console.warn('SR error:',e.error);
     recRunning=false; rec=null;
     if(e.error==='not-allowed'){setStatus('Mic denied');sessionActive=false;return;}
+    if(e.error==='aborted') return; // We aborted it ourselves, don't restart
     if(sessionActive&&!isTalking) setTimeout(startRec,400);
   };
 
+  r.onstart=()=>{
+    console.log('SR started successfully');
+  };
+
   r.onend=()=>{
+    console.log('SR ended, sessionActive:',sessionActive,'isTalking:',isTalking);
     recRunning=false; rec=null;
-    if(sessionActive&&!isTalking) setTimeout(startRec,200);
+    if(sessionActive&&!isTalking) setTimeout(startRec,300);
   };
 
   if(srWatchdog) clearInterval(srWatchdog);
@@ -693,14 +720,21 @@ async function speak(text){
   sbEl.classList.add('on'); setStatus('Speaking...'); setBtnState('speaking');
 
   let finished=false, safetyTimeout=null;
+  let audioSrc=null;
   const done=()=>{
     if(finished) return;
     finished=true;
     console.log('done() called');
     isTalking=false; mouthOpen=0; analyser=null;
     isProcessing=false; sbEl.classList.remove('on');
+    // Disconnect audio nodes so mic pipeline is clean for SR
+    if(audioSrc){try{audioSrc.disconnect();}catch(e){} audioSrc=null;}
     if(safetyTimeout){clearTimeout(safetyTimeout);safetyTimeout=null;}
-    if(sessionActive){setStatus('Listening...');setBtnState('listening');startRec();}
+    if(sessionActive){
+      setStatus('Listening...');setBtnState('listening');
+      // Delay SR start — browser needs time to release audio focus after TTS
+      setTimeout(()=>{if(sessionActive&&!isTalking) startRec();},350);
+    }
   };
   // Safety net: if done() never fires (silent TTS failure), force recovery
   safetyTimeout=setTimeout(()=>{console.warn('speak() safety timeout');done();},30000);
@@ -718,6 +752,7 @@ async function speak(text){
         audioCtx=new(window.AudioContext||window.webkitAudioContext)();
       if(audioCtx.state==='suspended') await audioCtx.resume();
       const src=audioCtx.createMediaElementSource(audio);
+      audioSrc=src;
       analyser=audioCtx.createAnalyser(); analyser.fftSize=256;
       lipData=new Uint8Array(analyser.frequencyBinCount);
       src.connect(analyser); analyser.connect(audioCtx.destination);
