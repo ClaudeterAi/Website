@@ -6,8 +6,6 @@ const cors = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-// ── helpers ──────────────────────────────────────────────────────────────────
-
 async function sendEmail({ name, email, phone, message, requirement, source }) {
   const subject =
     source === 'NOVA Chatbot'
@@ -35,7 +33,7 @@ async function sendEmail({ name, email, phone, message, requirement, source }) {
     </div>
   `;
 
-  const res = await fetch('https://api.resend.com/emails', {
+  return fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -49,29 +47,27 @@ async function sendEmail({ name, email, phone, message, requirement, source }) {
       reply_to: email,
     }),
   });
-
-  return res;
 }
 
 async function logToGoogleSheets({ name, email, phone, message, requirement, source }) {
   const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK;
-  if (!webhookUrl) return; // silently skip if not configured yet
+  if (!webhookUrl) return;
 
-  await fetch(webhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      timestamp: new Date().toISOString(),
-      source,
-      name: name || '',
-      email: email || '',
-      phone: phone || '',
-      message: message || requirement || '',
-    }),
+  // Google Apps Script requires GET with query params (POST gets redirected)
+  const params = new URLSearchParams({
+    timestamp: new Date().toISOString(),
+    source: source || '',
+    name: name || '',
+    email: email || '',
+    phone: phone || '',
+    message: message || requirement || '',
+  });
+
+  await fetch(`${webhookUrl}?${params.toString()}`, {
+    method: 'GET',
+    redirect: 'follow',
   });
 }
-
-// ── handler ───────────────────────────────────────────────────────────────────
 
 export default async function handler(req) {
   if (req.method === 'OPTIONS') return new Response(null, { headers: cors });
@@ -88,14 +84,13 @@ export default async function handler(req) {
       });
     }
 
-    // Fire both in parallel — don't let Sheets failure block the email
     const [emailRes] = await Promise.allSettled([
       sendEmail({ name, email, phone, message, requirement, source }),
       logToGoogleSheets({ name, email, phone, message, requirement, source }),
     ]);
 
     if (emailRes.status === 'rejected' || (emailRes.value && !emailRes.value.ok)) {
-      console.error('Email send failed:', emailRes.reason || await emailRes.value?.text());
+      console.error('Email send failed');
       return new Response(JSON.stringify({ error: 'Failed to send email' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json', ...cors },
