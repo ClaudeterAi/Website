@@ -6,7 +6,7 @@ const cors = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-async function sendEmail({ name, email, phone, message, requirement, source }) {
+async function sendEmail({ name, email, phone, company, message, requirement, source }) {
   const subject =
     source === 'NOVA Chatbot'
       ? `🤖 New Lead from NOVA Chat: ${name}`
@@ -23,6 +23,7 @@ async function sendEmail({ name, email, phone, message, requirement, source }) {
           <tr><td style="padding:10px 0;color:#00ffcc;font-size:12px;letter-spacing:1px;width:130px;">NAME</td><td style="padding:10px 0;color:#fff;font-size:15px;">${name || '—'}</td></tr>
           <tr><td style="padding:10px 0;color:#00ffcc;font-size:12px;letter-spacing:1px;">EMAIL</td><td style="padding:10px 0;"><a href="mailto:${email}" style="color:#00ffcc;">${email || '—'}</a></td></tr>
           ${phone ? `<tr><td style="padding:10px 0;color:#00ffcc;font-size:12px;letter-spacing:1px;">PHONE</td><td style="padding:10px 0;color:#fff;">${phone}</td></tr>` : ''}
+          ${company ? `<tr><td style="padding:10px 0;color:#00ffcc;font-size:12px;letter-spacing:1px;">COMPANY</td><td style="padding:10px 0;color:#fff;">${company}</td></tr>` : ''}
           ${(message || requirement) ? `<tr><td style="padding:10px 0;color:#00ffcc;font-size:12px;letter-spacing:1px;vertical-align:top;">MESSAGE</td><td style="padding:10px 0;color:#ccc;line-height:1.6;">${message || requirement}</td></tr>` : ''}
         </table>
         <div style="margin-top:24px;padding:16px;background:#0f1a14;border-left:3px solid #00ffcc;border-radius:4px;">
@@ -49,17 +50,17 @@ async function sendEmail({ name, email, phone, message, requirement, source }) {
   });
 }
 
-async function logToGoogleSheets({ name, email, phone, message, requirement, source }) {
+async function logToGoogleSheets({ name, email, phone, company, message, requirement, source }) {
   const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK;
   if (!webhookUrl) return;
 
-  // Google Apps Script requires GET with query params (POST gets redirected)
   const params = new URLSearchParams({
     timestamp: new Date().toISOString(),
     source: source || '',
     name: name || '',
     email: email || '',
     phone: phone || '',
+    company: company || '',
     message: message || requirement || '',
   });
 
@@ -75,7 +76,7 @@ export default async function handler(req) {
 
   try {
     const body = await req.json();
-    const { name, email, phone, message, requirement, source = 'Contact Form' } = body;
+    const { name, email, phone, company, message, requirement, source = 'Contact Form' } = body;
 
     if (!email) {
       return new Response(JSON.stringify({ error: 'Email is required' }), {
@@ -85,8 +86,8 @@ export default async function handler(req) {
     }
 
     const [emailRes] = await Promise.allSettled([
-      sendEmail({ name, email, phone, message, requirement, source }),
-      logToGoogleSheets({ name, email, phone, message, requirement, source }),
+      sendEmail({ name, email, phone, company, message, requirement, source }),
+      logToGoogleSheets({ name, email, phone, company, message, requirement, source }),
     ]);
 
     if (emailRes.status === 'rejected' || (emailRes.value && !emailRes.value.ok)) {

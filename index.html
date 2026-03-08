@@ -1415,6 +1415,14 @@ async function toggleVoice(){
           <input type="email" placeholder="you@company.com" id="cf-email"/>
         </div>
         <div class="cf-field">
+          <label>Phone Number</label>
+          <input type="tel" placeholder="+1 (555) 000-0000" id="cf-phone"/>
+        </div>
+        <div class="cf-field">
+          <label>Company Name <span style="color:rgba(0,255,204,.3);font-size:.38rem;letter-spacing:.1em;">// OPTIONAL</span></label>
+          <input type="text" placeholder="Leave blank if not applicable" id="cf-company"/>
+        </div>
+        <div class="cf-field">
           <label>What are you building?</label>
           <textarea rows="4" placeholder="Brief description of your project..." id="cf-msg"></textarea>
         </div>
@@ -1449,6 +1457,8 @@ async function toggleVoice(){
 function submitForm(){
   const name=document.getElementById('cf-name').value.trim();
   const email=document.getElementById('cf-email').value.trim();
+  const phone=document.getElementById('cf-phone').value.trim();
+  const company=document.getElementById('cf-company').value.trim();
   const msg=document.getElementById('cf-msg').value.trim();
   const st=document.getElementById('cf-status');
   const btn=document.getElementById('cf-btn-txt');
@@ -1464,7 +1474,7 @@ function submitForm(){
   fetch('/api/contact',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({name,email,message:msg,source:'Contact Form'})
+    body:JSON.stringify({name,email,phone,company,message:msg,source:'Contact Form'})
   }).then(r=>{
     st.style.display='block';
     if(r.ok){
@@ -1473,6 +1483,8 @@ function submitForm(){
       btn.textContent='Sent ✓';
       document.getElementById('cf-name').value='';
       document.getElementById('cf-email').value='';
+      document.getElementById('cf-phone').value='';
+      document.getElementById('cf-company').value='';
       document.getElementById('cf-msg').value='';
     } else {
       st.style.color='rgba(255,80,80,.8)';
