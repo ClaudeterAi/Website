@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;background:#000;font-family:'JetBrains Mono',monospace;color:#fff}
+html,body{width:100%;background:#020108;font-family:'JetBrains Mono',monospace;color:#fff}
 nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:20px 44px;background:rgba(0,0,0,.95);border-bottom:1px solid rgba(0,255,204,.06)}
 .nlogo{display:flex;align-items:center;text-decoration:none}
 .nlogo span{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.18em;background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -28,16 +28,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 .post-tag{font-size:.48rem;letter-spacing:.22em;text-transform:uppercase;color:#00ffcc;opacity:.85;margin-bottom:16px}
 .post-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,5vw,3.8rem);letter-spacing:.06em;line-height:1.08;margin-bottom:24px}
 .post-meta{display:flex;align-items:center;gap:24px;padding:20px 0;border-top:1px solid rgba(0,255,204,.08);border-bottom:1px solid rgba(0,255,204,.08);margin-bottom:48px}
-.post-meta span{font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35)}
+.post-meta span{font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35)}
 .post-meta .author{color:rgba(0,255,204,.6)}
 .cover{width:100%;max-width:800px;margin:0 auto 48px;display:block}
 .cover canvas{width:100%;aspect-ratio:16/9;display:block;border:1px solid rgba(0,255,204,.08)}
 .post-body{max-width:800px;margin:0 auto;padding:0 44px 100px}
-.post-body h2{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.08em;color:#fff;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,255,204,.08)}
-.post-body h3{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.08em;color:#00ffcc;margin:32px 0 12px}
-.post-body p{font-size:.62rem;color:rgba(255,255,255,.7);line-height:1.9;letter-spacing:.03em;margin-bottom:20px}
+.post-body h2{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:.08em;color:#fff;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,255,204,.08)}
+.post-body h3{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.08em;color:#00ffcc;margin:32px 0 12px}
+.post-body p{font-size:.88rem;color:rgba(255,255,255,.7);line-height:1.9;letter-spacing:.03em;margin-bottom:20px}
 .post-body ul,.post-body ol{margin:0 0 20px 20px}
-.post-body li{font-size:.62rem;color:rgba(255,255,255,.7);line-height:1.9;letter-spacing:.03em;margin-bottom:8px}
+.post-body li{font-size:.88rem;color:rgba(255,255,255,.7);line-height:1.9;letter-spacing:.03em;margin-bottom:8px}
 .post-body strong{color:#fff}
 .post-body a{color:#00ffcc;text-decoration:none}
 .callout{border-left:2px solid #00ffcc;padding:16px 20px;background:rgba(0,255,204,.04);margin:28px 0}
@@ -52,6 +52,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 .cta-btn{display:inline-block;padding:13px 32px;background:linear-gradient(135deg,#002b1c,#00ffcc);color:#000;font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;transition:all .25s}
 .cta-btn:hover{box-shadow:0 0 40px rgba(0,255,204,.4)}
 @media(max-width:768px){nav{padding:14px 20px}.nlinks{display:none}.hero{padding:100px 20px 0}.post-body{padding:0 20px 80px}.stat-row{grid-template-columns:1fr}}
+
+/* Space background */
+body::before,body::after{content:"";position:fixed;top:0;left:0;right:0;bottom:0;z-index:-1;pointer-events:none}
+body::before{background-image:radial-gradient(1px 1px at 20px 30px,rgba(255,255,255,.4),transparent),radial-gradient(1px 1px at 80px 10px,rgba(255,255,255,.3),transparent),radial-gradient(1.5px 1.5px at 130px 50px,rgba(0,255,204,.2),transparent),radial-gradient(1px 1px at 50px 120px,rgba(255,255,255,.3),transparent),radial-gradient(1px 1px at 170px 20px,rgba(0,207,255,.2),transparent);background-size:200px 160px;animation:twinkle 8s ease-in-out infinite alternate}
+body::after{background:radial-gradient(ellipse 80% 50% at 10% 20%,rgba(40,0,100,.25),transparent 60%),radial-gradient(ellipse 60% 40% at 85% 50%,rgba(0,50,110,.2),transparent 55%),radial-gradient(ellipse 70% 50% at 50% 80%,rgba(0,80,60,.12),transparent 55%)}
+@keyframes twinkle{0%{opacity:.6}50%{opacity:1}100%{opacity:.7}}
+
+.share-row{display:flex;align-items:center;gap:10px;margin:16px 0 8px}
+.share-row span{font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35)}
+.share-row a{width:30px;height:30px;border-radius:50%;border:1px solid rgba(0,255,204,.2);display:inline-flex;align-items:center;justify-content:center;text-decoration:none;transition:all .2s;flex-shrink:0}
+.share-row a:hover{border-color:#00ffcc;background:rgba(0,255,204,.1)}
+.share-row a:hover svg path{fill:#00ffcc}
 </style>
 </head>
 <body>
@@ -75,6 +87,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
     <span class="author">Claudeter Team</span>
     <span>March 3, 2026</span>
     <span>10 min read</span>
+  </div>
+  <div class="share-row">
+    <span>Share</span>
+    <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//www.claudeter.ai/blog/prior-auth-automation-denial-rates/" target="_blank" rel="noopener" title="Share on LinkedIn"><svg width="14" height="14" viewBox="0 0 24 24"><path fill="rgba(255,255,255,.5)" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c0-1.14-.925-2.065-2.063-2.065a2.064 2.064 0 1 0 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//www.claudeter.ai/blog/prior-auth-automation-denial-rates/" target="_blank" rel="noopener" title="Share on Facebook"><svg width="14" height="14" viewBox="0 0 24 24"><path fill="rgba(255,255,255,.5)" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+    <a href="https://twitter.com/intent/tweet?url=https%3A//www.claudeter.ai/blog/prior-auth-automation-denial-rates/&text=Prior%20Authorization%20Automation%3A%20How%20We%20Cut%20Denial%20Rates%20by%2034%25" target="_blank" rel="noopener" title="Share on X"><svg width="14" height="14" viewBox="0 0 24 24"><path fill="rgba(255,255,255,.5)" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
   </div>
 </div>
 

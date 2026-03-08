@@ -67,7 +67,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;background:#000;cursor:none;font-family:'JetBrains Mono',monospace}
+html,body{width:100%;background:#020108;cursor:none;font-family:'JetBrains Mono',monospace}
 #cur{position:fixed;width:6px;height:6px;background:#00ffcc;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen;box-shadow:0 0 8px #00ffcc}
 #cur2{position:fixed;width:24px;height:24px;border:1px solid rgba(0,255,204,.3);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left .08s,top .08s}
 #cv{position:fixed;inset:0;z-index:1}
@@ -124,14 +124,51 @@ nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:cent
 
 /* ========== PAGE LAYOUT ========== */
 html,body{overflow-x:hidden}
-#page{position:relative;z-index:10;margin-top:100vh;overflow:visible}
+#page{position:relative;z-index:10;margin-top:100vh;overflow:visible;background:#020108}
+/* Star layers — small, medium, large stars using repeating background-image tiles */
+#page::before,#page::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none}
+#page::before{
+  background-image:
+    radial-gradient(1px 1px at 20px 30px,rgba(255,255,255,.45),transparent),
+    radial-gradient(1px 1px at 40px 70px,rgba(255,255,255,.3),transparent),
+    radial-gradient(1px 1px at 80px 10px,rgba(255,255,255,.35),transparent),
+    radial-gradient(1px 1px at 130px 50px,rgba(0,255,204,.3),transparent),
+    radial-gradient(1px 1px at 160px 90px,rgba(255,255,255,.25),transparent),
+    radial-gradient(1.5px 1.5px at 50px 120px,rgba(255,255,255,.4),transparent),
+    radial-gradient(1px 1px at 110px 140px,rgba(0,207,255,.3),transparent),
+    radial-gradient(1px 1px at 170px 20px,rgba(255,255,255,.3),transparent);
+  background-size:200px 160px;
+  animation:twinkle 8s ease-in-out infinite alternate
+}
+#page::after{
+  background-image:
+    radial-gradient(1.5px 1.5px at 60px 50px,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 140px 100px,rgba(255,255,255,.35),transparent),
+    radial-gradient(2px 2px at 30px 130px,rgba(0,255,204,.35),transparent),
+    radial-gradient(1px 1px at 100px 20px,rgba(255,255,255,.3),transparent),
+    radial-gradient(1.5px 1.5px at 180px 70px,rgba(0,207,255,.35),transparent),
+    radial-gradient(1px 1px at 70px 160px,rgba(255,255,255,.3),transparent);
+  background-size:220px 180px;
+  animation:twinkle 12s ease-in-out 2s infinite alternate
+}
+@keyframes twinkle{0%{opacity:.6}50%{opacity:1}100%{opacity:.7}}
+/* Nebula glows — large colored gradients */
+.nebula-bg{position:absolute;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 20%,rgba(40,0,100,.35),transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 35%,rgba(0,50,110,.3),transparent 55%),
+    radial-gradient(ellipse 70% 50% at 50% 70%,rgba(0,80,60,.2),transparent 55%),
+    radial-gradient(ellipse 50% 40% at 30% 90%,rgba(0,40,80,.25),transparent 50%),
+    radial-gradient(ellipse 60% 45% at 70% 10%,rgba(30,0,60,.2),transparent 50%)
+}
+#page>section{position:relative;z-index:1}
 
 /* Scroll hint */
-#scroll-hint{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:25;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fi 1s 2.5s forwards;pointer-events:none}
+#scroll-hint{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fi 1s 2.5s forwards;padding:20px 0}
 #scroll-hint span{font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(0,255,204,.4)}
 .sh-line{width:1px;height:32px;background:linear-gradient(to bottom,rgba(0,255,204,.4),transparent);animation:shpulse 2s ease-in-out infinite}
 @keyframes shpulse{0%,100%{opacity:.3}50%{opacity:1}}
-#s-hero{height:100vh}
+#s-hero{height:auto;padding:20px 0}
 
 /* ========== SECTION BASE ========== */
 section{position:relative;padding:100px 0;overflow:hidden}
@@ -143,10 +180,10 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .sec-sub{font-size:.82rem;letter-spacing:.02em;color:rgba(255,255,255,.75);max-width:560px;line-height:1.8}
 
 /* ========== SERVICES ========== */
-#s-services{background:#000}
+#s-services{background:transparent}
 #s-services::before{background:radial-gradient(ellipse 60% 50% at 80% 50%,rgba(0,255,204,.04),transparent)}
 .srv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:56px;border:1px solid rgba(0,255,204,.06)}
-.srv-card{padding:36px 30px;border:1px solid rgba(0,255,204,.06);background:#000;transition:background .3s,border-color .3s;position:relative;overflow:hidden}
+.srv-card{padding:36px 30px;border:1px solid rgba(0,255,204,.06);background:rgba(2,1,8,.85);transition:background .3s,border-color .3s;position:relative;overflow:hidden}
 .srv-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,255,204,.04),transparent);opacity:0;transition:opacity .3s}
 .srv-card:hover{background:#030f09;border-color:rgba(0,255,204,.18)}
 .srv-card:hover::after{opacity:1}
@@ -160,7 +197,7 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .srv-tags span{font-size:.58rem;letter-spacing:.08em;padding:4px 10px;border:1px solid rgba(0,255,204,.3);color:rgba(0,255,204,.85);text-transform:uppercase}
 
 /* ========== PROCESS ========== */
-#s-process{background:linear-gradient(180deg,#000 0%,#020a06 50%,#000 100%)}
+#s-process{background:linear-gradient(180deg,transparent 0%,rgba(2,10,6,.4) 50%,transparent 100%)}
 .proc-track{display:flex;align-items:flex-start;gap:0;margin-top:60px}
 .proc-step{flex:1;position:relative}
 .proc-num{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;letter-spacing:.08em;background:linear-gradient(135deg,#00ffcc,transparent);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:14px}
@@ -169,10 +206,10 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .proc-line{width:60px;flex-shrink:0;height:1px;background:linear-gradient(90deg,rgba(0,255,204,.2),rgba(0,255,204,.05));margin-top:28px;align-self:flex-start}
 
 /* ========== INDUSTRIES ========== */
-#s-industries{background:#000}
+#s-industries{background:transparent}
 #s-industries::before{background:radial-gradient(ellipse 60% 50% at 20% 50%,rgba(0,207,255,.04),transparent)}
 .ind-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:56px;border:1px solid rgba(0,255,204,.06)}
-.ind-card{padding:32px 28px;border:1px solid rgba(0,255,204,.06);background:#000;transition:background .3s}
+.ind-card{padding:32px 28px;border:1px solid rgba(0,255,204,.06);background:rgba(2,1,8,.85);transition:background .3s}
 .ind-card:hover{background:#030810}
 .ind-card h3{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.1em;color:#fff;margin-bottom:10px}
 .ind-card p{font-size:.76rem;color:rgba(255,255,255,.7);line-height:1.85;letter-spacing:.02em}
@@ -180,7 +217,7 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .ind-markets span{font-size:.58rem;letter-spacing:.06em;padding:4px 10px;border:1px solid rgba(0,207,255,.3);color:rgba(0,207,255,.85)}
 
 /* ========== STACK ========== */
-#s-stack{background:linear-gradient(180deg,#000 0%,#020a06 50%,#000 100%)}
+#s-stack{background:linear-gradient(180deg,transparent 0%,rgba(2,10,6,.5) 50%,transparent 100%)}
 .stack-cats{display:flex;flex-direction:column;gap:30px;margin-top:56px}
 .stack-cat{display:flex;align-items:flex-start;gap:40px;padding:24px 0;border-bottom:1px solid rgba(0,255,204,.05)}
 .stack-cat:last-child{border-bottom:none}
@@ -190,12 +227,12 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .stack-items span:hover{border-color:#00ffcc;color:#00ffcc;background:rgba(0,255,204,.04)}
 
 /* ========== ABOUT ========== */
-#s-about{background:#000}
+#s-about{background:transparent}
 #s-about::before{background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(108,0,255,.04),transparent)}
 .about-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
 .about-body{font-size:.78rem;color:rgba(255,255,255,.75);line-height:1.9;letter-spacing:.02em;margin-bottom:20px}
 .about-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:40px;border:1px solid rgba(0,255,204,.06)}
-.astat{padding:20px 22px;border:1px solid rgba(0,255,204,.06);background:#000}
+.astat{padding:20px 22px;border:1px solid rgba(0,255,204,.06);background:rgba(2,1,8,.85)}
 .astat-n{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;background:linear-gradient(135deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
 .astat-l{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:4px}
 .manifesto-card{border:1px solid rgba(0,255,204,.08);padding:40px;background:rgba(0,255,204,.015)}
@@ -206,9 +243,9 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .ml-text{font-size:.76rem;color:rgba(255,255,255,.75);letter-spacing:.02em;line-height:1.8}
 
 /* ========== TESTIMONIALS ========== */
-#s-testimonials{background:linear-gradient(180deg,#000 0%,#020a06 50%,#000 100%)}
+#s-testimonials{background:linear-gradient(180deg,transparent 0%,rgba(2,10,6,.3) 50%,transparent 100%)}
 .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:56px;border:1px solid rgba(0,255,204,.06)}
-.testi-card{padding:32px 28px;border:1px solid rgba(0,255,204,.06);background:#000;transition:background .3s,border-color .3s;position:relative}
+.testi-card{padding:32px 28px;border:1px solid rgba(0,255,204,.06);background:rgba(2,1,8,.85);transition:background .3s,border-color .3s;position:relative}
 .testi-card:hover{background:#030f09;border-color:rgba(0,255,204,.15)}
 .testi-stars{display:flex;gap:3px;margin-bottom:16px}
 .testi-stars span{color:#00ffcc;font-size:.7rem}
@@ -221,14 +258,14 @@ section::before{content:'';position:absolute;inset:0;pointer-events:none}
 .testi-flag{font-size:.7rem;margin-left:auto}
 
 /* ========== CONTACT ========== */
-#s-contact{background:linear-gradient(180deg,#000 0%,#020c06 100%)}
+#s-contact{background:linear-gradient(180deg,transparent 0%,rgba(2,12,6,.6) 100%)}
 .contact-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
 .contact-details{margin-top:40px;display:flex;flex-direction:column;gap:0}
 .cd-row{display:flex;gap:0;border-bottom:1px solid rgba(0,255,204,.05);padding:14px 0}
 .cd-label{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(0,255,204,.8);width:120px;flex-shrink:0}
 .cd-val{font-size:.74rem;color:rgba(255,255,255,.78);letter-spacing:.03em;text-decoration:none;transition:color .25s}
 a.cd-val:hover{color:#00ffcc}
-.contact-form-wrap{border:1px solid rgba(0,255,204,.08);padding:40px;background:rgba(0,0,0,.5)}
+.contact-form-wrap{border:1px solid rgba(0,255,204,.08);padding:40px;background:rgba(2,1,8,.7)}
 .cf-field{margin-bottom:22px}
 .cf-field label{display:block;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(0,255,204,.55);margin-bottom:8px}
 .cf-field input,.cf-field textarea{width:100%;background:rgba(0,255,204,.02);border:1px solid rgba(0,255,204,.08);color:rgba(255,255,255,.6);font-family:'JetBrains Mono',monospace;font-size:.76rem;padding:12px 14px;outline:none;resize:none;transition:border-color .25s;letter-spacing:.04em}
@@ -239,7 +276,7 @@ a.cd-val:hover{color:#00ffcc}
 #cf-status{margin-top:14px;font-size:.54rem;letter-spacing:.1em;padding:10px;text-align:center}
 
 /* ========== FOOTER ========== */
-#s-footer{background:#000;border-top:1px solid rgba(0,255,204,.06);padding:60px 0 40px}
+#s-footer{background:rgba(2,1,8,.95);border-top:1px solid rgba(0,255,204,.06);padding:60px 0 40px}
 .foot-inner{max-width:1200px;margin:0 auto;padding:0 60px;text-align:center}
 .foot-logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.3em;background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
 .foot-tagline{font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(0,255,204,.35);margin-bottom:30px}
@@ -367,7 +404,7 @@ a.cd-val:hover{color:#00ffcc}
 </button>
 <nav>
   <div class="nlogo"><img src="/logo/claudeter_logo_transparent.png" alt="Claudeter" style="height:36px;width:auto;display:block;"><span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.18em;background:linear-gradient(90deg,#00ffcc,#00cfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-left:10px;">CLAUDETER</span></div>
-  <div class="nlinks"><a href="#s-services">Services</a><a href="#s-about">About</a><a href="#s-stack">Stack</a><a href="#s-industries">Industries</a><a href="/blog/" style="color:rgba(0,255,204,.8)">Blog</a></div>
+  <div class="nlinks"><a href="#s-services">Services</a><a href="#s-about">About</a><a href="#s-stack">Stack</a><a href="#s-industries">Industries</a><a href="/blog/">Blog</a></div>
   <a href="#s-contact" class="ncta">Book a Call ↗</a>
 </nav>
 <div id="rside">
@@ -530,7 +567,14 @@ setInterval(()=>{if(Math.random()>0.82)triggerGlitch();},3800);
 
 function render(){
   frame++;
-  ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#020108'; ctx.fillRect(0,0,W,H);
+
+  // Subtle space tint on the canvas to match the page background
+  const spaceGrad=ctx.createLinearGradient(0,H*0.5,0,H);
+  spaceGrad.addColorStop(0,'transparent');
+  spaceGrad.addColorStop(0.6,'rgba(20,0,50,0.15)');
+  spaceGrad.addColorStop(1,'rgba(20,0,50,0.35)');
+  ctx.fillStyle=spaceGrad; ctx.fillRect(0,0,W,H);
 
   // Breath idle micro-movement
   breathPhase+=0.011;
@@ -1042,21 +1086,14 @@ function novaFabClick(){
 
 <!-- MAIN SCROLLABLE WRAPPER -->
 <div id="page">
-
-<!-- HERO SECTION (full screen, scroll indicator) -->
-<section id="s-hero">
-  <div id="scroll-hint">
-    <span>Scroll to explore</span>
-    <div class="sh-line"></div>
-  </div>
-</section>
+<div class="nebula-bg"></div>
 
 <!-- SERVICES SECTION -->
 <section id="s-services">
   <div class="sec-inner">
     <div class="sec-label">// 01 · Services</div>
-    <h2 class="sec-title">What We <span class="hl">Build</span></h2>
-    <p class="sec-sub">End-to-end AI services — voice agents, automation systems, and intelligent products — that go live in weeks, not quarters. We build across industries, markets, and scale.</p>
+    <h2 class="sec-title">You Run the Business. We Automate the <span class="hl">Rest.</span></h2>
+    <p class="sec-sub">From customer calls to back-office workflows — we build AI that handles the repetitive, the complex, and the time-consuming. Voice agents, automation systems, and intelligent products that go live in weeks, not quarters.</p>
     <div class="srv-grid">
       <div class="srv-card">
         <div class="srv-icon"><svg class="sico" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" ><circle cx="16" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="22" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="25" cy="22" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="22" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="16" y1="10.5" x2="7" y2="19.5" stroke="currentColor" stroke-width="1.5"/><line x1="16" y1="10.5" x2="16" y2="19.5" stroke="currentColor" stroke-width="1.5"/><line x1="16" y1="10.5" x2="25" y2="19.5" stroke="currentColor" stroke-width="1.5"/><line x1="7" y1="24.5" x2="16" y2="24.5" stroke="currentColor" stroke-width="1.5"/><line x1="16" y1="24.5" x2="25" y2="24.5" stroke="currentColor" stroke-width="1.5"/></svg></div>
@@ -1197,13 +1234,19 @@ function novaFabClick(){
       <div class="stack-cat">
         <div class="stack-cat-label">AI / Models</div>
         <div class="stack-items">
-          <span>Claude</span><span>GPT-4o</span><span>Gemini</span><span>Llama 3</span><span>Whisper</span><span>ElevenLabs</span><span>Stable Diffusion</span><span>DALL·E</span>
+          <span>Claude</span><span>OpenAI</span><span>Gemini</span><span>Llama 3</span><span>Whisper</span><span>Stable Diffusion</span>
+        </div>
+      </div>
+      <div class="stack-cat">
+        <div class="stack-cat-label">Voice &amp; Speech</div>
+        <div class="stack-items">
+          <span>ElevenLabs</span><span>Deepgram</span><span>Retell AI</span><span>Twilio</span><span>LiveKit</span>
         </div>
       </div>
       <div class="stack-cat">
         <div class="stack-cat-label">Orchestration</div>
         <div class="stack-items">
-          <span>LangChain</span><span>LangGraph</span><span>CrewAI</span><span>AutoGen</span><span>n8n</span><span>Make</span><span>Zapier</span>
+          <span>LangChain</span><span>LangGraph</span><span>CrewAI</span><span>AutoGen</span><span>n8n</span><span>Make</span>
         </div>
       </div>
       <div class="stack-cat">
@@ -1222,12 +1265,6 @@ function novaFabClick(){
         <div class="stack-cat-label">Backend &amp; Infra</div>
         <div class="stack-items">
           <span>Node.js</span><span>Python</span><span>FastAPI</span><span>AWS</span><span>Vercel</span><span>Cloudflare</span><span>Docker</span>
-        </div>
-      </div>
-      <div class="stack-cat">
-        <div class="stack-cat-label">Telephony &amp; Voice</div>
-        <div class="stack-items">
-          <span>Twilio</span><span>Deepgram</span><span>ElevenLabs</span><span>Retell AI</span><span>Whisper</span><span>LiveKit</span>
         </div>
       </div>
     </div>
@@ -1425,7 +1462,7 @@ function novaFabClick(){
 <section id="s-contact">
   <div class="sec-inner contact-layout">
     <div class="contact-left">
-      <div class="sec-label">// 06 · Let's Build</div>
+      <div class="sec-label">// 07 · Let's Build</div>
       <h2 class="sec-title">Start the<br/><span class="hl">Conversation.</span></h2>
       <p class="sec-sub" style="margin-top:20px">Tell us what you're building. We'll tell you if we can make it real — and how fast.</p>
       <div class="contact-details">
