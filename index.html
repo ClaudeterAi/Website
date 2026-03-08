@@ -635,9 +635,9 @@ function startVAD(){
     // speech bands 300–3400Hz, fftSize=2048@44100Hz → bins 14–158
     let s=0; for(let i=14;i<158;i++) s+=data[i];
     const avg=s/144;
-    if(avg>30){
+    if(avg>45){
       loud++;
-      if(loud>=3&&!interruptFired){  // ~150ms sustained
+      if(loud>=6&&!interruptFired){  // ~300ms sustained loud speech
         interruptFired=true; interruptArmed=false; loud=0;
         stopSpeaking();
         if(sessionActive){setStatus('Listening...');setBtnState('listening');}
@@ -665,8 +665,10 @@ async function setupVAD(){
 
 // ── TTS ────────────────────────────────────────────────────
 function onSpeakStart(){
-  isTalking=true; interruptArmed=true; interruptFired=false;
+  isTalking=true; interruptArmed=false; interruptFired=false;
   sbEl.classList.add('on'); setStatus('Speaking...'); setBtnState('speaking');
+  // Delay interrupt arming 1.8s — mic picks up speaker echo and self-triggers otherwise
+  setTimeout(()=>{ if(isTalking) interruptArmed=true; }, 1800);
 }
 
 function onSpeakEnd(){
@@ -802,10 +804,9 @@ async function startDG(){
       let msg;
       try{msg=JSON.parse(e.data);}catch{return;}
 
-      // SpeechStarted — user started speaking (Deepgram VAD)
+      // SpeechStarted — interrupt NOVA only after arm delay (avoids self-echo trigger)
       if(msg.type==='SpeechStarted'){
-        // If NOVA is speaking, interrupt her
-        if(isTalking){
+        if(isTalking&&interruptArmed){
           stopSpeaking();
           setStatus('Listening...'); setBtnState('listening');
         }
