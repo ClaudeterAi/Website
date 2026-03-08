@@ -619,7 +619,7 @@ let pendingText='', silenceTimer=null;
 let rec=null, recRunning=false, srWatchdog=null;
 
 function startRec(){
-  if(recRunning||!sessionActive||isTalking||isProcessing) return;
+  if(recRunning||!sessionActive||isTalking) return;
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){setStatus('SR not supported');return;}
   const r=new SR();
@@ -628,7 +628,7 @@ function startRec(){
 
   r.onresult=e=>{
     console.log('SR result',{isTalking,isProcessing});
-    if(isTalking||isProcessing){stopRec();return;}
+    if(isTalking){return;}
     let fi='';
     for(let i=e.resultIndex;i<e.results.length;i++)
       if(e.results[i].isFinal) fi+=e.results[i][0].transcript;
@@ -648,18 +648,18 @@ function startRec(){
   r.onerror=e=>{
     recRunning=false; rec=null;
     if(e.error==='not-allowed'){setStatus('Mic denied');sessionActive=false;return;}
-    if(sessionActive&&!isTalking&&!isProcessing) setTimeout(startRec,400);
+    if(sessionActive&&!isTalking) setTimeout(startRec,400);
   };
 
   r.onend=()=>{
     recRunning=false; rec=null;
-    if(sessionActive&&!isTalking&&!isProcessing) setTimeout(startRec,200);
+    if(sessionActive&&!isTalking) setTimeout(startRec,200);
   };
 
   if(srWatchdog) clearInterval(srWatchdog);
   srWatchdog=setInterval(()=>{
     if(!sessionActive){clearInterval(srWatchdog);srWatchdog=null;return;}
-    if(isTalking||isProcessing) return;
+    if(isTalking) return;
     if(!recRunning) startRec();
   },8000);
 
@@ -692,11 +692,18 @@ async function speak(text){
   isTalking=true; isProcessing=true;
   sbEl.classList.add('on'); setStatus('Speaking...'); setBtnState('speaking');
 
-  const done=()=>{console.log('done() called');
+  let finished=false, safetyTimeout=null;
+  const done=()=>{
+    if(finished) return;
+    finished=true;
+    console.log('done() called');
     isTalking=false; mouthOpen=0; analyser=null;
     isProcessing=false; sbEl.classList.remove('on');
+    if(safetyTimeout){clearTimeout(safetyTimeout);safetyTimeout=null;}
     if(sessionActive){setStatus('Listening...');setBtnState('listening');startRec();}
   };
+  // Safety net: if done() never fires (silent TTS failure), force recovery
+  safetyTimeout=setTimeout(()=>{console.warn('speak() safety timeout');done();},30000);
 
   try{
     const r=await fetch('/api/speak',{method:'POST',
@@ -724,6 +731,9 @@ async function speak(text){
       const u=new SpeechSynthesisUtterance(text);
       u.rate=1.0; u.onend=done; u.onerror=done;
       window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+      // Browser TTS can silently fail — shorter safety net
+      if(safetyTimeout) clearTimeout(safetyTimeout);
+      safetyTimeout=setTimeout(()=>{console.warn('Browser TTS timeout');done();},15000);
     }catch(e2){done();}
   }
 }
@@ -744,7 +754,7 @@ async function ask(text){
     if(!r.ok) throw new Error('LLM '+r.status);
     const d=await r.json();
     const reply=(d.content?.[0]?.text||'').trim()||'Say that again?';
-    persistentHist.push({role:'assistant',content:reply});
+    if(!isGreet) persistentHist.push({role:'assistant',content:reply});
     speak(reply);
   }catch(e){
     console.error('ask:',e); isProcessing=false;
