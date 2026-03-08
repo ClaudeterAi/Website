@@ -751,169 +751,80 @@ async function ask(text){
   }
 }
 
-// ── Deepgram STT ────────────────────────────────────────────
-let dgSocket=null, dgStream=null, dgProcessor=null, dgAudioCtx=null;
-let dgReconnectTimer=null, dgKeepAliveTimer=null;
-let utteranceBuffer='';
-let dgRetries=0; const DG_MAX_RETRIES=5;
+// ── SR (SpeechRecognition) ──────────────────────────────────
+let pendingText='', silenceTimer=null;
+let rec=null, recRunning=false;
+let srWatchdog=null, srLastActivity=0;
 
-// Deepgram browser WS auth: subprotocol trick (browsers can't set Authorization header)
-const DG_KEY='4dd3bbeb96f8ee6b1741a123b460622f118e5773';
+function touchSR(){srLastActivity=Date.now();}
 
-function buildDGUrl(){
-  // No token in URL — auth goes in subprotocol header per Deepgram docs
-  const p=[
-    'model=nova-2',
-    'language=en-US',
-    'punctuate=true',
-    'interim_results=true',
-    'endpointing=600',
-    'utterance_end_ms=1000',
-    'vad_events=true',
-    'smart_format=true',
-    'encoding=linear16',
-    'sample_rate=16000',
-    'channels=1',
-  ].join('&');
-  return `wss://api.deepgram.com/v1/listen?${p}`;
+function startSRWatchdog(){
+  if(srWatchdog) return;
+  srWatchdog=setInterval(()=>{
+    if(!sessionActive){clearInterval(srWatchdog);srWatchdog=null;return;}
+    if(isTalking||isProcessing) return;
+    const age=Date.now()-srLastActivity;
+    if(!recRunning||age>7000){
+      stopRec(); setTimeout(startRec,150);
+    }
+  },3000);
 }
 
-async function startDG(){
-  if(dgSocket&&dgSocket.readyState===WebSocket.OPEN) return;
-  if(dgReconnectTimer){clearTimeout(dgReconnectTimer);dgReconnectTimer=null;}
+function stopSRWatchdog(){if(srWatchdog){clearInterval(srWatchdog);srWatchdog=null;}}
 
-  try{
-    // Subprotocol auth — Deepgram's documented method for browser clients
-    const ws=new WebSocket(buildDGUrl(), ['token', DG_KEY]);
-    dgSocket=ws;
+function startRec(){
+  if(recRunning||!sessionActive) return;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR) return;
+  const r=new SR();
+  r.continuous=true; r.interimResults=true; r.maxAlternatives=1; r.lang='en-US';
+  rec=r; recRunning=true; touchSR();
 
-    ws.onopen=()=>{
-      console.log('Deepgram connected');
-      dgRetries=0;
-      setStatus('Listening...'); setBtnState('listening');
-      sbEl.classList.add('on');
-      // keepalive — send KeepAlive every 8s so Deepgram doesn't close idle connection
-      dgKeepAliveTimer=setInterval(()=>{
-        if(ws.readyState===WebSocket.OPEN)
-          ws.send(JSON.stringify({type:'KeepAlive'}));
-      },8000);
-      startMicStream(ws);
-    };
+  r.onstart=()=>{ touchSR(); };
 
-    ws.onmessage=e=>{
-      // Discard all transcripts while NOVA speaks or is processing
-      if(isTalking||isProcessing){ utteranceBuffer=''; return; }
-      let msg;
-      try{msg=JSON.parse(e.data);}catch{return;}
+  r.onresult=e=>{
+    if(isTalking||isProcessing) return;
+    touchSR();
+    let fi='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) fi+=e.results[i][0].transcript;
+    }
+    if(fi){
+      pendingText=(pendingText+' '+fi).trim();
+      if(silenceTimer) clearTimeout(silenceTimer);
+      silenceTimer=setTimeout(()=>{
+        silenceTimer=null;
+        const toSend=pendingText; pendingText='';
+        if(toSend.trim().split(/\s+/).length>=2) ask(toSend);
+      },600);
+    }
+  };
 
-      // SpeechStarted — interrupt NOVA only after arm delay (avoids self-echo trigger)
-      if(msg.type==='SpeechStarted'){
-        if(isTalking&&interruptArmed){
-          stopSpeaking();
-          setStatus('Listening...'); setBtnState('listening');
-        }
-        return;
-      }
+  r.onerror=e=>{
+    touchSR(); recRunning=false; rec=null;
+    if(e.error==='not-allowed'){setStatus('Mic denied');sessionActive=false;return;}
+    if(sessionActive&&!isTalking) setTimeout(startRec,300);
+  };
 
-      // Final transcript chunk — accumulate (confidence check + min 2 words to filter noise)
-      if(msg.type==='Results'&&msg.is_final){
-        const alt=msg.channel?.alternatives?.[0];
-        const t=(alt?.transcript||'').trim();
-        const conf=alt?.confidence??1;
-        const words=t.split(/\s+/).filter(Boolean);
-        // Reject if empty, single noise word, or low confidence
-        if(t&&words.length>=2&&conf>=0.65){
-          utteranceBuffer=(utteranceBuffer+' '+t).trim();
-        }
-        return;
-      }
+  r.onend=()=>{
+    recRunning=false; rec=null; touchSR();
+    if(sessionActive&&!isTalking) setTimeout(startRec,150);
+  };
 
-      // UtteranceEnd — user finished speaking, send accumulated buffer
-      if(msg.type==='UtteranceEnd'){
-        const toSend=utteranceBuffer.trim();
-        utteranceBuffer='';
-        if(toSend) ask(toSend);
-        return;
-      }
-    };
-
-    ws.onerror=e=>console.warn('DG error',e);
-
-    ws.onclose=e=>{
-      console.log('DG closed code='+e.code+' reason="'+e.reason+'"');
-      clearInterval(dgKeepAliveTimer);
-      stopMicStream();
-      if(sessionActive&&e.code!==1000&&dgRetries<DG_MAX_RETRIES){
-        dgRetries++;
-        const delay=Math.min(1000*dgRetries,8000);
-        console.log(`DG reconnect attempt ${dgRetries} in ${delay}ms`);
-        dgReconnectTimer=setTimeout(()=>startDG(),delay);
-      } else if(dgRetries>=DG_MAX_RETRIES){
-        console.error('DG max retries reached');
-        setStatus('Connection failed — refresh page');
-      }
-    };
-
-  }catch(e){
-    console.error('DG start:',e);
-    if(sessionActive) dgReconnectTimer=setTimeout(()=>startDG(),2000);
-  }
+  try{r.start();}catch(e){recRunning=false;rec=null;if(sessionActive) setTimeout(startRec,500);}
 }
 
-function stopDG(){
-  clearInterval(dgKeepAliveTimer);
-  if(dgReconnectTimer){clearTimeout(dgReconnectTimer);dgReconnectTimer=null;}
-  stopMicStream();
-  if(dgSocket){
-    try{dgSocket.close(1000,'session ended');}catch(e){}
-    dgSocket=null;
-  }
-  utteranceBuffer='';
-}
-
-async function startMicStream(ws){
-  try{
-    // Don't request sampleRate:16000 on getUserMedia — most devices reject it
-    // Instead get native rate stream and let AudioContext resample to 16kHz
-    dgStream=await navigator.mediaDevices.getUserMedia({audio:{
-      echoCancellation:true,
-      noiseSuppression:true,
-      autoGainControl:true,
-    }});
-
-    // AudioContext at 16kHz forces browser to resample device's native rate
-    dgAudioCtx=new(window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
-    const src=dgAudioCtx.createMediaStreamSource(dgStream);
-
-    // bufferSize 2048 at 16kHz = 128ms chunks — good latency/overhead balance
-    dgProcessor=dgAudioCtx.createScriptProcessor(2048,1,1);
-    dgProcessor.onaudioprocess=ev=>{
-      if(!ws||ws.readyState!==WebSocket.OPEN) return;
-      const input=ev.inputBuffer.getChannelData(0);
-      const pcm=new Int16Array(input.length);
-      for(let i=0;i<input.length;i++){
-        const s=Math.max(-1,Math.min(1,input[i]));
-        pcm[i]=s<0?s*32768:s*32767;
-      }
-      ws.send(pcm.buffer);
-    };
-    // Must connect to destination — Chrome won't fire onaudioprocess otherwise
-    src.connect(dgProcessor);
-    dgProcessor.connect(dgAudioCtx.destination);
-    console.log('Mic stream OK, ctx sampleRate='+dgAudioCtx.sampleRate);
-  }catch(e){console.error('Mic stream failed:',e);}
-}
-
-function stopMicStream(){
-  if(dgProcessor){try{dgProcessor.disconnect();}catch(e){} dgProcessor=null;}
-  if(dgAudioCtx){try{dgAudioCtx.close();}catch(e){} dgAudioCtx=null;}
-  if(dgStream){dgStream.getTracks().forEach(t=>t.stop()); dgStream=null;}
+function stopRec(){
+  recRunning=false;
+  if(rec){try{rec.abort();}catch(e){} rec=null;}
 }
 
 // ── Session ─────────────────────────────────────────────────
 function stopSession(){
-  sessionActive=false; isProcessing=false; utteranceBuffer='';
-  stopSpeaking(); stopDG(); stopVAD();
+  sessionActive=false;
+  if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}
+  pendingText=''; isProcessing=false;
+  stopSpeaking(); stopRec(); stopSRWatchdog(); stopVAD();
   sbEl.classList.remove('on');
   setBtnState('idle'); setStatus('Online · Ready to Talk');
 }
@@ -931,17 +842,17 @@ async function toggleVoice(){
     }catch(e){setStatus('Mic denied');setBtnState('idle');return;}
   }
 
-  sessionActive=true; isProcessing=false; utteranceBuffer='';
-  interruptArmed=false; interruptFired=false; dgRetries=0;
-  setStatus('Connecting...'); setBtnState('listening');
+  sessionActive=true; isProcessing=false; pendingText='';
+  interruptArmed=false; interruptFired=false;
+  setStatus('Listening...'); setBtnState('listening');
+  sbEl.classList.add('on');
 
-  // VAD for interrupt + Deepgram for STT (run in parallel)
   await setupVAD();
-  startDG();
+  startRec();
+  startSRWatchdog();
 
-  // Greeting once per page load
   if(persistentHist.length===0){
-    setTimeout(()=>{if(sessionActive) ask('__greet__');},800);
+    setTimeout(()=>{if(sessionActive) ask('__greet__');},700);
   }
 }
 
