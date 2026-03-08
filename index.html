@@ -627,17 +627,21 @@ function startRec(){
   rec=r; recRunning=true;
 
   r.onresult=e=>{
+    console.log('SR result',{isTalking,isProcessing});
     if(isTalking||isProcessing){stopRec();return;}
     let fi='';
     for(let i=e.resultIndex;i<e.results.length;i++)
       if(e.results[i].isFinal) fi+=e.results[i][0].transcript;
-    if(!fi) return;
+    if(!fi){console.log('SR: no final result');return;}
     pendingText=(pendingText+' '+fi).trim();
+    console.log('SR pending:',pendingText);
     if(silenceTimer) clearTimeout(silenceTimer);
     silenceTimer=setTimeout(()=>{
       silenceTimer=null;
       const t=pendingText; pendingText='';
-      if(t.trim().split(/\s+/).length>=2) ask(t);
+      const words=t.trim().split(/\s+/).length;
+      console.log('SR silence fired',{t,words,isProcessing});
+      if(words>=1) ask(t);
     },700);
   };
 
@@ -688,7 +692,7 @@ async function speak(text){
   isTalking=true; isProcessing=true;
   sbEl.classList.add('on'); setStatus('Speaking...'); setBtnState('speaking');
 
-  const done=()=>{
+  const done=()=>{console.log('done() called');
     isTalking=false; mouthOpen=0; analyser=null;
     isProcessing=false; sbEl.classList.remove('on');
     if(sessionActive){setStatus('Listening...');setBtnState('listening');startRec();}
