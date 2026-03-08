@@ -666,6 +666,7 @@ async function setupVAD(){
 // ── TTS ────────────────────────────────────────────────────
 function onSpeakStart(){
   isTalking=true; interruptArmed=false; interruptFired=false;
+  utteranceBuffer='';  // discard any ambient pickup before NOVA spoke
   sbEl.classList.add('on'); setStatus('Speaking...'); setBtnState('speaking');
   // Delay interrupt arming 1.8s — mic picks up speaker echo and self-triggers otherwise
   setTimeout(()=>{ if(isTalking) interruptArmed=true; }, 1800);
@@ -674,6 +675,7 @@ function onSpeakStart(){
 function onSpeakEnd(){
   isTalking=false; mouthOpen=0; analyser=null;
   interruptArmed=false; interruptFired=false; isProcessing=false;
+  utteranceBuffer='';  // discard anything picked up while NOVA was speaking
   sbEl.classList.remove('on');
   if(!sessionActive) return;
   setStatus('Listening...'); setBtnState('listening');
@@ -800,7 +802,8 @@ async function startDG(){
     };
 
     ws.onmessage=e=>{
-      if(isTalking||isProcessing) return; // ignore while NOVA speaks
+      // Discard all transcripts while NOVA speaks or is processing
+      if(isTalking||isProcessing){ utteranceBuffer=''; return; }
       let msg;
       try{msg=JSON.parse(e.data);}catch{return;}
 
@@ -813,10 +816,16 @@ async function startDG(){
         return;
       }
 
-      // Final transcript chunk — accumulate
+      // Final transcript chunk — accumulate (confidence check + min 2 words to filter noise)
       if(msg.type==='Results'&&msg.is_final){
-        const t=msg.channel?.alternatives?.[0]?.transcript||'';
-        if(t.trim()) utteranceBuffer=(utteranceBuffer+' '+t).trim();
+        const alt=msg.channel?.alternatives?.[0];
+        const t=(alt?.transcript||'').trim();
+        const conf=alt?.confidence??1;
+        const words=t.split(/\s+/).filter(Boolean);
+        // Reject if empty, single noise word, or low confidence
+        if(t&&words.length>=2&&conf>=0.65){
+          utteranceBuffer=(utteranceBuffer+' '+t).trim();
+        }
         return;
       }
 
