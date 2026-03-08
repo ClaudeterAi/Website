@@ -617,6 +617,8 @@ function setBtnState(s){
 // ── Deepgram STT via WebSocket ─────────────────────────────
 let dgSocket=null, micStream=null, micCtx=null, micSrc=null, micProc=null;
 let pendingText='', silenceTimer=null;
+let dgReconnects=0;
+const DG_MAX_RECONNECTS=3;
 
 async function startListening(){
   if(dgSocket||!sessionActive||isTalking||isProcessing) return;
@@ -648,16 +650,18 @@ async function startListening(){
     micSrc=micCtx.createMediaStreamSource(micStream);
     micProc=micCtx.createScriptProcessor(4096,1,1);
 
-    // 4. Open Deepgram WebSocket
+    // 4. Open Deepgram WebSocket — JWT tokens go as query param, not subprotocol
     const url='wss://api.deepgram.com/v1/listen'
-      +'?model=nova-2&language=en&encoding=linear16&sample_rate=16000&channels=1'
+      +'?token='+encodeURIComponent(tdata.key)
+      +'&model=nova-2&language=en&encoding=linear16&sample_rate=16000&channels=1'
       +'&punctuate=true&interim_results=true&endpointing=400'
       +'&utterance_end_ms=1200&smart_format=true';
 
-    dgSocket=new WebSocket(url,['token',tdata.key]);
+    dgSocket=new WebSocket(url);
 
     dgSocket.onopen=()=>{
       console.log('[STT] Deepgram connected');
+      dgReconnects=0; // reset on success
       micSrc.connect(micProc);
       micProc.connect(micCtx.destination);
       micProc.onaudioprocess=e=>{
@@ -732,9 +736,14 @@ async function startListening(){
     dgSocket.onclose=e=>{
       console.log('[STT] WS closed',e.code,e.reason);
       dgSocket=null; disconnectMic();
-      // Auto-reconnect if session alive and not speaking
-      if(sessionActive&&!isTalking&&!isProcessing)
+      if(sessionActive&&!isTalking&&!isProcessing&&dgReconnects<DG_MAX_RECONNECTS){
+        dgReconnects++;
+        console.log('[STT] Reconnecting ('+dgReconnects+'/'+DG_MAX_RECONNECTS+')...');
         setTimeout(()=>{if(sessionActive&&!isTalking) startListening();},600);
+      } else if(dgReconnects>=DG_MAX_RECONNECTS){
+        console.error('[STT] Max reconnects reached. Stopped.');
+        setStatus('Voice error — refresh to retry');
+      }
     };
 
   }catch(e){
