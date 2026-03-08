@@ -595,30 +595,34 @@ function render(){
 render();
 
 // ============================================================
-// NOVA VOICE AI — Always-on conversational mode
+// NOVA VOICE ENGINE v4 — Deepgram STT + ElevenLabs Flash TTS
 // Architecture:
-// ============================================================
-// NOVA VOICE ENGINE v3 — Human-quality conversation
-// Architecture:
-//   - SR: continuous=true with watchdog timer (Chrome kills it silently after silence)
-//   - VAD: raw mic analysis for interrupt detection while NOVA speaks
-//   - TTS: streaming audio via MediaSource API — plays as it downloads, no full-blob wait
-//   - Memory: persistentHist survives stop/start, full context every turn
-//   - Greeting: injected as assistant turn so NOVA remembers it happened
+//   STT: Deepgram WebSocket — real-time, never dies, ~200ms latency
+//   VAD: Deepgram endpointing — knows exactly when user stops speaking
+//   LLM: GPT-4o — full persistent history every turn
+//   TTS: ElevenLabs Flash v2.5 — ~75ms, plays as blob lands
+//   Interrupt: raw mic VAD via AnalyserNode fires in ~100ms
 // ============================================================
 
-let currentAudio=null, micGranted=false, sessionActive=false;
-let pendingText='', silenceTimer=null;
-let persistentHist=[];          // full conversation memory, survives stop/start
-let isProcessing=false;         // true while fetching LLM or TTS — blocks double-sends
+// ── State ──────────────────────────────────────────────────
+let sessionActive=false, micGranted=false, isProcessing=false;
+let persistentHist=[];   // full conversation — never wiped between stop/start
+let currentAudio=null;
 
 function setStatus(s){document.getElementById('stxt').textContent=s;}
-function setTx(t){}             // tx element hidden, no-op
+function setTx(t){}
 
-// ─────────────────────────────────────────────
-// VAD — raw mic volume, interrupt detection
-// ─────────────────────────────────────────────
-let vadStream=null, vadCtx=null, vadAnalyser=null, vadInterval=null;
+function setBtnState(s){
+  const b=document.getElementById('vbtn'),l=document.getElementById('vlbl');
+  if(s==='listening'){b.className='bv listening';l.textContent='Listening...';}
+  else if(s==='speaking'){b.className='bv speaking';l.textContent='Stop';}
+  else if(s==='thinking'){b.className='bv';l.textContent='Thinking...';}
+  else{b.className='bv';l.textContent='Talk to NOVA';}
+}
+
+// ── VAD (interrupt detection while NOVA speaks) ─────────────
+let vadCtx=null, vadAnalyser=null, vadInterval=null;
+let vadStream=null;
 let interruptArmed=false, interruptFired=false;
 
 function startVAD(){
@@ -628,18 +632,17 @@ function startVAD(){
   vadInterval=setInterval(()=>{
     if(!interruptArmed){loud=0;return;}
     vadAnalyser.getByteFrequencyData(data);
-    // Human speech bands: ~300–3400 Hz
-    // fftSize=2048, sampleRate≈44100 → bin width≈21.5 Hz → bins 14–158
+    // speech bands 300–3400Hz, fftSize=2048@44100Hz → bins 14–158
     let s=0; for(let i=14;i<158;i++) s+=data[i];
     const avg=s/144;
-    if(avg>28){ loud++;
-      if(loud>=3&&!interruptFired){   // ~150ms of sustained speech
+    if(avg>30){
+      loud++;
+      if(loud>=3&&!interruptFired){  // ~150ms sustained
         interruptFired=true; interruptArmed=false; loud=0;
         stopSpeaking();
-        setStatus('Listening...');
-        setBtnState('listening');
+        if(sessionActive){setStatus('Listening...');setBtnState('listening');}
       }
-    } else { loud=Math.max(0,loud-1); }
+    } else loud=Math.max(0,loud-1);
   },50);
 }
 
@@ -648,36 +651,22 @@ function stopVAD(){if(vadInterval){clearInterval(vadInterval);vadInterval=null;}
 async function setupVAD(){
   if(vadStream) return;
   try{
-    // echoCancellation OFF — we need to hear the room to detect human voice
     vadStream=await navigator.mediaDevices.getUserMedia({audio:{
-      echoCancellation:false, noiseSuppression:false, autoGainControl:false
+      echoCancellation:false,noiseSuppression:false,autoGainControl:false
     }});
     vadCtx=new(window.AudioContext||window.webkitAudioContext)();
     const src=vadCtx.createMediaStreamSource(vadStream);
     vadAnalyser=vadCtx.createAnalyser();
-    vadAnalyser.fftSize=2048;
-    vadAnalyser.smoothingTimeConstant=0.3;
+    vadAnalyser.fftSize=2048; vadAnalyser.smoothingTimeConstant=0.3;
     src.connect(vadAnalyser);
     startVAD();
   }catch(e){console.warn('VAD:',e.message);}
 }
 
-// ─────────────────────────────────────────────
-// TTS — streaming playback (no blob wait)
-// ─────────────────────────────────────────────
-function setBtnState(s){
-  const btn=document.getElementById('vbtn'), lbl=document.getElementById('vlbl');
-  if(s==='listening'){btn.className='bv listening';lbl.textContent='Listening...';}
-  else if(s==='speaking'){btn.className='bv speaking';lbl.textContent='Stop';}
-  else if(s==='thinking'){btn.className='bv';lbl.textContent='Thinking...';}
-  else {btn.className='bv';lbl.textContent='Talk to NOVA';}
-}
-
+// ── TTS ────────────────────────────────────────────────────
 function onSpeakStart(){
   isTalking=true; interruptArmed=true; interruptFired=false;
-  sbEl.classList.add('on');
-  setStatus('Speaking...');
-  setBtnState('speaking');
+  sbEl.classList.add('on'); setStatus('Speaking...'); setBtnState('speaking');
 }
 
 function onSpeakEnd(){
@@ -685,8 +674,7 @@ function onSpeakEnd(){
   interruptArmed=false; interruptFired=false; isProcessing=false;
   sbEl.classList.remove('on');
   if(!sessionActive) return;
-  setStatus('Listening...');
-  setBtnState('listening');
+  setStatus('Listening...'); setBtnState('listening');
 }
 
 function stopSpeaking(){
@@ -699,19 +687,15 @@ function stopSpeaking(){
 
 async function speak(text){
   stopSpeaking();
-  isProcessing=true;
-  onSpeakStart();
+  isProcessing=true; onSpeakStart();
   try{
     const r=await fetch('/api/speak',{method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text})
-    });
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
     if(!r.ok) throw new Error('TTS '+r.status);
     const blob=await r.blob();
     const url=URL.createObjectURL(blob);
     const audio=new Audio(url);
     currentAudio=audio;
-    // Wire up lip-sync analyser
     try{
       if(!audioCtx||audioCtx.state==='closed')
         audioCtx=new(window.AudioContext||window.webkitAudioContext)();
@@ -725,166 +709,194 @@ async function speak(text){
     audio.onerror=()=>{URL.revokeObjectURL(url);currentAudio=null;onSpeakEnd();};
     await audio.play();
   }catch(e){
-    console.warn('TTS failed:',e.message);
-    // Fallback to browser synth
+    console.warn('TTS fail:',e.message);
     try{
       const u=new SpeechSynthesisUtterance(text);
       u.rate=1.0; u.pitch=1.0; u.volume=1;
       u.onend=onSpeakEnd; u.onerror=onSpeakEnd;
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(u);
+      window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
     }catch(e2){onSpeakEnd();}
   }
 }
 
-// ─────────────────────────────────────────────
-// LLM — ask NOVA
-// ─────────────────────────────────────────────
+// ── LLM ────────────────────────────────────────────────────
 async function ask(text){
-  if(!text||!text.trim()||isProcessing) return;
+  if(!text||!text.trim()) return;
+  if(isProcessing){console.log('ask() blocked — already processing');return;}
   isProcessing=true;
 
   const isGreet=(text==='__greet__');
+  if(!isGreet) persistentHist.push({role:'user',content:text.trim()});
 
-  // Add to history BEFORE sending so context is always complete
-  if(!isGreet){
-    persistentHist.push({role:'user',content:text.trim()});
-  }
-
-  setStatus('Thinking...');
-  setBtnState('thinking');
+  setStatus('Thinking...'); setBtnState('thinking');
 
   try{
-    const messages=isGreet
-      ? [{role:'user',content:'__greet__'}]
-      : persistentHist;
-
+    const messages=isGreet?[{role:'user',content:'__greet__'}]:persistentHist;
     const r=await fetch('/api/nova',{method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({max_tokens:180,messages})
-    });
-    if(!r.ok) throw new Error('API '+r.status);
+      body:JSON.stringify({max_tokens:180,messages})});
+    if(!r.ok) throw new Error('LLM '+r.status);
     const d=await r.json();
-    const reply=(d.content?.[0]?.text||'').trim()||'Hey, say that again — I missed it!';
-
-    // Store reply in history (greet reply too — NOVA remembers she greeted)
+    const reply=(d.content?.[0]?.text||'').trim()||'Hey, say that again?';
     persistentHist.push({role:'assistant',content:reply});
-
     speak(reply);
   }catch(e){
     console.error('ask:',e);
     isProcessing=false;
-    setStatus('Listening...');
-    setBtnState('listening');
+    setStatus('Listening...'); setBtnState('listening');
   }
 }
 
-// ─────────────────────────────────────────────
-// SR — continuous with watchdog
-// Chrome kills continuous SR after ~60s of silence silently.
-// Watchdog detects this and restarts immediately.
-// ─────────────────────────────────────────────
-let rec=null, recRunning=false;
-let srWatchdog=null, srLastActivity=0;
+// ── Deepgram STT ────────────────────────────────────────────
+let dgSocket=null, dgStream=null, dgProcessor=null, dgAudioCtx=null;
+let dgReconnectTimer=null, dgKeepAliveTimer=null;
+let utteranceBuffer='';
 
-function touchSR(){srLastActivity=Date.now();}
-
-function startSRWatchdog(){
-  if(srWatchdog) return;
-  srWatchdog=setInterval(()=>{
-    if(!sessionActive){clearInterval(srWatchdog);srWatchdog=null;return;}
-    if(isTalking||isProcessing) return; // don't restart while NOVA talks
-    const age=Date.now()-srLastActivity;
-    if(!recRunning||age>8000){  // restart if dead or 8s no activity
-      console.log('SR watchdog restart, age='+age);
-      stopRec();
-      setTimeout(startRec,100);
-    }
-  },3000);
+async function getDGToken(){
+  const r=await fetch('/api/stt-token',{method:'POST'});
+  if(!r.ok) throw new Error('token '+r.status);
+  const d=await r.json();
+  return d.key;
 }
 
-function stopSRWatchdog(){if(srWatchdog){clearInterval(srWatchdog);srWatchdog=null;}}
+function buildDGUrl(token){
+  // endpointing=600 → fires UtteranceEnd after 600ms silence (natural sentence pause)
+  // utterance_end_ms=1000 → extra safety net
+  // vad_events=true → SpeechStarted event for interrupt detection
+  const p=new URLSearchParams({
+    model:'nova-2',
+    language:'en-US',
+    punctuate:'true',
+    interim_results:'true',
+    endpointing:'600',
+    utterance_end_ms:'1000',
+    vad_events:'true',
+    smart_format:'true',
+  });
+  return `wss://api.deepgram.com/v1/listen?${p}&token=${token}`;
+}
 
-function startRec(){
-  if(recRunning||!sessionActive) return;
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){setStatus('SR not supported');return;}
+async function startDG(){
+  if(dgSocket&&dgSocket.readyState===WebSocket.OPEN) return;
+  if(dgReconnectTimer){clearTimeout(dgReconnectTimer);dgReconnectTimer=null;}
 
-  const r=new SR();
-  r.continuous=true;
-  r.interimResults=true;
-  r.maxAlternatives=1;
-  r.lang='en-US';
-  rec=r; recRunning=true; touchSR();
+  try{
+    const token=await getDGToken();
+    const ws=new WebSocket(buildDGUrl(token));
+    dgSocket=ws;
 
-  r.onstart=()=>{
-    touchSR();
-    if(!isTalking&&!isProcessing){
-      setStatus('Listening...');
-      setBtnState('listening');
+    ws.onopen=()=>{
+      console.log('Deepgram connected');
+      setStatus('Listening...'); setBtnState('listening');
       sbEl.classList.add('on');
-    }
-  };
+      // keepalive — send KeepAlive every 8s so Deepgram doesn't close idle connection
+      dgKeepAliveTimer=setInterval(()=>{
+        if(ws.readyState===WebSocket.OPEN)
+          ws.send(JSON.stringify({type:'KeepAlive'}));
+      },8000);
+      startMicStream(ws);
+    };
 
-  r.onresult=e=>{
-    if(isTalking||isProcessing) return;  // ignore while NOVA speaks
-    touchSR();
+    ws.onmessage=e=>{
+      if(isTalking||isProcessing) return; // ignore while NOVA speaks
+      let msg;
+      try{msg=JSON.parse(e.data);}catch{return;}
 
-    let fi='', interim='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal) fi+=e.results[i][0].transcript;
-      else interim+=e.results[i][0].transcript;
-    }
+      // SpeechStarted — user started speaking (Deepgram VAD)
+      if(msg.type==='SpeechStarted'){
+        // If NOVA is speaking, interrupt her
+        if(isTalking){
+          stopSpeaking();
+          setStatus('Listening...'); setBtnState('listening');
+        }
+        return;
+      }
 
-    if(fi){
-      pendingText=(pendingText+' '+fi).trim();
-      if(silenceTimer) clearTimeout(silenceTimer);
-      // 500ms silence after last final word → send
-      silenceTimer=setTimeout(()=>{
-        silenceTimer=null;
-        const toSend=pendingText; pendingText='';
-        ask(toSend);
-      },500);
-    }
-  };
+      // Final transcript chunk — accumulate
+      if(msg.type==='Results'&&msg.is_final){
+        const t=msg.channel?.alternatives?.[0]?.transcript||'';
+        if(t.trim()) utteranceBuffer=(utteranceBuffer+' '+t).trim();
+        return;
+      }
 
-  r.onerror=e=>{
-    touchSR();
-    recRunning=false; rec=null;
-    if(e.error==='not-allowed'){setStatus('Mic denied');sessionActive=false;return;}
-    if(e.error==='no-speech'){return;} // watchdog handles restart
-    if(sessionActive&&!isTalking) setTimeout(startRec,300);
-  };
+      // UtteranceEnd — user finished speaking, send accumulated buffer
+      if(msg.type==='UtteranceEnd'){
+        const toSend=utteranceBuffer.trim();
+        utteranceBuffer='';
+        if(toSend) ask(toSend);
+        return;
+      }
+    };
 
-  r.onend=()=>{
-    recRunning=false; rec=null;
-    touchSR();
-    // Restart immediately unless we manually stopped
-    if(sessionActive&&!isTalking) setTimeout(startRec,150);
-  };
+    ws.onerror=e=>console.warn('DG error',e);
 
-  try{r.start();}catch(e){
-    recRunning=false; rec=null;
-    if(sessionActive) setTimeout(startRec,500);
+    ws.onclose=e=>{
+      console.log('DG closed',e.code);
+      clearInterval(dgKeepAliveTimer);
+      stopMicStream();
+      // Reconnect if session still active (unless we closed it ourselves)
+      if(sessionActive&&e.code!==1000){
+        dgReconnectTimer=setTimeout(()=>startDG(),1000);
+      }
+    };
+
+  }catch(e){
+    console.error('DG start:',e);
+    if(sessionActive) dgReconnectTimer=setTimeout(()=>startDG(),2000);
   }
 }
 
-function stopRec(){
-  recRunning=false;
-  if(rec){try{rec.abort();}catch(e){} rec=null;}
+function stopDG(){
+  clearInterval(dgKeepAliveTimer);
+  if(dgReconnectTimer){clearTimeout(dgReconnectTimer);dgReconnectTimer=null;}
+  stopMicStream();
+  if(dgSocket){
+    try{dgSocket.close(1000,'session ended');}catch(e){}
+    dgSocket=null;
+  }
+  utteranceBuffer='';
 }
 
-// ─────────────────────────────────────────────
-// SESSION
-// ─────────────────────────────────────────────
+async function startMicStream(ws){
+  try{
+    // Use the same vadStream if already open, otherwise open new
+    const stream=vadStream||await navigator.mediaDevices.getUserMedia({audio:{
+      echoCancellation:true,
+      noiseSuppression:true,
+      autoGainControl:true,
+      sampleRate:16000,
+    }});
+    dgStream=stream;
+
+    // Use ScriptProcessor to pipe raw PCM to Deepgram WebSocket
+    dgAudioCtx=new(window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
+    const src=dgAudioCtx.createMediaStreamSource(stream);
+    // bufferSize 4096 → ~256ms chunks at 16kHz, good balance of latency vs overhead
+    dgProcessor=dgAudioCtx.createScriptProcessor(4096,1,1);
+    dgProcessor.onaudioprocess=ev=>{
+      if(ws.readyState!==WebSocket.OPEN) return;
+      // Send raw Linear16 PCM — Deepgram nova-2 accepts it natively
+      const input=ev.inputBuffer.getChannelData(0);
+      const pcm=new Int16Array(input.length);
+      for(let i=0;i<input.length;i++) pcm[i]=Math.max(-32768,Math.min(32767,input[i]*32768));
+      ws.send(pcm.buffer);
+    };
+    src.connect(dgProcessor); dgProcessor.connect(dgAudioCtx.destination);
+  }catch(e){console.error('mic stream:',e);}
+}
+
+function stopMicStream(){
+  if(dgProcessor){try{dgProcessor.disconnect();}catch(e){} dgProcessor=null;}
+  if(dgAudioCtx){try{dgAudioCtx.close();}catch(e){} dgAudioCtx=null;}
+  // Don't stop dgStream tracks — vadStream reuses them, and we need mic for VAD
+}
+
+// ── Session ─────────────────────────────────────────────────
 function stopSession(){
-  sessionActive=false;
-  if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}
-  pendingText=''; isProcessing=false;
-  stopSpeaking(); stopRec(); stopSRWatchdog();
+  sessionActive=false; isProcessing=false; utteranceBuffer='';
+  stopSpeaking(); stopDG(); stopVAD();
   sbEl.classList.remove('on');
-  setBtnState('idle');
-  setStatus('Online · Ready to Talk');
+  setBtnState('idle'); setStatus('Online · Ready to Talk');
 }
 
 async function toggleVoice(){
@@ -897,25 +909,20 @@ async function toggleVoice(){
       const s=await navigator.mediaDevices.getUserMedia({audio:true});
       s.getTracks().forEach(t=>t.stop());
       micGranted=true;
-    }catch(e){
-      setStatus('Mic denied');
-      setBtnState('idle');
-      return;
-    }
+    }catch(e){setStatus('Mic denied');setBtnState('idle');return;}
   }
 
-  sessionActive=true; isProcessing=false; pendingText='';
+  sessionActive=true; isProcessing=false; utteranceBuffer='';
   interruptArmed=false; interruptFired=false;
-  setStatus('Listening...');
-  setBtnState('listening');
+  setStatus('Connecting...'); setBtnState('listening');
 
+  // VAD for interrupt + Deepgram for STT (run in parallel)
   await setupVAD();
-  startRec();
-  startSRWatchdog();
+  startDG();
 
-  // Greeting — runs once per page load
+  // Greeting once per page load
   if(persistentHist.length===0){
-    setTimeout(()=>{ if(sessionActive) ask('__greet__'); },700);
+    setTimeout(()=>{if(sessionActive) ask('__greet__');},800);
   }
 }
 
