@@ -595,8 +595,9 @@ function render(){
 render();
 
 // ============================================================
-// NOVA VOICE ENGINE v5 — SR with hard stop/start, no self-echo
-// Rule: SR is DEAD while NOVA speaks. Restarts only after audio.onended.
+// NOVA VOICE ENGINE v6 — dead simple, bulletproof
+// SR runs ONLY when listening. Completely stopped while thinking/speaking.
+// No VAD. Stop button = only interrupt. Zero race conditions.
 // ============================================================
 
 let sessionActive=false, micGranted=false, isProcessing=false;
@@ -605,7 +606,6 @@ let currentAudio=null;
 
 function setStatus(s){document.getElementById('stxt').textContent=s;}
 function setTx(t){}
-
 function setBtnState(s){
   const b=document.getElementById('vbtn'),l=document.getElementById('vlbl');
   if(s==='listening'){b.className='bv listening';l.textContent='Listening...';}
@@ -614,152 +614,31 @@ function setBtnState(s){
   else{b.className='bv';l.textContent='Talk to NOVA';}
 }
 
-// ── VAD (interrupt only — no SR role) ──────────────────────
-let vadCtx=null, vadAnalyser=null, vadInterval=null, vadStream=null;
-let interruptArmed=false;
-
-function startVAD(){
-  if(vadInterval||!vadAnalyser) return;
-  const data=new Uint8Array(vadAnalyser.frequencyBinCount);
-  let loud=0;
-  vadInterval=setInterval(()=>{
-    if(!interruptArmed){loud=0;return;}
-    vadAnalyser.getByteFrequencyData(data);
-    let s=0; for(let i=14;i<158;i++) s+=data[i];
-    if(s/144>50){ if(++loud>=8){interruptArmed=false;loud=0;humanInterrupt();} }
-    else loud=Math.max(0,loud-1);
-  },50);
-}
-
-function stopVAD(){if(vadInterval){clearInterval(vadInterval);vadInterval=null;}}
-
-async function setupVAD(){
-  if(vadStream) return;
-  try{
-    vadStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
-    vadCtx=new(window.AudioContext||window.webkitAudioContext)();
-    const src=vadCtx.createMediaStreamSource(vadStream);
-    vadAnalyser=vadCtx.createAnalyser();
-    vadAnalyser.fftSize=2048; vadAnalyser.smoothingTimeConstant=0.3;
-    src.connect(vadAnalyser);
-    startVAD();
-  }catch(e){console.warn('VAD:',e.message);}
-}
-
-function humanInterrupt(){
-  if(!isTalking) return;
-  console.log('interrupt fired');
-  stopSpeaking();
-  // SR restarts via stopSpeaking→onSpeakEnd flow
-}
-
-// ── TTS ────────────────────────────────────────────────────
-function stopSpeaking(){
-  if(currentAudio){currentAudio.pause();currentAudio.onended=null;currentAudio.onerror=null;currentAudio=null;}
-  window.speechSynthesis&&window.speechSynthesis.cancel();
-  isTalking=false; mouthOpen=0; analyser=null;
-  interruptArmed=false; isProcessing=false;
-  sbEl.classList.remove('on');
-}
-
-async function speak(text){
-  // Hard-stop SR before NOVA speaks — no race conditions
-  stopRec();
-  stopSpeaking();
-  isTalking=true; isProcessing=true;
-  sbEl.classList.add('on'); setStatus('Speaking...'); setBtnState('speaking');
-  // Arm interrupt only after 2s so echo doesn't self-trigger
-  setTimeout(()=>{ if(isTalking) interruptArmed=true; }, 2000);
-
-  const done=()=>{
-    isTalking=false; mouthOpen=0; analyser=null;
-    interruptArmed=false; isProcessing=false;
-    sbEl.classList.remove('on');
-    if(sessionActive){ setStatus('Listening...'); setBtnState('listening'); startRec(); }
-  };
-
-  try{
-    const r=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
-    if(!r.ok) throw new Error('TTS '+r.status);
-    const blob=await r.blob();
-    const url=URL.createObjectURL(blob);
-    const audio=new Audio(url);
-    currentAudio=audio;
-    try{
-      if(!audioCtx||audioCtx.state==='closed') audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-      if(audioCtx.state==='suspended') await audioCtx.resume();
-      const src=audioCtx.createMediaElementSource(audio);
-      analyser=audioCtx.createAnalyser(); analyser.fftSize=256;
-      lipData=new Uint8Array(analyser.frequencyBinCount);
-      src.connect(analyser); analyser.connect(audioCtx.destination);
-    }catch(ae){analyser=null;}
-    audio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;done();};
-    audio.onerror=()=>{URL.revokeObjectURL(url);currentAudio=null;done();};
-    await audio.play();
-  }catch(e){
-    console.warn('TTS fail:',e.message);
-    try{
-      const u=new SpeechSynthesisUtterance(text);
-      u.rate=1.0; u.onend=done; u.onerror=done;
-      window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
-    }catch(e2){done();}
-  }
-}
-
-// ── LLM ────────────────────────────────────────────────────
-async function ask(text){
-  if(!text||!text.trim()) return;
-  if(isProcessing) return;
-  isProcessing=true;
-  stopRec(); // kill SR while thinking too
-
-  const isGreet=(text==='__greet__');
-  if(!isGreet) persistentHist.push({role:'user',content:text.trim()});
-  setStatus('Thinking...'); setBtnState('thinking');
-
-  try{
-    const messages=isGreet?[{role:'user',content:'__greet__'}]:persistentHist;
-    const r=await fetch('/api/nova',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({max_tokens:180,messages})});
-    if(!r.ok) throw new Error('LLM '+r.status);
-    const d=await r.json();
-    const reply=(d.content?.[0]?.text||'').trim()||'Hey, say that again?';
-    persistentHist.push({role:'assistant',content:reply});
-    speak(reply); // speak() will restart SR when audio ends
-  }catch(e){
-    console.error('ask:',e);
-    isProcessing=false;
-    if(sessionActive){setStatus('Listening...');setBtnState('listening');startRec();}
-  }
-}
-
 // ── SR ──────────────────────────────────────────────────────
 let pendingText='', silenceTimer=null;
-let rec=null, recRunning=false;
-let srWatchdog=null;
+let rec=null, recRunning=false, srWatchdog=null;
 
 function startRec(){
   if(recRunning||!sessionActive||isTalking||isProcessing) return;
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR) return;
+  if(!SR){setStatus('SR not supported');return;}
   const r=new SR();
-  r.continuous=true; r.interimResults=true; r.maxAlternatives=1; r.lang='en-US';
+  r.continuous=true; r.interimResults=true; r.lang='en-US';
   rec=r; recRunning=true;
 
   r.onresult=e=>{
     if(isTalking||isProcessing){stopRec();return;}
     let fi='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
+    for(let i=e.resultIndex;i<e.results.length;i++)
       if(e.results[i].isFinal) fi+=e.results[i][0].transcript;
-    }
-    if(fi){
-      pendingText=(pendingText+' '+fi).trim();
-      if(silenceTimer) clearTimeout(silenceTimer);
-      silenceTimer=setTimeout(()=>{
-        silenceTimer=null;
-        const toSend=pendingText; pendingText='';
-        if(toSend.split(/\s+/).filter(Boolean).length>=2) ask(toSend);
-      },700);
-    }
+    if(!fi) return;
+    pendingText=(pendingText+' '+fi).trim();
+    if(silenceTimer) clearTimeout(silenceTimer);
+    silenceTimer=setTimeout(()=>{
+      silenceTimer=null;
+      const t=pendingText; pendingText='';
+      if(t.trim().split(/\s+/).length>=2) ask(t);
+    },700);
   };
 
   r.onerror=e=>{
@@ -770,17 +649,15 @@ function startRec(){
 
   r.onend=()=>{
     recRunning=false; rec=null;
-    // Only restart if we're genuinely in listening state
     if(sessionActive&&!isTalking&&!isProcessing) setTimeout(startRec,200);
   };
 
-  // Watchdog: if SR dies silently, restart after 10s
   if(srWatchdog) clearInterval(srWatchdog);
   srWatchdog=setInterval(()=>{
     if(!sessionActive){clearInterval(srWatchdog);srWatchdog=null;return;}
     if(isTalking||isProcessing) return;
-    if(!recRunning){clearInterval(srWatchdog);srWatchdog=null;startRec();}
-  },10000);
+    if(!recRunning) startRec();
+  },8000);
 
   try{r.start();}catch(e){recRunning=false;rec=null;if(sessionActive&&!isTalking) setTimeout(startRec,500);}
 }
@@ -793,17 +670,94 @@ function stopRec(){
   if(rec){try{rec.abort();}catch(e){} rec=null;}
 }
 
+// ── TTS ────────────────────────────────────────────────────
+function stopSpeaking(){
+  if(currentAudio){
+    currentAudio.onended=null; currentAudio.onerror=null;
+    currentAudio.pause(); currentAudio=null;
+  }
+  window.speechSynthesis&&window.speechSynthesis.cancel();
+  isTalking=false; mouthOpen=0; analyser=null;
+  isProcessing=false;
+  sbEl.classList.remove('on');
+}
+
+async function speak(text){
+  stopRec();       // SR must be dead before audio plays
+  stopSpeaking();
+  isTalking=true; isProcessing=true;
+  sbEl.classList.add('on'); setStatus('Speaking...'); setBtnState('speaking');
+
+  const done=()=>{
+    isTalking=false; mouthOpen=0; analyser=null;
+    isProcessing=false; sbEl.classList.remove('on');
+    if(sessionActive){setStatus('Listening...');setBtnState('listening');startRec();}
+  };
+
+  try{
+    const r=await fetch('/api/speak',{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+    if(!r.ok) throw new Error('TTS '+r.status);
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    const audio=new Audio(url);
+    currentAudio=audio;
+    try{
+      if(!audioCtx||audioCtx.state==='closed')
+        audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+      if(audioCtx.state==='suspended') await audioCtx.resume();
+      const src=audioCtx.createMediaElementSource(audio);
+      analyser=audioCtx.createAnalyser(); analyser.fftSize=256;
+      lipData=new Uint8Array(analyser.frequencyBinCount);
+      src.connect(analyser); analyser.connect(audioCtx.destination);
+    }catch(ae){analyser=null;}
+    audio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;done();};
+    audio.onerror=()=>{URL.revokeObjectURL(url);currentAudio=null;done();};
+    await audio.play();
+  }catch(e){
+    console.warn('TTS:',e.message);
+    try{
+      const u=new SpeechSynthesisUtterance(text);
+      u.rate=1.0; u.onend=done; u.onerror=done;
+      window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+    }catch(e2){done();}
+  }
+}
+
+// ── LLM ────────────────────────────────────────────────────
+async function ask(text){
+  if(!text||!text.trim()||isProcessing) return;
+  isProcessing=true;
+  stopRec();
+  const isGreet=(text==='__greet__');
+  if(!isGreet) persistentHist.push({role:'user',content:text.trim()});
+  setStatus('Thinking...'); setBtnState('thinking');
+  try{
+    const msgs=isGreet?[{role:'user',content:'__greet__'}]:persistentHist;
+    const r=await fetch('/api/nova',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({max_tokens:180,messages:msgs})});
+    if(!r.ok) throw new Error('LLM '+r.status);
+    const d=await r.json();
+    const reply=(d.content?.[0]?.text||'').trim()||'Say that again?';
+    persistentHist.push({role:'assistant',content:reply});
+    speak(reply);
+  }catch(e){
+    console.error('ask:',e); isProcessing=false;
+    if(sessionActive){setStatus('Listening...');setBtnState('listening');startRec();}
+  }
+}
+
 // ── Session ─────────────────────────────────────────────────
 function stopSession(){
   sessionActive=false; isProcessing=false;
-  stopSpeaking(); stopRec(); stopVAD();
+  stopRec(); stopSpeaking();
   sbEl.classList.remove('on');
   setBtnState('idle'); setStatus('Online · Ready to Talk');
 }
 
 async function toggleVoice(){
   if(sessionActive){stopSession();return;}
-
   if(!micGranted){
     setStatus('Requesting mic...');
     document.getElementById('vlbl').textContent='...';
@@ -813,19 +767,10 @@ async function toggleVoice(){
       micGranted=true;
     }catch(e){setStatus('Mic denied');setBtnState('idle');return;}
   }
-
   sessionActive=true; isProcessing=false; pendingText='';
-  interruptArmed=false;
-  setStatus('Listening...'); setBtnState('listening');
-  sbEl.classList.add('on');
-  await setupVAD();
-
-  if(persistentHist.length===0){
-    // Greeting: don't start SR yet — speak first, SR starts after
-    ask('__greet__');
-  } else {
-    startRec();
-  }
+  isTalking=false;
+  // Greet first — SR starts after greeting finishes via done()
+  ask('__greet__');
 }
 </script>
 
