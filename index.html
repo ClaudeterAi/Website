@@ -761,9 +761,8 @@ let dgRetries=0; const DG_MAX_RETRIES=5;
 const DG_KEY='4dd3bbeb96f8ee6b1741a123b460622f118e5773';
 
 function buildDGUrl(){
-  // Deepgram browser auth: ?token= in URL (subprotocol method rejected by DG free tier)
+  // No token in URL — auth goes in subprotocol header per Deepgram docs
   const p=[
-    `token=${DG_KEY}`,
     'model=nova-2',
     'language=en-US',
     'punctuate=true',
@@ -784,8 +783,8 @@ async function startDG(){
   if(dgReconnectTimer){clearTimeout(dgReconnectTimer);dgReconnectTimer=null;}
 
   try{
-    // Auth via ?token= in URL — Deepgram's documented browser method
-    const ws=new WebSocket(buildDGUrl());
+    // Subprotocol auth — Deepgram's documented method for browser clients
+    const ws=new WebSocket(buildDGUrl(), ['token', DG_KEY]);
     dgSocket=ws;
 
     ws.onopen=()=>{
