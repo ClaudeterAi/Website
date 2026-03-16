@@ -1,18 +1,5 @@
 {
   "version": 2,
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.claudeter.ai"
-        }
-      ],
-      "destination": "https://claudeter.ai/:path*",
-      "permanent": true
-    }
-  ],
   "routes": [
     {
       "src": "/api/(.*)",
