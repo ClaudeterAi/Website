@@ -1,9 +1,34 @@
 {
   "version": 2,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.claudeter.ai"
+        }
+      ],
+      "destination": "https://claudeter.ai/:path*",
+      "permanent": true
+    }
+  ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/logo/(.*)", "dest": "/logo/$1" },
-    { "src": "/blog/(.*)", "dest": "/blog/$1" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/logo/(.*)",
+      "dest": "/logo/$1"
+    },
+    {
+      "src": "/blog/(.*)",
+      "dest": "/blog/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
   ]
 }
