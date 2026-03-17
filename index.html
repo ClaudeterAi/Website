@@ -393,6 +393,7 @@ a.cd-val:hover{color:#00ffcc}
   </ul>
 </div>
 <div id="cur"></div><div id="cur2"></div>
+<canvas id="aurora-cv" style="position:fixed;inset:0;z-index:0;width:100%;height:100%;"></canvas>
 <canvas id="cv"></canvas>
 <div id="scanlines"></div>
 <div id="vig"></div>
@@ -1909,6 +1910,60 @@ setTimeout(()=>{
 
 window.cwToggle = cwToggle;
 window.cwSend = cwSend;
+})();
+</script>
+
+<script>
+(function(){
+  const ac = document.getElementById('aurora-cv');
+  const gl = ac.getContext('webgl') || ac.getContext('experimental-webgl');
+  if(!gl){ ac.style.display='none'; return; }
+
+  function resize(){
+    ac.width = window.innerWidth;
+    ac.height = window.innerHeight;
+    gl.viewport(0,0,ac.width,ac.height);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const vsrc = ;
+  const fsrc = ;
+
+  function compile(type, src){
+    const s=gl.createShader(type);
+    gl.shaderSource(s,src); gl.compileShader(s);
+    if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){console.warn(gl.getShaderInfoLog(s));return null;}
+    return s;
+  }
+  const vs=compile(gl.VERTEX_SHADER,vsrc);
+  const fs=compile(gl.FRAGMENT_SHADER,fsrc);
+  if(!vs||!fs){ac.style.display='none';return;}
+
+  const prog=gl.createProgram();
+  gl.attachShader(prog,vs); gl.attachShader(prog,fs); gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog,gl.LINK_STATUS)){console.warn(gl.getProgramInfoLog(prog));ac.style.display='none';return;}
+  gl.useProgram(prog);
+
+  const buf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const loc=gl.getAttribLocation(prog,'a_pos');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+
+  const iTimeLoc=gl.getUniformLocation(prog,'iTime');
+  const iResLoc=gl.getUniformLocation(prog,'iResolution');
+
+  let t=0;
+  function draw(){
+    t+=0.016;
+    gl.uniform1f(iTimeLoc,t);
+    gl.uniform2f(iResLoc,ac.width,ac.height);
+    gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+    requestAnimationFrame(draw);
+  }
+  draw();
 })();
 </script>
 </body>
