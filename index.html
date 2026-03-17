@@ -535,73 +535,6 @@ function resize(){
   gcols=buildGrid();
 }
 resize(); window.addEventListener('resize',resize);
-// ── Aurora WebGL offscreen renderer ──────────────────────
-(function(){
-  const ac = document.createElement('canvas');
-  ac.width = window.innerWidth; ac.height = window.innerHeight;
-  window._auroraCanvas = ac;
-  window._auroraReady = false;
-
-  const gl = ac.getContext('webgl') || ac.getContext('experimental-webgl');
-  if(!gl) return;
-
-  window.addEventListener('resize',()=>{
-    ac.width=window.innerWidth; ac.height=window.innerHeight;
-    gl.viewport(0,0,ac.width,ac.height);
-    if(gl.getUniformLocation) gl.uniform2f(iResLoc,ac.width,ac.height);
-  });
-
-  const vsrc='attribute vec2 a;void main(){gl_Position=vec4(a,0,1);}';
-  const fsrc=`precision mediump float;
-uniform float iTime;uniform vec2 iRes;
-float rand(vec2 n){return fract(sin(dot(n,vec2(12.9898,4.1414)))*43758.5453);}
-float noise(vec2 p){vec2 ip=floor(p),u=fract(p);u=u*u*(3.-2.*u);
-return mix(mix(rand(ip),rand(ip+vec2(1,0)),u.x),mix(rand(ip+vec2(0,1)),rand(ip+vec2(1,1)),u.x),u.y);}
-float fbm(vec2 x){float v=0.,a=.5;vec2 sh=vec2(100.);mat2 r=mat2(.877,.48,-.48,.877);
-for(int i=0;i<3;i++){v+=a*noise(x);x=r*x*2.+sh;a*=.4;}return v;}
-void main(){
-  vec2 p=((gl_FragCoord.xy)-iRes*.5)/iRes.y*mat2(6.,-4.,4.,6.);
-  vec4 o=vec4(0.);float f=2.+fbm(p+vec2(iTime*5.,0.))*.5;
-  for(float i=0.;i<35.;i++){
-    vec2 v=p+cos(i*i+(iTime+p.x*.08)*.025+i*vec2(13.,11.))*3.5;
-    vec4 c=vec4(.1+.3*sin(i*.2+iTime*.4),.3+.5*cos(i*.3+iTime*.5),.7+.3*sin(i*.4+iTime*.3),1.);
-    o+=c*exp(sin(i*i+iTime*.8))/length(max(v,vec2(v.x*f*.015,v.y*1.5)))*smoothstep(0.,1.,i/35.)*.6;
-  }
-  o=tanh(pow(o/100.,vec4(1.6)));gl_FragColor=o*1.2;
-}`;
-
-  function sh(t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);return x;}
-  const prog=gl.createProgram();
-  gl.attachShader(prog,sh(gl.VERTEX_SHADER,vsrc));
-  gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,fsrc));
-  gl.linkProgram(prog);
-  if(!gl.getProgramParameter(prog,gl.LINK_STATUS)){console.warn('Aurora shader failed');return;}
-  gl.useProgram(prog);
-
-  const buf=gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER,buf);
-  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
-  const aLoc=gl.getAttribLocation(prog,'a');
-  gl.enableVertexAttribArray(aLoc);
-  gl.vertexAttribPointer(aLoc,2,gl.FLOAT,false,0,0);
-
-  const iTimeLoc=gl.getUniformLocation(prog,'iTime');
-  const iResLoc=gl.getUniformLocation(prog,'iRes');
-  gl.uniform2f(iResLoc,ac.width,ac.height);
-
-  let t=0;
-  function draw(){
-    t+=0.016;
-    gl.uniform1f(iTimeLoc,t);
-    gl.uniform2f(iResLoc,ac.width,ac.height);
-    gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
-    window._auroraReady=true;
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
-// ─────────────────────────────────────────────────────────
-
 
 // Face screen mapping
 function screenToFace(sx,sy){
@@ -632,23 +565,92 @@ function triggerGlitch(){
 }
 setInterval(()=>{if(Math.random()>0.82)triggerGlitch();},3800);
 
+// ══ AURORA WEBGL BOOTSTRAP ════════════════════════════════
+window.__aurora = (function(){
+  const oc = document.createElement('canvas');
+  oc.width = window.innerWidth; oc.height = window.innerHeight;
+  const gl = oc.getContext('webgl') || oc.getContext('experimental-webgl');
+  if(!gl) return {ready:false};
+
+  const VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0,1);}';
+  const FS = [
+    'precision mediump float;',
+    'uniform float T;uniform vec2 R;',
+    'float rnd(vec2 n){return fract(sin(dot(n,vec2(12.9898,4.1414)))*43758.5453);}',
+    'float nz(vec2 p){vec2 i=floor(p),u=fract(p);u=u*u*(3.-2.*u);',
+    'return mix(mix(rnd(i),rnd(i+vec2(1,0)),u.x),mix(rnd(i+vec2(0,1)),rnd(i+vec2(1,1)),u.x),u.y);}',
+    'float fbm(vec2 x){float v=0.,a=.5;mat2 r=mat2(.877,.48,-.48,.877);',
+    'for(int i=0;i<3;i++){v+=a*nz(x);x=r*x*2.+vec2(100);a*=.4;}return v;}',
+    'void main(){',
+    '  vec2 p=(gl_FragCoord.xy-R*.5)/R.y*mat2(6.,-4.,4.,6.);',
+    '  vec4 o=vec4(0.);',
+    '  float f=2.+fbm(p+vec2(T*5.,0.))*.5;',
+    '  for(float i=0.;i<35.;i++){',
+    '    vec2 v=p+cos(i*i+(T+p.x*.08)*.025+i*vec2(13.,11.))*3.5;',
+    '    vec4 c=vec4(.1+.3*sin(i*.2+T*.4),.3+.5*cos(i*.3+T*.5),.7+.3*sin(i*.4+T*.3),1.);',
+    '    o+=c*exp(sin(i*i+T*.8))/length(max(v,vec2(v.x*f*.015,v.y*1.5)))*smoothstep(0.,1.,i/35.)*.6;',
+    '  }',
+    '  o=tanh(pow(o/100.,vec4(1.6)));gl_FragColor=o*1.3;',
+    '}'
+  ].join('\n');
+
+  function mkSh(t,s){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);return sh;}
+  const prog=gl.createProgram();
+  gl.attachShader(prog,mkSh(gl.VERTEX_SHADER,VS));
+  gl.attachShader(prog,mkSh(gl.FRAGMENT_SHADER,FS));
+  gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog,gl.LINK_STATUS)){console.warn('[Aurora] link failed');return {ready:false};}
+  gl.useProgram(prog);
+
+  const buf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const pLoc=gl.getAttribLocation(prog,'p');
+  gl.enableVertexAttribArray(pLoc);
+  gl.vertexAttribPointer(pLoc,2,gl.FLOAT,false,0,0);
+
+  const TLoc=gl.getUniformLocation(prog,'T');
+  const RLoc=gl.getUniformLocation(prog,'R');
+
+  const api={canvas:oc,ready:false,t:0};
+
+  window.addEventListener('resize',()=>{
+    oc.width=window.innerWidth;oc.height=window.innerHeight;
+    gl.viewport(0,0,oc.width,oc.height);
+  });
+
+  (function loop(){
+    api.t+=0.015;
+    gl.uniform1f(TLoc,api.t);
+    gl.uniform2f(RLoc,oc.width,oc.height);
+    gl.viewport(0,0,oc.width,oc.height);
+    gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+    api.ready=true;
+    requestAnimationFrame(loop);
+  })();
+
+  return api;
+})();
+// ══════════════════════════════════════════════════════════
+
 function render(){
   frame++;
   ctx.fillStyle='#020108'; ctx.fillRect(0,0,W,H);
-  // Aurora layer — draw offscreen WebGL frame onto main canvas
-  if(window._auroraCanvas && window._auroraReady){
-    ctx.save();
-    ctx.globalAlpha=0.82;
-    ctx.drawImage(window._auroraCanvas,0,0,W,H);
-    ctx.restore();
-  }
 
-  // Subtle space tint on the canvas to match the page background
-  const spaceGrad=ctx.createLinearGradient(0,H*0.5,0,H);
-  spaceGrad.addColorStop(0,'transparent');
-  spaceGrad.addColorStop(0.6,'rgba(20,0,50,0.15)');
-  spaceGrad.addColorStop(1,'rgba(20,0,50,0.35)');
-  ctx.fillStyle=spaceGrad; ctx.fillRect(0,0,W,H);
+  // Aurora shader layer (composited from offscreen WebGL canvas)
+  if(window.__aurora && window.__aurora.ready){
+    ctx.save();
+    ctx.globalAlpha=0.75;
+    ctx.drawImage(window.__aurora.canvas,0,0,W,H);
+    ctx.restore();
+  } else {
+    // Fallback space tint when aurora not ready
+    const spaceGrad=ctx.createLinearGradient(0,H*0.5,0,H);
+    spaceGrad.addColorStop(0,'transparent');
+    spaceGrad.addColorStop(0.6,'rgba(20,0,50,0.15)');
+    spaceGrad.addColorStop(1,'rgba(20,0,50,0.35)');
+    ctx.fillStyle=spaceGrad; ctx.fillRect(0,0,W,H);
+  }
 
   // Breath idle micro-movement
   breathPhase+=0.011;
@@ -1985,6 +1987,5 @@ window.cwToggle = cwToggle;
 window.cwSend = cwSend;
 })();
 </script>
-
 </body>
 </html>
