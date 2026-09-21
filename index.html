@@ -1150,6 +1150,9 @@ const novaTools={
         return 'Submitting the form failed ('+r.status+(err?': '+err:'')+'). Apologise and ask the visitor to email nova at claudeter dot A I instead.';
       }
       if(st){st.style.display='block';st.style.color='var(--mint)';st.textContent="// Message received. We'll respond within 24 hours.";}
+      // Show the same "sent" state a manual submit shows, so the visitor can see the form went through.
+      const bt=document.getElementById('cf-btn-txt'), be=document.getElementById('cf-btn');
+      if(bt) bt.textContent='Sent ✓'; if(be) be.disabled=true;
       return 'Form submitted successfully. Tell the visitor the team will reply within twenty-four hours.';
     }catch(e){
       if(st){st.style.display='block';st.style.color='#ff5a8a';st.textContent='// Sending failed. Please email nova@claudeter.ai.';}
