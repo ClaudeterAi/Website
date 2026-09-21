@@ -915,8 +915,15 @@ hero.addEventListener('pointermove',e=>{const r=hero.getBoundingClientRect();spo
   document.head.appendChild(s);
   const sv=document.createElement('spline-viewer');sv.setAttribute('url','https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode');sc.appendChild(sv);
   const tidy=()=>{const r=sv.shadowRoot;if(!r)return;const l=r.getElementById('logo')||r.querySelector('#logo,a[href*="spline.design"]');if(l)l.remove()};
-  sv.addEventListener('load',()=>{sc.classList.add('ready');tidy()});
-  [1200,2500,5000,9000].forEach(d=>setTimeout(()=>{if(!sc.classList.contains('ready')&&d===9000){orb.hidden=false;sc.classList.add('ready','no-scene')}tidy()},d));
+  // Spline's 'load' event is unreliable; trust the rendered canvas instead.
+  const hasCanvas=()=>!!(sv.shadowRoot&&sv.shadowRoot.querySelector('canvas'));
+  const ok=()=>{sc.classList.add('ready');tidy()};
+  sv.addEventListener('load',ok);
+  [800,1600,2500,4000,6000,9000].forEach(d=>setTimeout(()=>{
+    if(sc.classList.contains('ready')) return tidy();
+    if(hasCanvas()) return ok();
+    if(d===9000){sv.remove();orb.hidden=false;sc.classList.add('ready','no-scene')}
+  },d));
 })();
 
 </script>
