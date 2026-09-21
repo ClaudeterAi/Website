@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://api.elevenlabs.io">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Claudeter — AI Agency · Voice Agents · AI Automation · RCM · USA · UAE · India</title>
 <meta name="description" content="Claudeter is an AI agency and product studio building voice agents, AI automation, RCM healthcare workflows, and intelligent AI tools for businesses in USA, UAE, and India. Ship AI in 6 weeks."/>
@@ -742,326 +744,209 @@ function render(){
 render();
 
 // ============================================================
-// NOVA VOICE ENGINE v7 — Deepgram WebSocket STT
-// Web Speech API dies silently after AudioContext playback.
-// Deepgram streaming is production-grade and actually works.
+// NOVA VOICE ENGINE v8 — ElevenLabs Conversational AI
+// One streaming session handles speech recognition, turn-taking,
+// the LLM and text-to-speech (same architecture as Grace on
+// zeushealth.ai). The two client tools the agent can call —
+// scroll_to and fill_form — are implemented here, in the page.
+// The SDK is loaded lazily on the first click, so visitors who
+// never talk to NOVA download nothing extra.
 // ============================================================
 
-let sessionActive=false, micGranted=false, isProcessing=false;
-let persistentHist=[];
-let currentAudio=null;
+const NOVA_AGENT_ID='agent_6301m32gqtt3eexs3vs0kj6nvdwr';
+const NOVA_SDK_URL='https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.25.0/+esm';
+// Agent-facing section names -> element ids on this page (top = hero).
+const NOVA_SECTIONS={top:null,services:'s-services',process:'s-process',industries:'s-industries',stack:'s-stack',about:'s-about',testimonials:'s-testimonials',contact:'s-contact'};
+const NOVA_SECTION_ALIASES={hero:'top',home:'top',start:'top',service:'services',whatyoudo:'services',howwework:'process',howitworks:'process',steps:'process',timeline:'process',industry:'industries',verticals:'industries',markets:'industries',tech:'stack',techstack:'stack',technology:'stack',tools:'stack',team:'about',company:'about',whoweare:'about',principles:'about',clients:'testimonials',clientstories:'testimonials',stories:'testimonials',reviews:'testimonials',casestudies:'testimonials',form:'contact',contactform:'contact',getintouch:'contact',email:'contact'};
+
+let sessionActive=false, starting=false, conversation=null, sdkPromise=null;
+let lastSection='top', sectionTimer=null, toolScrollUntil=0;
 
 function setStatus(s){document.getElementById('stxt').textContent=s;}
-function setTx(t){}
 function setBtnState(s){
   const b=document.getElementById('vbtn'),l=document.getElementById('vlbl');
   if(s==='listening'){b.className='bv listening';l.textContent='Listening...';}
   else if(s==='speaking'){b.className='bv speaking';l.textContent='Stop';}
   else if(s==='thinking'){b.className='bv';l.textContent='Thinking...';}
+  else if(s==='connecting'){b.className='bv';l.textContent='...';}
   else{b.className='bv';l.textContent='Talk to NOVA';}
 }
 
-// ── Deepgram STT via WebSocket ─────────────────────────────
-let dgSocket=null, micStream=null, micCtx=null, micSrc=null, micProc=null;
-let pendingText='', silenceTimer=null;
-let dgReconnects=0, dgKeepAlive=null;
-const DG_MAX_RECONNECTS=3;
+// ── SDK (lazy, pinned) ─────────────────────────────────────
+function loadNovaSdk(){
+  if(!sdkPromise){
+    sdkPromise=import(NOVA_SDK_URL).then(m=>{
+      if(!m||!m.Conversation) throw new Error('SDK loaded but Conversation export missing');
+      return m.Conversation;
+    }).catch(e=>{sdkPromise=null;throw e;});
+  }
+  return sdkPromise;
+}
 
-async function startListening(){
-  if(dgSocket||!sessionActive) return; // Only block if WS already exists or session dead
-  console.log('[STT] Starting Deepgram...');
-  setStatus('Listening...'); setBtnState('listening');
+// ── Page geometry ───────────────────────────────────────────
+function currentSection(){
+  const mid=window.scrollY+window.innerHeight*0.45;
+  let cur='top';
+  for(const [name,id] of Object.entries(NOVA_SECTIONS)){
+    if(!id) continue;
+    const el=document.getElementById(id); if(!el) continue;
+    if(mid>=el.getBoundingClientRect().top+window.scrollY) cur=name;
+  }
+  return cur;
+}
+function normalizeSection(raw){
+  const key=String(raw||'').toLowerCase().replace(/[^a-z]/g,'');
+  return NOVA_SECTION_ALIASES[key]||key;
+}
 
-  try{
-    // 1. Get ephemeral Deepgram token
-    const tres=await fetch('/api/stt-token',{method:'POST'});
-    const ttext=await tres.text();
-    console.log('[STT] Token response:',tres.status,ttext);
-    if(!tres.ok) throw new Error('stt-token '+tres.status+': '+ttext);
-    let tdata;
-    try{tdata=JSON.parse(ttext);}catch(e){throw new Error('stt-token parse error: '+ttext);}
-    if(!tdata.key) throw new Error('No key in response: '+ttext);
-
-    // 2. Mic stream (reuse if we already have one)
-    if(!micStream||!micStream.active){
-      micStream=await navigator.mediaDevices.getUserMedia({
-        audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}
-      });
+// ── Client tools (called by the agent) ──────────────────────
+const novaTools={
+  scroll_to: async (params)=>{
+    const requested=(params&&params.section_id)||'';
+    const name=normalizeSection(requested);
+    toolScrollUntil=Date.now()+2500;
+    if(name==='up'||name==='down'){
+      window.scrollBy({top:(name==='up'?-1:1)*window.innerHeight*0.8,behavior:'smooth'});
+      return 'Scrolled '+name+'.';
     }
-
-    // 3. AudioContext for mic at 16kHz (separate from TTS audioCtx)
-    if(!micCtx||micCtx.state==='closed')
-      micCtx=new(window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
-    if(micCtx.state==='suspended') await micCtx.resume();
-
-    micSrc=micCtx.createMediaStreamSource(micStream);
-    micProc=micCtx.createScriptProcessor(4096,1,1);
-
-    // 4. Open Deepgram WebSocket — API keys use subprotocol auth
-    const url='wss://api.deepgram.com/v1/listen'
-      +'?model=nova-2&language=en&encoding=linear16&sample_rate=16000&channels=1'
-      +'&punctuate=true&interim_results=true'
-      +'&endpointing=600'
-      +'&utterance_end_ms=1500'
-      +'&smart_format=true'
-      +'&keywords=Claudeter:1.5';
-
-    dgSocket=new WebSocket(url,['token',tdata.key]);
-
-    dgSocket.onopen=()=>{
-      console.log('[STT] Deepgram connected');
-      dgReconnects=0; // reset on success
-      // Send KeepAlive every 8s to prevent timeout during silence
-      if(dgKeepAlive) clearInterval(dgKeepAlive);
-      dgKeepAlive=setInterval(()=>{
-        if(dgSocket&&dgSocket.readyState===1){
-          dgSocket.send(JSON.stringify({type:'KeepAlive'}));
-        }
-      },8000);
-      micSrc.connect(micProc);
-      micProc.connect(micCtx.destination);
-      micProc.onaudioprocess=e=>{
-        if(!dgSocket||dgSocket.readyState!==1) return;
-        if(isTalking||isProcessing) return;
-        const f=e.inputBuffer.getChannelData(0);
-        // Check if there's actual audio (not silence)
-        let maxVal=0;
-        const buf=new Int16Array(f.length);
-        for(let i=0;i<f.length;i++){
-          buf[i]=Math.max(-32768,Math.min(32767,f[i]*32767|0));
-          if(Math.abs(buf[i])>maxVal) maxVal=Math.abs(buf[i]);
-        }
-        dgSocket.send(buf.buffer);
-      };
-    };
-
-    dgSocket.onmessage=ev=>{
-      const d=JSON.parse(ev.data);
-      // Log ALL messages including state
-      if(d.channel?.alternatives?.[0]?.transcript){
-        console.log('[STT] RAW msg:',d.channel.alternatives[0].transcript,'| isTalking:',isTalking,'isProcessing:',isProcessing,'is_final:',d.is_final);
-      }
-      if(isTalking||isProcessing){
-        if(d.channel?.alternatives?.[0]?.transcript) console.warn('[STT] DROPPED — blocked by',{isTalking,isProcessing});
-        return;
-      }
-
-      // UtteranceEnd = Deepgram says speaker stopped
-      if(d.type==='UtteranceEnd'){
-        if(pendingText.trim()){
-          const t=pendingText.trim(); pendingText='';
-          if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}
-          console.log('[STT] UtteranceEnd →',t);
-          ask(t);
-        }
-        return;
-      }
-
-      const alt=d.channel?.alternatives?.[0];
-      if(!alt?.transcript) return;
-      const txt=alt.transcript.trim();
-      if(!txt) return;
-
-      console.log('[STT]',d.is_final?'FINAL':'interim',d.speech_final?'(speech_final)':'',txt);
-
-      if(d.is_final){
-        pendingText=(pendingText+' '+txt).trim();
-        // UtteranceEnd (above) is the PRIMARY trigger for sending to LLM.
-        // This timer is ONLY a safety fallback if UtteranceEnd never fires.
-        if(silenceTimer) clearTimeout(silenceTimer);
-        silenceTimer=setTimeout(()=>{
-          silenceTimer=null;
-          if(pendingText.trim()&&!isProcessing&&!isTalking){
-            const t=pendingText.trim(); pendingText='';
-            console.log('[STT] safety fallback →',t);
-            ask(t);
-          }
-        }, 5000); // 5 seconds — only fires if UtteranceEnd never comes
-      }
-    };
-
-    dgSocket.onerror=e=>console.error('[STT] WS error',e);
-
-    dgSocket.onclose=e=>{
-      console.log('[STT] WS closed',e.code,e.reason);
-      dgSocket=null; disconnectMic();
-      if(sessionActive&&dgReconnects<DG_MAX_RECONNECTS){
-        dgReconnects++;
-        console.log('[STT] Reconnecting ('+dgReconnects+'/'+DG_MAX_RECONNECTS+')...');
-        // Wait until not speaking/thinking to reconnect
-        const tryReconnect=()=>{
-          if(!sessionActive) return;
-          if(isTalking||isProcessing){setTimeout(tryReconnect,500);return;}
-          startListening();
-        };
-        setTimeout(tryReconnect,600);
-      } else if(dgReconnects>=DG_MAX_RECONNECTS){
-        console.error('[STT] Max reconnects reached. Stopped.');
-        setStatus('Voice error — refresh to retry');
-      }
-    };
-
-  }catch(e){
-    console.error('[STT] Failed:',e.message);
-    dgSocket=null;
-    // Fallback: retry in 2s
-    if(sessionActive) setTimeout(()=>{if(sessionActive&&!isTalking) startListening();},2000);
-  }
-}
-
-function disconnectMic(){
-  if(micProc){micProc.onaudioprocess=null;try{micProc.disconnect();}catch(e){} micProc=null;}
-  if(micSrc){try{micSrc.disconnect();}catch(e){} micSrc=null;}
-}
-
-function pauseListening(){
-  // Pause sending audio but keep WebSocket alive
-  if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}
-  pendingText='';
-  // Don't disconnect mic or close socket — just stop sending via the isTalking/isProcessing guards
-}
-
-function stopListening(){
-  // Full shutdown — close everything
-  pauseListening();
-  if(dgKeepAlive){clearInterval(dgKeepAlive);dgKeepAlive=null;}
-  disconnectMic();
-  if(dgSocket){
-    try{dgSocket.send(JSON.stringify({type:'CloseStream'}));}catch(e){}
-    try{dgSocket.close();}catch(e){}
-    dgSocket=null;
-  }
-}
-
-// ── TTS ────────────────────────────────────────────────────
-function stopSpeaking(){
-  if(currentAudio){
-    currentAudio.onended=null; currentAudio.onerror=null;
-    currentAudio.pause(); currentAudio=null;
-  }
-  window.speechSynthesis&&window.speechSynthesis.cancel();
-  isTalking=false; mouthOpen=0; analyser=null;
-  isProcessing=false;
-  sbEl.classList.remove('on');
-}
-
-async function speak(text){
-  pauseListening(); // Pause STT but keep WS alive
-  stopSpeaking();
-  isTalking=true; isProcessing=true;
-  sbEl.classList.add('on'); setStatus('Speaking...'); setBtnState('speaking');
-
-  let finished=false, safetyTimeout=null, audioSrc=null;
-  const done=()=>{
-    if(finished) return; finished=true;
-    console.log('[TTS] done()');
-    isTalking=false; mouthOpen=0; analyser=null;
-    isProcessing=false; sbEl.classList.remove('on');
-    if(audioSrc){try{audioSrc.disconnect();}catch(e){} audioSrc=null;}
-    if(safetyTimeout){clearTimeout(safetyTimeout);safetyTimeout=null;}
-    if(sessionActive){
-      setStatus('Listening...'); setBtnState('listening');
-      // If WS still alive, just resume. If dead, reconnect.
-      if(dgSocket&&dgSocket.readyState===1){
-        console.log('[STT] Resuming (WS alive)');
-      } else {
-        setTimeout(()=>{if(sessionActive&&!isTalking) startListening();},250);
-      }
+    if(name==='bottom'){
+      window.scrollTo({top:document.documentElement.scrollHeight,behavior:'smooth'});
+      lastSection='contact'; return 'Scrolled to the bottom of the page, where the contact form is.';
     }
-  };
-  safetyTimeout=setTimeout(()=>{console.warn('[TTS] safety timeout');done();},30000);
+    if(name==='top'){
+      window.scrollTo({top:0,behavior:'smooth'});
+      lastSection='top'; return 'Scrolled to the top of the page (the hero, where NOVA lives).';
+    }
+    const id=NOVA_SECTIONS[name];
+    const el=id?document.getElementById(id):null;
+    if(!el) return 'Could not find a section called "'+requested+'". Valid sections are: services, process, industries, stack, about, testimonials, contact.';
+    el.scrollIntoView({behavior:'smooth',block:'start'});
+    lastSection=name;
+    return 'Scrolled to the '+name+' section. The visitor can now see it.';
+  },
 
-  try{
-    const r=await fetch('/api/speak',{method:'POST',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
-    if(!r.ok) throw new Error('TTS '+r.status);
-    const blob=await r.blob();
-    const url=URL.createObjectURL(blob);
-    const audio=new Audio(url);
-    currentAudio=audio;
+  fill_form: async (params)=>{
+    const p=params||{};
+    const name=String(p.name||'').trim(), email=String(p.email||'').trim(), message=String(p.message||'').trim();
+    const phone=String(p.phone||'').trim(), company=String(p.company||'').trim();
+    const missing=[]; if(!name)missing.push('name'); if(!email)missing.push('email'); if(!message)missing.push('message');
+    if(missing.length) return 'Missing required fields: '+missing.join(', ')+'. Ask the visitor for these before calling again.';
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'The email address "'+email+'" does not look valid. Please confirm the spelling with the visitor and call again.';
+    // Mirror the values into the visible form so the visitor sees exactly what was sent.
+    const set=(id,v)=>{const el=document.getElementById(id); if(el) el.value=v;};
+    set('cf-name',name); set('cf-email',email); set('cf-phone',phone); set('cf-company',company); set('cf-msg',message);
+    const sec=document.getElementById('s-contact');
+    if(sec){toolScrollUntil=Date.now()+2500; sec.scrollIntoView({behavior:'smooth',block:'start'}); lastSection='contact';}
+    const st=document.getElementById('cf-status');
     try{
-      if(!audioCtx||audioCtx.state==='closed')
-        audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-      if(audioCtx.state==='suspended') await audioCtx.resume();
-      const src=audioCtx.createMediaElementSource(audio);
-      audioSrc=src;
-      analyser=audioCtx.createAnalyser(); analyser.fftSize=256;
-      lipData=new Uint8Array(analyser.frequencyBinCount);
-      src.connect(analyser); analyser.connect(audioCtx.destination);
-    }catch(ae){analyser=null;}
-    audio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;done();};
-    audio.onerror=()=>{URL.revokeObjectURL(url);currentAudio=null;done();};
-    await audio.play();
-  }catch(e){
-    console.warn('[TTS] fail:',e.message);
-    try{
-      const u=new SpeechSynthesisUtterance(text);
-      u.rate=1.0; u.onend=done; u.onerror=done;
-      window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
-      if(safetyTimeout) clearTimeout(safetyTimeout);
-      safetyTimeout=setTimeout(()=>{console.warn('[TTS] browser timeout');done();},15000);
-    }catch(e2){done();}
+      const r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name,email,phone,company,message,source:'NOVA Voice'})});
+      if(!r.ok){
+        let err=''; try{err=(await r.json()).error||'';}catch(e){}
+        if(st){st.style.display='block';st.style.color='rgba(255,80,80,.8)';st.textContent='// Sending failed. Please email nova@claudeter.ai.';}
+        return 'Submitting the form failed ('+r.status+(err?': '+err:'')+'). Apologise and ask the visitor to email nova at claudeter dot A I instead.';
+      }
+      if(st){st.style.display='block';st.style.color='#00ffcc';st.textContent="// Message received. We'll respond within 24 hours.";}
+      return 'Form submitted successfully. Tell the visitor the team will reply within twenty-four hours.';
+    }catch(e){
+      if(st){st.style.display='block';st.style.color='rgba(255,80,80,.8)';st.textContent='// Sending failed. Please email nova@claudeter.ai.';}
+      return 'Submitting the form failed (network error). Apologise and ask the visitor to email nova at claudeter dot A I instead.';
+    }
   }
-}
+};
 
-// ── LLM ────────────────────────────────────────────────────
-async function ask(text){
-  if(!text||!text.trim()||isProcessing) return;
-  isProcessing=true;
-  pauseListening(); // Pause STT but keep WS alive
-  const isGreet=(text==='__greet__');
-  if(!isGreet) persistentHist.push({role:'user',content:text.trim()});
-  setStatus('Thinking...'); setBtnState('thinking');
-  try{
-    const msgs=isGreet?[{role:'user',content:'__greet__'}]:persistentHist;
-    const r=await fetch('/api/nova',{method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({max_tokens:120,messages:msgs})});
-    if(!r.ok) throw new Error('LLM '+r.status);
-    const d=await r.json();
-    const reply=(d.content?.[0]?.text||'').trim()||'Say that again?';
-    if(!isGreet) persistentHist.push({role:'assistant',content:reply});
-    speak(reply);
-  }catch(e){
-    console.error('[LLM] error:',e); isProcessing=false;
-    if(sessionActive){setStatus('Listening...');setBtnState('listening');startListening();}
-  }
+// ── Lip sync: feed the face renderer from the SDK's output analyser ──
+// The renderer only needs `isTalking`, `lipData` and an `analyser` with
+// getByteFrequencyData(); this shim satisfies that without touching it.
+function attachLipSync(){
+  lipData=new Uint8Array(64);
+  analyser={getByteFrequencyData(arr){
+    try{
+      const d=conversation&&conversation.getOutputByteFrequencyData();
+      if(d&&d.length){arr.set(d.subarray(0,arr.length));return;}
+    }catch(e){}
+    arr.fill(0); // renderer falls back to its sine-wave mouth
+  }};
 }
 
 // ── Session ─────────────────────────────────────────────────
-function stopSession(){
-  sessionActive=false; isProcessing=false;
-  stopListening(); stopSpeaking();
-  // Release mic
-  if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null;}
-  if(micCtx){try{micCtx.close();}catch(e){} micCtx=null;}
+function cleanupSession(){
+  sessionActive=false; starting=false; conversation=null;
+  isTalking=false; mouthOpen=0; analyser=null; lipData=null;
   sbEl.classList.remove('on');
   setBtnState('idle'); setStatus('Online · Ready to Talk');
 }
+async function stopSession(){
+  const c=conversation; cleanupSession();
+  if(c){try{await c.endSession();}catch(e){}}
+}
 
 async function toggleVoice(){
-  if(sessionActive){stopSession();return;}
-  setStatus('Requesting mic...');
-  document.getElementById('vlbl').textContent='...';
+  if(sessionActive||starting){await stopSession();return;}
+  starting=true; setStatus('Connecting...'); setBtnState('connecting');
   try{
-    micStream=await navigator.mediaDevices.getUserMedia({
-      audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}
+    const Conversation=await loadNovaSdk();
+    // Ask for the mic up front so a denial gives a clear message instead of a connection error.
+    try{
+      const probe=await navigator.mediaDevices.getUserMedia({audio:true});
+      probe.getTracks().forEach(t=>t.stop());
+    }catch(e){setStatus('Mic denied'); starting=false; setBtnState('idle'); return;}
+    if(!starting) return; // user clicked again while we were waiting
+    lastSection=currentSection();
+    conversation=await Conversation.startSession({
+      agentId:NOVA_AGENT_ID,
+      connectionType:'websocket',
+      dynamicVariables:{current_section:lastSection},
+      clientTools:novaTools,
+      onConnect:()=>{
+        sessionActive=true; starting=false; attachLipSync();
+        setStatus('Listening...'); setBtnState('listening');
+      },
+      onDisconnect:(details)=>{
+        const wasError=details&&details.reason==='error';
+        cleanupSession();
+        if(wasError) setStatus('Connection lost — tap to retry');
+      },
+      onModeChange:({mode})=>{
+        if(!sessionActive) return;
+        if(mode==='speaking'){isTalking=true; sbEl.classList.add('on'); setStatus('Speaking...'); setBtnState('speaking');}
+        else{isTalking=false; mouthOpen=0; sbEl.classList.remove('on'); setStatus('Listening...'); setBtnState('listening');}
+      },
+      onMessage:({source})=>{
+        // The agent is thinking between the visitor's final transcript and its first audio.
+        if(sessionActive&&source==='user'&&!isTalking){setStatus('Thinking...'); setBtnState('thinking');}
+      },
+      onError:(message,context)=>{console.error('[NOVA]',message,context||'');},
+      onUnhandledClientToolCall:(call)=>{console.warn('[NOVA] agent called an unknown tool:',call);}
     });
-    micGranted=true;
-  }catch(e){setStatus('Mic denied');setBtnState('idle');return;}
-  sessionActive=true; isProcessing=false; pendingText='';
-  isTalking=false;
-  // Start greeting AND pre-connect Deepgram in parallel
-  // The isTalking/isProcessing guards prevent audio from being sent during greeting
-  ask('__greet__');
-  // Pre-connect STT so it's ready instantly when greeting ends
-  setTimeout(()=>{if(sessionActive) startListening();},500);
+    if(!starting&&!sessionActive){ // stopped during connect
+      try{await conversation.endSession();}catch(e){} conversation=null;
+    }
+  }catch(e){
+    console.error('[NOVA] start failed:',e);
+    cleanupSession(); setStatus('Could not connect — tap to retry');
+  }
 }
+
+// Tell the agent when the visitor scrolls to a different section
+// (ignored briefly after the agent itself scrolled the page).
+window.addEventListener('scroll',()=>{
+  if(!sessionActive||!conversation) return;
+  clearTimeout(sectionTimer);
+  sectionTimer=setTimeout(()=>{
+    const s=currentSection();
+    if(Date.now()<toolScrollUntil){lastSection=s;return;}
+    if(s!==lastSection){
+      lastSection=s;
+      try{conversation.sendContextualUpdate('The visitor scrolled on their own and is now looking at the '+s+' section of the page.');}catch(e){}
+    }
+  },700);
+},{passive:true});
 
 // Floating NOVA button — scrolls to top and starts voice
 function novaFabClick(){
   window.scrollTo({top:0,behavior:'smooth'});
-  setTimeout(()=>{if(!sessionActive) toggleVoice();},600);
+  setTimeout(()=>{if(!sessionActive&&!starting) toggleVoice();},600);
 }
 
 // Show/hide fab and NOVA panel based on scroll position
