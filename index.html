@@ -1128,8 +1128,13 @@ const novaTools={
     const p=params||{};
     const name=String(p.name||'').trim(), email=String(p.email||'').trim(), message=String(p.message||'').trim();
     const phone=String(p.phone||'').trim(), company=String(p.company||'').trim();
-    const missing=[]; if(!name)missing.push('name'); if(!email)missing.push('email'); if(!message)missing.push('message');
-    if(missing.length) return 'Missing required fields: '+missing.join(', ')+'. Ask the visitor for these before calling again.';
+    // Placeholders are not data: the agent must ask the visitor, not guess.
+    const placeholder=v=>/^(unknown|n\/?a|none|null|undefined|tbd|not (provided|given|available)|-+|\?+)$/i.test(String(v||'').trim());
+    const missing=[]; if(!name||placeholder(name))missing.push('name'); if(!email||placeholder(email))missing.push('email'); if(!message||placeholder(message))missing.push('message');
+    if(missing.length) return 'Not submitted. Missing or placeholder values for: '+missing.join(', ')+'. Ask the visitor for these, one at a time, then read everything back before calling again.';
+    // Structural guard: the agent must have read every detail back and heard a yes before anything is sent.
+    if(p.readback_confirmed!==true&&String(p.readback_confirmed).toLowerCase()!=='true')
+      return 'Not submitted. First read ALL the details (name, email, phone or skip, company, and the two-sentence message) back to the visitor in one turn, wait for their yes, then call fill_form again with readback_confirmed set to true.';
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'The email address "'+email+'" does not look valid. Please confirm the spelling with the visitor and call again.';
     const set=(id,v)=>{const el=$(id); if(el) el.value=v;};
     set('cf-name',name); set('cf-email',email); set('cf-phone',phone); set('cf-company',company); set('cf-msg',message);
