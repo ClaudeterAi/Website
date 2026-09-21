@@ -928,19 +928,23 @@ async function toggleVoice(){
   }
 }
 
-// Tell the agent when the visitor scrolls to a different section
-// (ignored briefly after the agent itself scrolled the page).
+// Tell the agent when the visitor scrolls to a different section.
+// Waits for the scroll to settle (1.5 s), ignores scrolls the agent itself
+// triggered, and sends at most one update every 5 s so the agent's context
+// isn't flooded while the visitor is skimming.
+let lastContextUpdateAt=0;
 window.addEventListener('scroll',()=>{
   if(!sessionActive||!conversation) return;
   clearTimeout(sectionTimer);
   sectionTimer=setTimeout(()=>{
     const s=currentSection();
     if(Date.now()<toolScrollUntil){lastSection=s;return;}
-    if(s!==lastSection){
-      lastSection=s;
-      try{conversation.sendContextualUpdate('The visitor scrolled on their own and is now looking at the '+s+' section of the page.');}catch(e){}
-    }
-  },700);
+    if(s===lastSection) return;
+    lastSection=s;
+    if(Date.now()-lastContextUpdateAt<5000) return;
+    lastContextUpdateAt=Date.now();
+    try{conversation.sendContextualUpdate('The visitor scrolled on their own and is now looking at the '+s+' section of the page.');}catch(e){}
+  },1500);
 },{passive:true});
 
 // Floating NOVA button — scrolls to top and starts voice
