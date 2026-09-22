@@ -1,0 +1,34 @@
+# Claudeter
+
+> Claudeter is an AI agency and product studio that builds voice agents, AI automation, healthcare RCM automation and AI-first software for companies in the USA, UAE and India. Typical delivery is about six weeks, starting with a three-day discovery sprint that ships a proof of concept. Clients receive full IP transfer with no lock-in.
+
+## Site
+- [Homepage](https://www.claudeter.ai/): services, process, industries, stack, about, client stories, contact
+- [Blog](https://www.claudeter.ai/blog/): articles on AI voice agents, RCM automation, UAE healthcare (DHA eClaims, TPA portals) and AI across industries
+- [RSS](https://www.claudeter.ai/blog/feed.xml)
+
+## Articles
+- [How AI Is Quietly Transforming the Restaurant Industry in 2026](https://www.claudeter.ai/blog/ai-automation-restaurant-industry/): From AI voice ordering to inventory prediction and staff scheduling: restaurants are using AI to cut costs and increase covers.
+- [How Airlines Are Using AI Voice Agents to Handle Millions of Customer Calls](https://www.claudeter.ai/blog/ai-voice-agents-airline-industry/): Flight disruptions, rebooking, refunds, baggage claims: AI voice agents are handling airline customer service at a scale humans never could.
+- [AI Voice Agents Are Eating the Phone Call: Across Every Industry](https://www.claudeter.ai/blog/ai-voice-agents-across-industries/): From healthcare to real estate to banking: AI voice agents are replacing phone-based workflows across every sector.
+- [How AI Voice Agents Are Replacing Insurance Follow-Up Calls in 2026](https://www.claudeter.ai/blog/ai-voice-agents-insurance-follow-up/): Manual claims follow-up is costing RCM teams thousands of hours annually. Here's how AI voice agents are changing the economics.
+- [AI Automation in Retail: How Smart Stores Are Winning in 2026](https://www.claudeter.ai/blog/ai-automation-retail-ecommerce/): Personalization, inventory intelligence, returns automation, and AI customer service: retail's AI transformation is here.
+- [Prior Authorization Automation: How We Cut Denial Rates by 34%](https://www.claudeter.ai/blog/prior-auth-automation-denial-rates/): How automating prior auth submissions through Availity dramatically reduces denials and administrative burden.
+- [AI in Logistics: How Supply Chains Are Getting Smarter in 2026](https://www.claudeter.ai/blog/ai-automation-logistics-supply-chain/): Route optimization, demand forecasting, warehouse AI, and autonomous tracking: logistics is being transformed end to end.
+- [The Real Cost of Manual Claims Follow-Up (And How to Fix It)](https://www.claudeter.ai/blog/real-cost-manual-claims-follow-up/): Beyond labor costs, manual claims follow-up creates invisible revenue leaks most billing managers never fully account for.
+- [AI in Banking: Beyond the Chatbot · What Real Financial AI Looks Like](https://www.claudeter.ai/blog/ai-automation-banking-fintech/): Fraud detection, credit decisioning, and regulatory compliance: this is where the real transformation in financial services is happening.
+- [AI in Education: Personalized Learning at Scale Is Finally Here](https://www.claudeter.ai/blog/ai-automation-education-edtech/): Adaptive learning, AI tutors, automated grading, and student retention AI, every student gets their own curriculum.
+- [Ambetter, UHC, Aetna: How AI Agents Navigate Payer IVR Systems](https://www.claudeter.ai/blog/ai-agents-payer-ivr-navigation/): Every major payer has a different IVR tree. Here's how we train voice agents to handle them all.
+- [AI in Real Estate: How PropTech Is Changing the Way Properties Are Bought and Sold](https://www.claudeter.ai/blog/ai-automation-real-estate-proptech/): Lead qualification, valuation, document automation, and AI voice agents: real estate AI is moving faster than most agents realize.
+- [Automating DHA eClaims and TPA Portals in the UAE: A Complete Guide](https://www.claudeter.ai/blog/dha-eclaims-tpa-automation-uae/): A practical guide to automating across UAE's major TPA portals: NextCare, NAS, Neuron, AlMadallah, and DHA eClaims.
+- [AI in Hospitality: How Hotels Are Using AI to Deliver Five-Star Experiences at Scale](https://www.claudeter.ai/blog/ai-automation-hospitality-hotels/): From AI concierge to dynamic pricing: hospitality AI is making luxury-level personalization accessible at every tier.
+- [NextCare, NAS, Neuron, AlMadallah: One Automation to Rule Them All](https://www.claudeter.ai/blog/nextcare-nas-neuron-automation/): UAE healthcare providers deal with 5+ TPA portals daily. We built a unified RPA layer that handles all of them.
+- [AI in Construction: How the Industry Is Finally Getting Smart About Data](https://www.claudeter.ai/blog/ai-automation-construction-engineering/): Project delay prediction, safety monitoring, procurement automation: construction AI is solving the industry's oldest problems.
+- [What Most AI Agencies Won't Tell You About Building Voice Agents](https://www.claudeter.ai/blog/what-ai-agencies-wont-tell-you/): After building 50+ AI systems, here are the uncomfortable truths about voice agent development most vendors gloss over.
+- [Why We Ship AI in 6 Weeks While Others Take 6 Months](https://www.claudeter.ai/blog/why-we-ship-in-6-weeks/): The difference isn't working harder. It's a fundamentally different approach to scoping, building, and validating AI.
+- [AI Agents vs RPA: Which One Actually Solves Your Problem?](https://www.claudeter.ai/blog/ai-agents-vs-rpa/): RPA is deterministic and fragile. AI agents are flexible but unpredictable. Most workflows need both.
+- [Building HIPAA-Compliant AI: What Developers Get Wrong](https://www.claudeter.ai/blog/hipaa-compliant-ai-what-devs-get-wrong/): HIPAA compliance in AI isn't just about encryption. Most teams miss data residency, audit logs, and inference risks.
+
+## Contact
+- Email: nova@claudeter.ai
+- Markets: United States, United Arab Emirates, India

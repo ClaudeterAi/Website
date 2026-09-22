@@ -2,24 +2,44 @@
   "version": 2,
   "routes": [
     {
-      "src": "/sitemap.xml",
-      "dest": "/api/sitemap"
+      "src": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "claudeter.ai"
+        }
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "https://www.claudeter.ai/$1"
+      }
+    },
+    {
+      "src": "/blog/([a-z0-9-]+)",
+      "status": 308,
+      "headers": {
+        "Location": "/blog/$1/"
+      }
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/api/(.*)",
       "dest": "/api/$1"
     },
     {
-      "src": "/logo/(.*)",
-      "dest": "/logo/$1"
+      "src": "/blog/([a-z0-9-]+)/",
+      "dest": "/blog/$1/index.html"
     },
     {
-      "src": "/blog/(.*)",
-      "dest": "/blog/$1"
+      "src": "/blog/?",
+      "dest": "/blog/index.html"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "status": 404,
+      "dest": "/404.html"
     }
   ]
 }
