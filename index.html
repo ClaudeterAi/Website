@@ -61,6 +61,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="preconnect" href="https://api.elevenlabs.io">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -644,6 +645,35 @@ section[id],footer[id]{scroll-margin-top:86px}
 /* floating buttons step aside for the mobile menu */
 body.menu-open #cw-fab,body.menu-open #nova-fab,body.menu-open #cw-panel{opacity:0!important;pointer-events:none!important}
 
+/* ─── orb canvas (WebGL) with CSS fallback ─── */
+.orb-wrap{position:relative;width:clamp(230px,30vw,330px);aspect-ratio:1;margin-inline:auto;display:grid;place-items:center}
+.orb-wrap .orb{grid-area:1/1;width:76%;height:76%;margin:0}
+.orb-wrap canvas.nova-orb{position:absolute;inset:-32%;width:164%;height:164%;pointer-events:none;display:none}
+.orb-wrap.gl canvas.nova-orb{display:block}
+.orb-wrap.gl .orb{opacity:0;visibility:hidden}
+.hero-orb .orb-wrap{width:clamp(170px,38vw,260px)}
+.nova .orb-wrap{margin-bottom:0}
+/* ─── about visual ─── */
+.about-grid-visual{grid-template-columns:1fr;align-items:start}
+@media(min-width:900px){.about-grid-visual{grid-template-columns:.86fr 1.14fr;gap:clamp(32px,4vw,64px)}}
+.about-visual{position:relative;margin:0;padding:0;overflow:hidden;border-radius:28px;aspect-ratio:3/4;max-height:min(680px,86vh);will-change:clip-path}
+.about-visual img{width:100%;height:100%;object-fit:cover;display:block;will-change:transform}
+.about-visual .visual-caption{position:absolute;left:18px;bottom:16px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--w-2);padding:8px 12px;border-radius:999px;background:rgba(10,4,26,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);transform:translateY(12px);opacity:0}
+html:not(.gsap) .about-visual .visual-caption{transform:none;opacity:1}
+.about-copy{display:grid;gap:clamp(22px,2.6vw,34px)}
+/* ─── GSAP takes over these reveals: switch the CSS view-timeline versions off ─── */
+html.gsap :is(.aura-a,.hero-copy,.hero-scene,.light,.market,.orb,.pillar,.proof-cell,.split .w,.step,.story){animation:none!important}
+html.gsap .split .w{opacity:1;transform:none}
+html.gsap .about-prose .rw{opacity:.22;transition:none}
+html.gsap .about-prose p:first-child .rw{opacity:.3}
+/* ─── pinned process card stack (desktop, only while GSAP runs) ─── */
+.steps.stack-on{display:grid;grid-template-columns:1fr;place-items:center;min-height:calc(100vh - 96px);margin-top:0;padding-block:24px}
+.steps.stack-on .step{grid-area:1/1;width:min(640px,86vw);min-height:min(420px,60vh);padding:clamp(28px,3vw,44px);will-change:transform,opacity;box-shadow:0 30px 80px -30px rgba(20,0,60,.45)}
+.steps.stack-on .step h3{font-size:clamp(26px,2.6vw,36px)}
+.steps.stack-on .step p{font-size:clamp(16px,1.3vw,19px)}
+.steps.stack-on .step .step-n{font-size:14px}
+#work .stories{will-change:transform;transform-origin:50% 50%}
+
 </style>
 </head>
 <body>
@@ -684,7 +714,7 @@ body.menu-open #cw-fab,body.menu-open #nova-fab,body.menu-open #cw-panel{opacity
 </div>
 <div class="hero-scene rv" id="scene" aria-hidden="true">
 <div class="scene-load">Loading scene</div>
-<div class="hero-orb" id="hero-orb" hidden><div class="orb"></div></div>
+<div class="hero-orb" id="hero-orb" hidden><div class="orb-wrap"><canvas class="nova-orb" aria-hidden="true"></canvas><div class="orb"></div></div></div>
 </div>
 </div>
 </div>
@@ -715,7 +745,7 @@ body.menu-open #cw-fab,body.menu-open #nova-fab,body.menu-open #cw-panel{opacity
 </section>
 <section class="nova sec centered" id="nova">
 <div class="wrap">
-<div class="orb rv"></div>
+<div class="orb-wrap rv"><canvas class="nova-orb" aria-hidden="true"></canvas><div class="orb"></div></div>
 <div class="sec-head" style="margin-top:42px">
 <h2 class="display d-2 rv">Meet NOVA.</h2>
 <p class="nova-sub rv">Neural Operative Virtual Assistant · Claudeter AI</p>
@@ -778,13 +808,19 @@ body.menu-open #cw-fab,body.menu-open #nova-fab,body.menu-open #cw-panel{opacity
 <p class="eyebrow rv">05 — About</p>
 <h2 class="display d-2 rv">Built different.<br>By design.</h2>
 </div>
-<div class="about-grid">
+<div class="about-grid about-grid-visual">
+<figure class="about-visual glass rv">
+<picture><source srcset="/img/ai-hand-900.webp 900w, /img/ai-hand-1400.webp 1023w" type="image/webp" sizes="(min-width:900px) 40vw, 92vw"><img src="/img/ai-hand-900.jpg" alt="A robotic hand holding a glass panel that reads: the future of work is AI-powered" width="900" height="1352" loading="lazy" decoding="async"></picture>
+<figcaption class="visual-caption">The future of work is AI-powered.</figcaption>
+</figure>
+<div class="about-copy">
 <div class="about-prose rv">
 <p>Claudeter is a lean, AI-native product studio. We don't pad timelines, hire armies of consultants, or resell off-the-shelf tools with a markup. We build software — real, working, production-grade software — that earns its place in your stack.</p><p>Every engagement starts with a problem statement, not a retainer. We operate across three markets — USA, UAE, and India — which means we understand the regulatory, cultural, and technical nuances that generic agencies miss.</p><p>Our team is small by choice. Everyone who works on your project ships code. No account managers in the loop, no offshore handoffs without oversight.</p>
 </div>
 <div class="principles glass rv">
 <h3>Principles</h3>
 <ol><li><b>001</b><span>AI-native from line one, not bolted on later.</span></li><li><b>002</b><span>Shipping beats planning. POC in 3 days or we reconsider.</span></li><li><b>003</b><span>You own everything we build. Full IP transfer, always.</span></li><li><b>004</b><span>No black boxes. Every model, every prompt, documented.</span></li><li><b>005</b><span>Compliance is a feature. HIPAA, DHA, GDPR built in.</span></li><li><b>006</b><span>Small team. Senior people. No junior dev on client work.</span></li></ol>
+</div>
 </div>
 </div>
 </div>
@@ -1023,6 +1059,105 @@ hero.addEventListener('pointermove',e=>{const r=hero.getBoundingClientRect();spo
 
 </script>
 <script>
+// ── NOVA orb: a live shader, not a gradient ─────────────────────────────
+// Renders into every <canvas class="nova-orb">. Idle: slow breathing plasma.
+// Listening: mint tint that swells with the visitor's voice (input level).
+// Speaking: surface ripples and glow driven by NOVA's output level.
+// Falls back to the CSS .orb when WebGL is unavailable.
+window.NovaOrb=(function(){
+  const canvases=[...document.querySelectorAll('canvas.nova-orb')];
+  if(!canvases.length) return {setLevels(){},setState(){}};
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const VS='attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+  const FS=`precision highp float;
+uniform vec2 u_res;uniform float u_time;uniform float u_amp;uniform float u_in;uniform float u_state;uniform vec2 u_mouse;
+float hash(vec3 p){p=fract(p*0.3183099+.1);p*=17.0;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+float noise(vec3 x){vec3 i=floor(x);vec3 f=fract(x);f=f*f*(3.-2.*f);
+ return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),
+            mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);}
+float fbm(vec3 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+vec3(1.7,9.2,3.1);a*=.5;}return v;}
+void main(){
+ vec2 uv=(gl_FragCoord.xy-.5*u_res)/min(u_res.x,u_res.y);
+ float listening=smoothstep(.5,1.5,u_state)*(1.-smoothstep(1.5,2.5,u_state));
+ float speaking=smoothstep(1.5,2.5,u_state)*(1.-smoothstep(2.5,3.5,u_state));
+ float thinking=smoothstep(2.5,3.5,u_state);
+ float speed=.22+.9*u_amp+.5*thinking+.15*listening;
+ float t=u_time*speed;
+ float r=length(uv);
+ float ca=cos(u_time*.07),sa=sin(u_time*.07);vec2 ruv=mat2(ca,-sa,sa,ca)*uv;
+ float n=fbm(vec3(ruv*4.,t*.6));
+ float wob=(n-.5)*(.05+.22*u_amp+.12*u_in*listening+.06*thinking);
+ float breathe=.012*sin(u_time*1.4)+.03*u_in*listening;
+ float R=.30+breathe+wob;
+ float d=r-R;
+ vec3 p=vec3(ruv*3.2,t*.8);
+ float pl=fbm(p+fbm(p*1.6+t*.25));
+ vec3 deep=vec3(.07,0.,.26),vio=vec3(.42,0.,1.),lav=vec3(.80,.66,1.),mint=vec3(0.,1.,.8);
+ vec3 col=mix(deep,vio,smoothstep(.32,.78,pl));
+ col=mix(col,lav,pow(smoothstep(.6,1.,pl),1.6)*(.5+.9*u_amp));
+ col+=lav*exp(-r*r*22.)*(.18+.35*u_amp);
+ col=mix(col,mint*.55+col*.45,.35*listening*(.5+u_in));
+ float z=sqrt(max(0.,R*R-r*r));vec3 nrm=normalize(vec3(uv,z));
+ vec3 L=normalize(vec3(-.55+u_mouse.x*.8,.6+u_mouse.y*.6,.7));
+ float diff=max(dot(nrm,L),0.);
+ float spec=pow(max(dot(reflect(-L,nrm),vec3(0.,0.,1.)),0.),28.);
+ col=col*(.32+.9*diff)+spec*vec3(1.)*.95;
+ float rim=pow(1.-clamp(z/max(R,.001),0.,1.),3.);
+ col+=rim*mix(vio,mint,.5*listening)*.9;
+ float alpha=1.-smoothstep(0.,.01,d);
+ float glow=exp(-max(d,0.)*(10.-5.*u_amp-3.*u_in*listening))*(.3+1.1*u_amp+.5*u_in*listening+.25*thinking);
+ vec3 gcol=mix(vio,mint,.5*listening);
+ vec3 outc=col*alpha+gcol*glow*(1.-alpha);
+ gl_FragColor=vec4(outc,max(alpha,glow*(1.-alpha)));
+}`;
+  const rigs=[];
+  for(const c of canvases){
+    const gl=c.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false,powerPreference:'low-power'});
+    if(!gl) continue;
+    const mk=(t,s)=>{const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS)){console.warn('[orb]',gl.getShaderInfoLog(sh));return null;}return sh;};
+    const v=mk(gl.VERTEX_SHADER,VS),f=mk(gl.FRAGMENT_SHADER,FS); if(!v||!f) continue;
+    const pr=gl.createProgram();gl.attachShader(pr,v);gl.attachShader(pr,f);gl.linkProgram(pr);
+    if(!gl.getProgramParameter(pr,gl.LINK_STATUS)) continue;
+    gl.useProgram(pr);
+    const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+    const loc=gl.getAttribLocation(pr,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+    const U=n=>gl.getUniformLocation(pr,n);
+    const rig={c,gl,u:{res:U('u_res'),time:U('u_time'),amp:U('u_amp'),inp:U('u_in'),state:U('u_state'),mouse:U('u_mouse')},visible:false,mx:0,my:0};
+    c.parentElement.classList.add('gl');
+    const wrap=c.parentElement;
+    wrap.addEventListener('pointermove',e=>{const r=wrap.getBoundingClientRect();rig.mx=(e.clientX-r.left)/r.width*2-1;rig.my=-((e.clientY-r.top)/r.height*2-1);},{passive:true});
+    wrap.addEventListener('pointerleave',()=>{rig.mx=0;rig.my=0;});
+    new IntersectionObserver(es=>es.forEach(e=>{rig.visible=e.isIntersecting;if(rig.visible&&!raf)raf=requestAnimationFrame(frame);}),{rootMargin:'120px'}).observe(c);
+    rigs.push(rig);
+  }
+  if(!rigs.length) return {setLevels(){},setState(){}};
+  let amp=0,inp=0,tAmp=0,tIn=0,state=0,raf=0;const t0=performance.now();
+  function size(rig){const dpr=Math.min(devicePixelRatio||1,1.5);const w=rig.c.clientWidth|0,h=rig.c.clientHeight|0;
+    if(rig.c.width!==w*dpr||rig.c.height!==h*dpr){rig.c.width=w*dpr;rig.c.height=h*dpr;rig.gl.viewport(0,0,rig.c.width,rig.c.height);}}
+  function frame(now){
+    raf=0;let any=false;
+    amp+=(tAmp-amp)*(tAmp>amp?.45:.12); inp+=(tIn-inp)*(tIn>inp?.5:.15);
+    const time=(now-t0)/1000;
+    for(const rig of rigs){
+      if(!rig.visible) continue; any=true; size(rig);
+      const gl=rig.gl;
+      gl.uniform2f(rig.u.res,rig.c.width,rig.c.height);gl.uniform1f(rig.u.time,reduced?12.0:time);
+      gl.uniform1f(rig.u.amp,amp);gl.uniform1f(rig.u.inp,inp);gl.uniform1f(rig.u.state,state);gl.uniform2f(rig.u.mouse,rig.mx,rig.my);
+      gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+    }
+    if(any&&!reduced) raf=requestAnimationFrame(frame);
+    else if(any&&reduced&&(Math.abs(tAmp-amp)>.01||Math.abs(tIn-inp)>.01)) raf=requestAnimationFrame(frame);
+  }
+  raf=requestAnimationFrame(frame);
+  const STATES={idle:0,error:0,connecting:3,listening:1,speaking:2,thinking:3};
+  return {
+    setLevels(out,inn){tAmp=Math.min(1,(out||0)*1.7);tIn=Math.min(1,(inn||0)*1.6);if(!raf)raf=requestAnimationFrame(frame);},
+    setState(s){state=typeof s==='number'?s:(STATES[s]??0);if(state===0){tAmp=0;tIn=0;}if(!raf)raf=requestAnimationFrame(frame);}
+  };
+})();
+
+</script>
+<script>
 // ============================================================
 // NOVA VOICE ENGINE v8.1 — ElevenLabs Conversational AI
 // One streaming session handles speech recognition, turn-taking,
@@ -1062,11 +1197,13 @@ function setUI(state,statusText){
   ['vlbl','vlbl2'].forEach(id=>{const l=$(id); if(l) l.textContent=LABELS[state]||LABELS.idle;});
   const nova=$('nova'); if(nova){nova.classList.remove('listening','speaking','thinking','connecting'); if(state!=='idle'&&state!=='error') nova.classList.add(state);}
   const fab=$('nova-fab'); if(fab) fab.classList.toggle('active',sessionActive||starting);
+  if(window.NovaOrb) NovaOrb.setState(state);
 }
 function orbLoop(){
   const orb=document.querySelector('.nova .orb');
   if(!sessionActive||!conversation||!orb){ if(orb) orb.style.setProperty('--amp','0'); orbRaf=0; return; }
-  let v=0; try{ v=conversation.getOutputVolume()||0; }catch(e){}
+  let v=0,vi=0; try{ v=conversation.getOutputVolume()||0; vi=conversation.getInputVolume()||0; }catch(e){}
+  if(window.NovaOrb) NovaOrb.setLevels(v,vi);
   orb.style.setProperty('--amp',Math.min(1,v*1.6).toFixed(3));
   orbRaf=requestAnimationFrame(orbLoop);
 }
@@ -1481,6 +1618,112 @@ window.cwToggle = cwToggle;
 window.cwSend = cwSend;
 })();
 
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js" defer></script>
+<script>
+window.addEventListener("DOMContentLoaded",function(){
+// ── Scroll choreography (GSAP + ScrollTrigger, loaded from cdnjs) ──────────
+// Takes over from the CSS view-timeline reveals wherever it runs (html.gsap
+// switches those off), so the two systems never fight over transforms.
+(function(){
+  if(!window.gsap||!window.ScrollTrigger) return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  gsap.registerPlugin(ScrollTrigger);
+  document.documentElement.classList.add('gsap');
+  const $$=s=>gsap.utils.toArray(s);
+  const claim=els=>els.forEach(el=>{el.classList.remove('rv');el.classList.add('in');});
+
+  // 1 · Hero: layered parallax as it leaves — copy, scene and auras at different speeds
+  const heroST={trigger:'#hero',start:'top top',end:'bottom top',scrub:true};
+  gsap.to('.hero-copy',{y:-110,opacity:.08,ease:'none',scrollTrigger:heroST});
+  gsap.to('.hero-scene',{y:-190,scale:.88,opacity:.15,ease:'none',scrollTrigger:heroST});
+  gsap.to('.aura-a',{y:-260,scale:1.15,ease:'none',scrollTrigger:heroST});
+  gsap.to('.aura-b',{y:-140,ease:'none',scrollTrigger:heroST});
+
+  // 2 · Proof numbers slide in from alternating sides
+  claim($$('.proof-cell'));
+  gsap.from('.proof-cell',{x:i=>i%2?70:-70,opacity:0,duration:.9,ease:'power3.out',stagger:.08,
+    scrollTrigger:{trigger:'.proof',start:'top 85%',once:true}});
+
+  // 3 · Cards tilt up into place (perspective), staggered within each grid
+  const cardSel='.pillar,.stack-group,.story,.info-row,.form-card,.principles';
+  claim($$(cardSel)); claim($$('.step'));
+  document.querySelectorAll('.pillars,.stack-groups,.stories,.info,.contact-grid').forEach(grid=>{
+    const cards=grid.querySelectorAll(cardSel); if(!cards.length) return;
+    gsap.from(cards,{y:80,rotateX:14,opacity:0,transformPerspective:900,transformOrigin:'50% 100%',duration:1.05,ease:'power3.out',stagger:.09,
+      scrollTrigger:{trigger:grid,start:'top 86%',once:true}});
+  });
+
+  // 4 · Section heads: eyebrow line draws, heading rises (headings already split into words by motion.js)
+  $$('.sec-head').forEach(h=>{
+    const eb=h.querySelector('.eyebrow'),lead=h.querySelector('.lead');
+    claim([eb,lead].filter(Boolean)); const hd=h.querySelector('.display'); if(hd) claim([hd]);
+    const tl=gsap.timeline({scrollTrigger:{trigger:h,start:'top 86%',once:true}});
+    if(eb) tl.from(eb,{y:18,opacity:0,duration:.6,ease:'power2.out'},0);
+    const ws=h.querySelectorAll('.display .w');
+    if(ws.length) tl.from(ws,{yPercent:110,opacity:0,rotate:2,duration:.9,ease:'power4.out',stagger:.06},.1);
+    else if(hd) tl.from(hd,{y:40,opacity:0,duration:.9,ease:'power3.out'},.1);
+    if(lead) tl.from(lead,{y:26,opacity:0,duration:.8,ease:'power2.out'},.45);
+  });
+
+  // 5 · About visual: clip-path unmasks as it enters, image settles from 1.25→1 and drifts (Ken Burns), all scrubbed
+  const vis=document.querySelector('.about-visual');
+  if(vis){
+    claim([vis]);
+    gsap.fromTo(vis,{clipPath:'inset(22% 16% 22% 16% round 40px)'},{clipPath:'inset(0% 0% 0% 0% round 28px)',ease:'none',
+      scrollTrigger:{trigger:vis,start:'top 92%',end:'top 35%',scrub:true}});
+    gsap.fromTo(vis.querySelector('img'),{scale:1.28,yPercent:6},{scale:1,yPercent:-6,ease:'none',
+      scrollTrigger:{trigger:vis,start:'top bottom',end:'bottom top',scrub:true}});
+    gsap.to('.about-visual .visual-caption',{y:0,opacity:1,duration:.9,ease:'power3.out',scrollTrigger:{trigger:vis,start:'top 60%',once:true}});
+  }
+
+  // 6 · About prose: words light up as you scroll through them
+  document.querySelectorAll('.about-prose p').forEach(p=>{
+    p.innerHTML=p.textContent.trim().split(/\s+/).map(w=>`<span class="rw">${w}</span>`).join(' ');
+  });
+  claim($$('.about-prose'));
+  gsap.to('.about-prose .rw',{opacity:1,ease:'none',stagger:.03,
+    scrollTrigger:{trigger:'.about-prose',start:'top 78%',end:'bottom 45%',scrub:.4}});
+
+  // 7 · Footer: wordmark drifts up slower than the page
+  gsap.from('.foot-mark',{y:60,opacity:0,ease:'none',scrollTrigger:{trigger:'footer.site',start:'top 90%',end:'top 40%',scrub:true}});
+
+  // 8 · Desktop-only: process steps become a pinned card stack; client stories skew with scroll velocity
+  gsap.matchMedia().add('(min-width: 900px)',()=>{
+    const wrap=document.querySelector('#process .steps'), steps=$$('#process .step');
+    if(wrap&&steps.length>1){
+      wrap.classList.add('stack-on');
+      steps.forEach((s,i)=>{s.style.zIndex=String(i+1);});
+      const tl=gsap.timeline({scrollTrigger:{trigger:wrap,start:'top top+=96',end:'+='+(steps.length-1)*85+'%',pin:true,pinSpacing:true,scrub:.7,anticipatePin:1,invalidateOnRefresh:true}});
+      steps.forEach((s,i)=>{
+        if(i===0) return;
+        tl.fromTo(s,{yPercent:130,rotate:i%2?2.5:-2.5},{yPercent:0,rotate:0,ease:'none',duration:1},i-1);
+        tl.to(steps[i-1],{scale:.9,yPercent:-13,opacity:.7,filter:'saturate(.7)',ease:'none',duration:1},i-1);
+        if(i>1) tl.to(steps[i-2],{yPercent:-24,scale:.82,opacity:.35,ease:'none',duration:1},i-1);
+      });
+    }
+    const grid=document.querySelector('#work .stories');
+    if(grid){
+      const proxy={skew:0},setSkew=gsap.quickSetter(grid,'skewY','deg'),clamp=gsap.utils.clamp(-5,5);
+      ScrollTrigger.create({trigger:grid,start:'top bottom',end:'bottom top',onUpdate:self=>{
+        const s=clamp(self.getVelocity()/-320);
+        if(Math.abs(s)>Math.abs(proxy.skew)){proxy.skew=s;gsap.to(proxy,{skew:0,duration:.8,ease:'power3',overwrite:true,onUpdate:()=>setSkew(proxy.skew)});}
+      }});
+    }
+    return ()=>{wrap&&wrap.classList.remove('stack-on');};
+  });
+  // Mobile / narrow: steps simply tilt in (the stack needs a tall viewport)
+  gsap.matchMedia().add('(max-width: 899px)',()=>{
+    gsap.from('#process .step',{y:60,rotateX:10,opacity:0,transformPerspective:800,transformOrigin:'50% 100%',duration:.9,ease:'power3.out',stagger:.1,
+      scrollTrigger:{trigger:'#process .steps',start:'top 88%',once:true}});
+  });
+
+  addEventListener('load',()=>ScrollTrigger.refresh());
+  document.fonts&&document.fonts.ready.then(()=>ScrollTrigger.refresh());
+})();
+
+});
 </script>
 </body>
 </html>
