@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>Claudeter Blog</title>
+  <link>https://www.claudeter.ai/blog/</link>
+  <atom:link href="https://www.claudeter.ai/blog/feed.xml" rel="self" type="application/rss+xml"/>
+  <description>Practical thinking on AI voice agents, automation and intelligent systems across healthcare, hospitality, fintech, real estate and more.</description>
+  <language>en</language>
+  <lastBuildDate>Tue, 22 Sep 2026 00:00:00 +0000</lastBuildDate>
+  <item>
+    <title>How AI Is Quietly Transforming the Restaurant Industry in 2026</title>
+    <link>https://www.claudeter.ai/blog/ai-automation-restaurant-industry/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-automation-restaurant-industry/</guid>
+    <pubDate>Sun, 08 Mar 2026 00:00:00 +0000</pubDate>
+    <category>Restaurant</category>
+    <description>From AI voice ordering to inventory prediction and staff scheduling: restaurants are using AI to cut costs and increase covers.</description>
+  </item>
+  <item>
+    <title>How Airlines Are Using AI Voice Agents to Handle Millions of Customer Calls</title>
+    <link>https://www.claudeter.ai/blog/ai-voice-agents-airline-industry/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-voice-agents-airline-industry/</guid>
+    <pubDate>Sat, 07 Mar 2026 00:00:00 +0000</pubDate>
+    <category>Airlines</category>
+    <description>Flight disruptions, rebooking, refunds, baggage claims: AI voice agents are handling airline customer service at a scale humans never could.</description>
+  </item>
+  <item>
+    <title>AI Voice Agents Are Eating the Phone Call: Across Every Industry</title>
+    <link>https://www.claudeter.ai/blog/ai-voice-agents-across-industries/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-voice-agents-across-industries/</guid>
+    <pubDate>Fri, 06 Mar 2026 00:00:00 +0000</pubDate>
+    <category>Voice AI</category>
+    <description>From healthcare to real estate to banking: AI voice agents are replacing phone-based workflows across every sector.</description>
+  </item>
+  <item>
+    <title>How AI Voice Agents Are Replacing Insurance Follow-Up Calls in 2026</title>
+    <link>https://www.claudeter.ai/blog/ai-voice-agents-insurance-follow-up/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-voice-agents-insurance-follow-up/</guid>
+    <pubDate>Thu, 05 Mar 2026 00:00:00 +0000</pubDate>
+    <category>Healthcare</category>
+    <description>Manual claims follow-up is costing RCM teams thousands of hours annually. Here&#x27;s how AI voice agents are changing the economics.</description>
+  </item>
+  <item>
+    <title>AI Automation in Retail: How Smart Stores Are Winning in 2026</title>
+    <link>https://www.claudeter.ai/blog/ai-automation-retail-ecommerce/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-automation-retail-ecommerce/</guid>
+    <pubDate>Wed, 04 Mar 2026 00:00:00 +0000</pubDate>
+    <category>Retail</category>
+    <description>Personalization, inventory intelligence, returns automation, and AI customer service: retail&#x27;s AI transformation is here.</description>
+  </item>
+  <item>
+    <title>Prior Authorization Automation: How We Cut Denial Rates by 34%</title>
+    <link>https://www.claudeter.ai/blog/prior-auth-automation-denial-rates/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/prior-auth-automation-denial-rates/</guid>
+    <pubDate>Tue, 03 Mar 2026 00:00:00 +0000</pubDate>
+    <category>Healthcare</category>
+    <description>How automating prior auth submissions through Availity dramatically reduces denials and administrative burden.</description>
+  </item>
+  <item>
+    <title>AI in Logistics: How Supply Chains Are Getting Smarter in 2026</title>
+    <link>https://www.claudeter.ai/blog/ai-automation-logistics-supply-chain/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-automation-logistics-supply-chain/</guid>
+    <pubDate>Mon, 02 Mar 2026 00:00:00 +0000</pubDate>
+    <category>Logistics</category>
+    <description>Route optimization, demand forecasting, warehouse AI, and autonomous tracking: logistics is being transformed end to end.</description>
+  </item>
+  <item>
+    <title>The Real Cost of Manual Claims Follow-Up (And How to Fix It)</title>
+    <link>https://www.claudeter.ai/blog/real-cost-manual-claims-follow-up/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/real-cost-manual-claims-follow-up/</guid>
+    <pubDate>Sat, 28 Feb 2026 00:00:00 +0000</pubDate>
+    <category>Healthcare</category>
+    <description>Beyond labor costs, manual claims follow-up creates invisible revenue leaks most billing managers never fully account for.</description>
+  </item>
+  <item>
+    <title>AI in Banking: Beyond the Chatbot · What Real Financial AI Looks Like</title>
+    <link>https://www.claudeter.ai/blog/ai-automation-banking-fintech/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-automation-banking-fintech/</guid>
+    <pubDate>Fri, 27 Feb 2026 00:00:00 +0000</pubDate>
+    <category>Banking</category>
+    <description>Fraud detection, credit decisioning, and regulatory compliance: this is where the real transformation in financial services is happening.</description>
+  </item>
+  <item>
+    <title>AI in Education: Personalized Learning at Scale Is Finally Here</title>
+    <link>https://www.claudeter.ai/blog/ai-automation-education-edtech/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-automation-education-edtech/</guid>
+    <pubDate>Wed, 25 Feb 2026 00:00:00 +0000</pubDate>
+    <category>Education</category>
+    <description>Adaptive learning, AI tutors, automated grading, and student retention AI, every student gets their own curriculum.</description>
+  </item>
+  <item>
+    <title>Ambetter, UHC, Aetna: How AI Agents Navigate Payer IVR Systems</title>
+    <link>https://www.claudeter.ai/blog/ai-agents-payer-ivr-navigation/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-agents-payer-ivr-navigation/</guid>
+    <pubDate>Tue, 24 Feb 2026 00:00:00 +0000</pubDate>
+    <category>Healthcare</category>
+    <description>Every major payer has a different IVR tree. Here&#x27;s how we train voice agents to handle them all.</description>
+  </item>
+  <item>
+    <title>AI in Real Estate: How PropTech Is Changing the Way Properties Are Bought and Sold</title>
+    <link>https://www.claudeter.ai/blog/ai-automation-real-estate-proptech/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-automation-real-estate-proptech/</guid>
+    <pubDate>Sun, 22 Feb 2026 00:00:00 +0000</pubDate>
+    <category>Real Estate</category>
+    <description>Lead qualification, valuation, document automation, and AI voice agents: real estate AI is moving faster than most agents realize.</description>
+  </item>
+  <item>
+    <title>Automating DHA eClaims and TPA Portals in the UAE: A Complete Guide</title>
+    <link>https://www.claudeter.ai/blog/dha-eclaims-tpa-automation-uae/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/dha-eclaims-tpa-automation-uae/</guid>
+    <pubDate>Fri, 20 Feb 2026 00:00:00 +0000</pubDate>
+    <category>Healthcare</category>
+    <description>A practical guide to automating across UAE&#x27;s major TPA portals: NextCare, NAS, Neuron, AlMadallah, and DHA eClaims.</description>
+  </item>
+  <item>
+    <title>AI in Hospitality: How Hotels Are Using AI to Deliver Five-Star Experiences at Scale</title>
+    <link>https://www.claudeter.ai/blog/ai-automation-hospitality-hotels/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-automation-hospitality-hotels/</guid>
+    <pubDate>Thu, 19 Feb 2026 00:00:00 +0000</pubDate>
+    <category>Hospitality</category>
+    <description>From AI concierge to dynamic pricing: hospitality AI is making luxury-level personalization accessible at every tier.</description>
+  </item>
+  <item>
+    <title>NextCare, NAS, Neuron, AlMadallah: One Automation to Rule Them All</title>
+    <link>https://www.claudeter.ai/blog/nextcare-nas-neuron-automation/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/nextcare-nas-neuron-automation/</guid>
+    <pubDate>Tue, 17 Feb 2026 00:00:00 +0000</pubDate>
+    <category>Healthcare</category>
+    <description>UAE healthcare providers deal with 5+ TPA portals daily. We built a unified RPA layer that handles all of them.</description>
+  </item>
+  <item>
+    <title>AI in Construction: How the Industry Is Finally Getting Smart About Data</title>
+    <link>https://www.claudeter.ai/blog/ai-automation-construction-engineering/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-automation-construction-engineering/</guid>
+    <pubDate>Mon, 16 Feb 2026 00:00:00 +0000</pubDate>
+    <category>Construction</category>
+    <description>Project delay prediction, safety monitoring, procurement automation: construction AI is solving the industry&#x27;s oldest problems.</description>
+  </item>
+  <item>
+    <title>What Most AI Agencies Won&#x27;t Tell You About Building Voice Agents</title>
+    <link>https://www.claudeter.ai/blog/what-ai-agencies-wont-tell-you/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/what-ai-agencies-wont-tell-you/</guid>
+    <pubDate>Fri, 13 Feb 2026 00:00:00 +0000</pubDate>
+    <category>Voice AI</category>
+    <description>After building 50+ AI systems, here are the uncomfortable truths about voice agent development most vendors gloss over.</description>
+  </item>
+  <item>
+    <title>Why We Ship AI in 6 Weeks While Others Take 6 Months</title>
+    <link>https://www.claudeter.ai/blog/why-we-ship-in-6-weeks/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/why-we-ship-in-6-weeks/</guid>
+    <pubDate>Tue, 10 Feb 2026 00:00:00 +0000</pubDate>
+    <category>Voice AI</category>
+    <description>The difference isn&#x27;t working harder. It&#x27;s a fundamentally different approach to scoping, building, and validating AI.</description>
+  </item>
+  <item>
+    <title>AI Agents vs RPA: Which One Actually Solves Your Problem?</title>
+    <link>https://www.claudeter.ai/blog/ai-agents-vs-rpa/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-agents-vs-rpa/</guid>
+    <pubDate>Fri, 06 Feb 2026 00:00:00 +0000</pubDate>
+    <category>Voice AI</category>
+    <description>RPA is deterministic and fragile. AI agents are flexible but unpredictable. Most workflows need both.</description>
+  </item>
+  <item>
+    <title>Building HIPAA-Compliant AI: What Developers Get Wrong</title>
+    <link>https://www.claudeter.ai/blog/hipaa-compliant-ai-what-devs-get-wrong/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/hipaa-compliant-ai-what-devs-get-wrong/</guid>
+    <pubDate>Tue, 03 Feb 2026 00:00:00 +0000</pubDate>
+    <category>Healthcare</category>
+    <description>HIPAA compliance in AI isn&#x27;t just about encryption. Most teams miss data residency, audit logs, and inference risks.</description>
+  </item>
+</channel>
+</rss>
