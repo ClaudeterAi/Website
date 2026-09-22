@@ -658,21 +658,17 @@ body.menu-open #cw-fab,body.menu-open #nova-fab,body.menu-open #cw-panel{opacity
 @media(min-width:900px){.about-grid-visual{grid-template-columns:.86fr 1.14fr;gap:clamp(32px,4vw,64px)}}
 .about-visual{position:relative;margin:0;padding:0;overflow:hidden;border-radius:28px;aspect-ratio:3/4;max-height:min(680px,86vh);will-change:clip-path}
 .about-visual img{width:100%;height:100%;object-fit:cover;display:block;will-change:transform}
-.about-visual .visual-caption{position:absolute;left:18px;bottom:16px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--w-2);padding:8px 12px;border-radius:999px;background:rgba(10,4,26,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);transform:translateY(12px);opacity:0}
-html:not(.gsap) .about-visual .visual-caption{transform:none;opacity:1}
+.about-visual .visual-caption{position:absolute;left:18px;bottom:16px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--w-2);padding:8px 12px;border-radius:999px;background:rgba(10,4,26,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line)}
 .about-copy{display:grid;gap:clamp(22px,2.6vw,34px)}
 /* ─── GSAP takes over these reveals: switch the CSS view-timeline versions off ─── */
-html.gsap :is(.aura-a,.hero-copy,.hero-scene,.light,.market,.orb,.pillar,.proof-cell,.split .w,.step,.story){animation:none!important}
-html.gsap .split .w{opacity:1;transform:none}
-html.gsap .about-prose .rw{opacity:.22;transition:none}
-html.gsap .about-prose p:first-child .rw{opacity:.3}
-/* ─── pinned process card stack (desktop, only while GSAP runs) ─── */
-.steps.stack-on{display:grid;grid-template-columns:1fr;place-items:center;min-height:calc(100vh - 96px);margin-top:0;padding-block:24px}
-.steps.stack-on .step{grid-area:1/1;width:min(640px,86vw);min-height:min(420px,60vh);padding:clamp(28px,3vw,44px);will-change:transform,opacity;box-shadow:0 30px 80px -30px rgba(20,0,60,.45)}
-.steps.stack-on .step h3{font-size:clamp(26px,2.6vw,36px)}
-.steps.stack-on .step p{font-size:clamp(16px,1.3vw,19px)}
-.steps.stack-on .step .step-n{font-size:14px}
-#work .stories{will-change:transform;transform-origin:50% 50%}
+html.gsap :is(.aura-a,.hero-copy,.hero-scene){animation:none!important}
+.about-prose .rw{opacity:.5;transition:opacity .6s ease}
+.about-prose p.lit .rw{opacity:1}
+.about-visual{clip-path:inset(18% 12% 18% 12% round 40px);transition:clip-path 1.3s cubic-bezier(.2,.7,.2,1)}
+.about-visual.open{clip-path:inset(0 0 0 0 round 28px)}
+.about-visual img{transform:scale(1.22);transition:transform 1.6s cubic-bezier(.2,.7,.2,1)}
+.about-visual.open img{transform:scale(1)}
+html:not(.gsap) .about-visual,.about-visual.open{will-change:auto}
 
 </style>
 </head>
@@ -936,6 +932,9 @@ addEventListener('keydown',e=>{if(e.key==='Escape')setMenu(false)});
 addEventListener('resize',()=>{if(innerWidth>=920)setMenu(false)});
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.1,rootMargin:'0px 0px -6% 0px'});
 document.querySelectorAll('.rv').forEach((el,i)=>{el.style.transitionDelay=(i%4)*70+'ms';io.observe(el)});
+// Failsafe: fast scrolls can skip the observer, so anything the viewport has already reached is revealed on scroll and on load.
+(function(){let t=0;const sweep=()=>{t=0;document.querySelectorAll('.rv:not(.in)').forEach(el=>{const r=el.getBoundingClientRect();if(r.top<innerHeight*1.02)el.classList.add('in');});};
+  addEventListener('scroll',()=>{if(!t)t=requestAnimationFrame(sweep);},{passive:true});addEventListener('load',()=>setTimeout(sweep,300));setTimeout(sweep,1500);})();
 const wave=document.getElementById('wave');
 for(let i=0;i<32;i++){const b=document.createElement('i');b.style.animationDelay=(i*0.07).toFixed(2)+'s';b.style.animationDuration=(1.1+(i%5)*0.16).toFixed(2)+'s';b.style.height=(26+Math.round(Math.abs(Math.sin(i*0.9))*52))+'%';wave.appendChild(b);}
 // cursor spotlight over the hero
@@ -1100,8 +1099,8 @@ void main(){
  float z=sqrt(max(0.,R*R-r*r));vec3 nrm=normalize(vec3(uv,z));
  vec3 L=normalize(vec3(-.55+u_mouse.x*.8,.6+u_mouse.y*.6,.7));
  float diff=max(dot(nrm,L),0.);
- float spec=pow(max(dot(reflect(-L,nrm),vec3(0.,0.,1.)),0.),28.);
- col=col*(.32+.9*diff)+spec*vec3(1.)*.95;
+ float spec=pow(max(dot(reflect(-L,nrm),vec3(0.,0.,1.)),0.),7.);
+ col=col*(.34+.9*diff)+spec*lav*.42;
  float rim=pow(1.-clamp(z/max(R,.001),0.,1.),3.);
  col+=rim*mix(vio,mint,.5*listening)*.9;
  float alpha=1.-smoothstep(0.,.01,d);
@@ -1623,106 +1622,39 @@ window.cwSend = cwSend;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js" defer></script>
 <script>
 window.addEventListener("DOMContentLoaded",function(){
-// ── Scroll choreography (GSAP + ScrollTrigger, loaded from cdnjs) ──────────
-// Takes over from the CSS view-timeline reveals wherever it runs (html.gsap
-// switches those off), so the two systems never fight over transforms.
+// ── Scroll motion, safe by construction: nothing here hides content. If GSAP
+//    or a trigger fails, the page simply looks like the design without motion.
 (function(){
-  if(!window.gsap||!window.ScrollTrigger) return;
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // A. About prose: words brighten as each paragraph enters (IntersectionObserver, no GSAP dependency)
+  if(!reduced){
+    document.querySelectorAll('.about-prose p').forEach(p=>{
+      const words=p.textContent.trim().split(/\s+/);
+      p.innerHTML=words.map((w,i)=>`<span class="rw" style="transition-delay:${Math.min(i*28,900)}ms">${w}</span>`).join(' ');
+    });
+    const lit=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('lit');lit.unobserve(e.target);}}),{threshold:.35});
+    document.querySelectorAll('.about-prose p').forEach(p=>lit.observe(p));
+    const vis=document.querySelector('.about-visual');
+    if(vis){const vo=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){vis.classList.add('in','open');vo.unobserve(vis);}}),{threshold:.25});vo.observe(vis);}
+  } else {
+    document.querySelectorAll('.about-visual').forEach(v=>v.classList.add('in','open'));
+  }
+  // B. GSAP: scrubbed movement only
+  if(!window.gsap||!window.ScrollTrigger||reduced) return;
   gsap.registerPlugin(ScrollTrigger);
   document.documentElement.classList.add('gsap');
-  const $$=s=>gsap.utils.toArray(s);
-  const claim=els=>els.forEach(el=>{el.classList.remove('rv');el.classList.add('in');});
-
-  // 1 · Hero: layered parallax as it leaves — copy, scene and auras at different speeds
   const heroST={trigger:'#hero',start:'top top',end:'bottom top',scrub:true};
-  gsap.to('.hero-copy',{y:-110,opacity:.08,ease:'none',scrollTrigger:heroST});
-  gsap.to('.hero-scene',{y:-190,scale:.88,opacity:.15,ease:'none',scrollTrigger:heroST});
-  gsap.to('.aura-a',{y:-260,scale:1.15,ease:'none',scrollTrigger:heroST});
-  gsap.to('.aura-b',{y:-140,ease:'none',scrollTrigger:heroST});
-
-  // 2 · Proof numbers slide in from alternating sides
-  claim($$('.proof-cell'));
-  gsap.from('.proof-cell',{x:i=>i%2?70:-70,opacity:0,duration:.9,ease:'power3.out',stagger:.08,
-    scrollTrigger:{trigger:'.proof',start:'top 85%',once:true}});
-
-  // 3 · Cards tilt up into place (perspective), staggered within each grid
-  const cardSel='.pillar,.stack-group,.story,.info-row,.form-card,.principles';
-  claim($$(cardSel)); claim($$('.step'));
-  document.querySelectorAll('.pillars,.stack-groups,.stories,.info,.contact-grid').forEach(grid=>{
-    const cards=grid.querySelectorAll(cardSel); if(!cards.length) return;
-    gsap.from(cards,{y:80,rotateX:14,opacity:0,transformPerspective:900,transformOrigin:'50% 100%',duration:1.05,ease:'power3.out',stagger:.09,
-      scrollTrigger:{trigger:grid,start:'top 86%',once:true}});
-  });
-
-  // 4 · Section heads: eyebrow line draws, heading rises (headings already split into words by motion.js)
-  $$('.sec-head').forEach(h=>{
-    const eb=h.querySelector('.eyebrow'),lead=h.querySelector('.lead');
-    claim([eb,lead].filter(Boolean)); const hd=h.querySelector('.display'); if(hd) claim([hd]);
-    const tl=gsap.timeline({scrollTrigger:{trigger:h,start:'top 86%',once:true}});
-    if(eb) tl.from(eb,{y:18,opacity:0,duration:.6,ease:'power2.out'},0);
-    const ws=h.querySelectorAll('.display .w');
-    if(ws.length) tl.from(ws,{yPercent:110,opacity:0,rotate:2,duration:.9,ease:'power4.out',stagger:.06},.1);
-    else if(hd) tl.from(hd,{y:40,opacity:0,duration:.9,ease:'power3.out'},.1);
-    if(lead) tl.from(lead,{y:26,opacity:0,duration:.8,ease:'power2.out'},.45);
-  });
-
-  // 5 · About visual: clip-path unmasks as it enters, image settles from 1.25→1 and drifts (Ken Burns), all scrubbed
-  const vis=document.querySelector('.about-visual');
-  if(vis){
-    claim([vis]);
-    gsap.fromTo(vis,{clipPath:'inset(22% 16% 22% 16% round 40px)'},{clipPath:'inset(0% 0% 0% 0% round 28px)',ease:'none',
-      scrollTrigger:{trigger:vis,start:'top 92%',end:'top 35%',scrub:true}});
-    gsap.fromTo(vis.querySelector('img'),{scale:1.28,yPercent:6},{scale:1,yPercent:-6,ease:'none',
-      scrollTrigger:{trigger:vis,start:'top bottom',end:'bottom top',scrub:true}});
-    gsap.to('.about-visual .visual-caption',{y:0,opacity:1,duration:.9,ease:'power3.out',scrollTrigger:{trigger:vis,start:'top 60%',once:true}});
-  }
-
-  // 6 · About prose: words light up as you scroll through them
-  document.querySelectorAll('.about-prose p').forEach(p=>{
-    p.innerHTML=p.textContent.trim().split(/\s+/).map(w=>`<span class="rw">${w}</span>`).join(' ');
-  });
-  claim($$('.about-prose'));
-  gsap.to('.about-prose .rw',{opacity:1,ease:'none',stagger:.03,
-    scrollTrigger:{trigger:'.about-prose',start:'top 78%',end:'bottom 45%',scrub:.4}});
-
-  // 7 · Footer: wordmark drifts up slower than the page
-  gsap.from('.foot-mark',{y:60,opacity:0,ease:'none',scrollTrigger:{trigger:'footer.site',start:'top 90%',end:'top 40%',scrub:true}});
-
-  // 8 · Desktop-only: process steps become a pinned card stack; client stories skew with scroll velocity
-  gsap.matchMedia().add('(min-width: 900px)',()=>{
-    const wrap=document.querySelector('#process .steps'), steps=$$('#process .step');
-    if(wrap&&steps.length>1){
-      wrap.classList.add('stack-on');
-      steps.forEach((s,i)=>{s.style.zIndex=String(i+1);});
-      const tl=gsap.timeline({scrollTrigger:{trigger:wrap,start:'top top+=96',end:'+='+(steps.length-1)*85+'%',pin:true,pinSpacing:true,scrub:.7,anticipatePin:1,invalidateOnRefresh:true}});
-      steps.forEach((s,i)=>{
-        if(i===0) return;
-        tl.fromTo(s,{yPercent:130,rotate:i%2?2.5:-2.5},{yPercent:0,rotate:0,ease:'none',duration:1},i-1);
-        tl.to(steps[i-1],{scale:.9,yPercent:-13,opacity:.7,filter:'saturate(.7)',ease:'none',duration:1},i-1);
-        if(i>1) tl.to(steps[i-2],{yPercent:-24,scale:.82,opacity:.35,ease:'none',duration:1},i-1);
-      });
-    }
-    const grid=document.querySelector('#work .stories');
-    if(grid){
-      const proxy={skew:0},setSkew=gsap.quickSetter(grid,'skewY','deg'),clamp=gsap.utils.clamp(-5,5);
-      ScrollTrigger.create({trigger:grid,start:'top bottom',end:'bottom top',onUpdate:self=>{
-        const s=clamp(self.getVelocity()/-320);
-        if(Math.abs(s)>Math.abs(proxy.skew)){proxy.skew=s;gsap.to(proxy,{skew:0,duration:.8,ease:'power3',overwrite:true,onUpdate:()=>setSkew(proxy.skew)});}
-      }});
-    }
-    return ()=>{wrap&&wrap.classList.remove('stack-on');};
-  });
-  // Mobile / narrow: steps simply tilt in (the stack needs a tall viewport)
-  gsap.matchMedia().add('(max-width: 899px)',()=>{
-    gsap.from('#process .step',{y:60,rotateX:10,opacity:0,transformPerspective:800,transformOrigin:'50% 100%',duration:.9,ease:'power3.out',stagger:.1,
-      scrollTrigger:{trigger:'#process .steps',start:'top 88%',once:true}});
-  });
-
+  gsap.fromTo('.hero-copy',{y:0},{y:-110,ease:'none',immediateRender:false,scrollTrigger:heroST});
+  gsap.fromTo('.hero-scene',{y:0,scale:1},{y:-170,scale:.9,ease:'none',immediateRender:false,scrollTrigger:heroST});
+  gsap.fromTo('.aura-a',{y:0},{y:-240,ease:'none',immediateRender:false,scrollTrigger:heroST});
+  gsap.fromTo('.aura-b',{y:0},{y:-120,ease:'none',immediateRender:false,scrollTrigger:heroST});
+  const img=document.querySelector('.about-visual img');
+  if(img) gsap.fromTo(img,{yPercent:5},{yPercent:-5,ease:'none',immediateRender:false,scrollTrigger:{trigger:'.about-visual',start:'top bottom',end:'bottom top',scrub:true}});
+  gsap.fromTo('.foot-mark',{y:50},{y:0,ease:'none',immediateRender:false,scrollTrigger:{trigger:'footer.site',start:'top 95%',end:'bottom bottom',scrub:true}});
+  // gentle depth: alternate columns of the client stories drift at slightly different speeds
+  gsap.utils.toArray('#work .story').forEach((el,i)=>{gsap.fromTo(el,{y:0},{y:(i%3-1)*-26,ease:'none',immediateRender:false,scrollTrigger:{trigger:'#work',start:'top bottom',end:'bottom top',scrub:true}});});
   addEventListener('load',()=>ScrollTrigger.refresh());
-  document.fonts&&document.fonts.ready.then(()=>ScrollTrigger.refresh());
 })();
-
 });
 </script>
 </body>
