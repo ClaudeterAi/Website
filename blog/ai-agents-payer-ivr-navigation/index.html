@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ambetter, UHC, Aetna — How AI Agents Navigate Payer IVR Systems — Claudeter</title>
+<title>Ambetter, UHC, Aetna: How AI Agents Navigate Payer IVR Systems | Claudeter</title>
 <meta name="description" content="Every major payer has a different IVR tree. Here's how we train voice agents to handle hold times, prompts, and authentication flows for the top US payers."/>
 <link rel="canonical" href="https://www.claudeter.ai/blog/ai-agents-payer-ivr-navigation/"/>
-<meta property="og:title" content="Ambetter, UHC, Aetna — How AI Agents Navigate Payer IVR Systems — Claudeter"/>
+<meta property="og:title" content="Ambetter, UHC, Aetna: How AI Agents Navigate Payer IVR Systems | Claudeter"/>
 <meta property="og:description" content="Every major payer has a different IVR tree. Here's how we train voice agents to handle hold times, prompts, and authentication flows for the top US payers."/>
 <meta property="og:url" content="https://www.claudeter.ai/blog/ai-agents-payer-ivr-navigation/"/>
 <meta property="og:image" content="https://www.claudeter.ai/logo/og-image.png"/>
@@ -82,7 +82,7 @@ body::after{background:radial-gradient(ellipse 80% 50% at 10% 20%,rgba(40,0,100,
 <div class="hero">
   <a href="/blog/" class="back">← Back to Blog</a>
   <div class="post-tag">Voice AI · Payers</div>
-  <h1 class="post-title">Ambetter, UHC, Aetna — How AI Agents Navigate Payer IVR Systems</h1>
+  <h1 class="post-title">Ambetter, UHC, Aetna: How AI Agents Navigate Payer IVR Systems</h1>
   <div class="post-meta">
     <span class="author">Claudeter Team</span>
     <span>February 24, 2026</span>
@@ -107,15 +107,15 @@ body::after{background:radial-gradient(ellipse 80% 50% at 10% 20%,rgba(40,0,100,
 
 <h2>How We Map Payer IVR Systems</h2>
 <p>Before writing a single line of agent code, we do a full IVR tree mapping for each payer. This involves making hundreds of test calls across different scenarios, documenting every prompt, every decision point, every authentication requirement, and every failure mode.</p>
-<p>The output is a payer-specific navigation graph — essentially a decision tree that tells the AI exactly what to say or press at each step, including fallback paths when the IVR behaves unexpectedly.</p>
+<p>The output is a payer-specific navigation graph: essentially a decision tree that tells the AI exactly what to say or press at each step, including fallback paths when the IVR behaves unexpectedly.</p>
 
 <h2>The Major Payers: What We've Learned</h2>
 <h3>UnitedHealthcare</h3>
 <p>UHC has one of the more complex IVR systems but also offers robust provider portal APIs for practices with high call volume. The IVR requires NPI, TIN, and date of birth for authentication. Average hold time: 14–28 minutes. Key challenge: UHC sometimes requires verbal confirmation for certain claim types.</p>
 <h3>Aetna</h3>
-<p>Aetna's system is relatively stable and predictable — good for automation. Authentication uses NPI + claim number. The main challenge is routing: Aetna has separate queues for commercial vs Medicare Advantage that require different navigation paths.</p>
+<p>Aetna's system is relatively stable and predictable: good for automation. Authentication uses NPI + claim number. The main challenge is routing: Aetna has separate queues for commercial vs Medicare Advantage that require different navigation paths.</p>
 <h3>Cigna</h3>
-<p>Cigna has invested in provider-friendly automation — they have a dedicated provider line with shorter wait times and an eviCore integration for prior auth. Claims follow-up IVR is manageable. Average hold time: 8–15 minutes.</p>
+<p>Cigna has invested in provider-friendly automation: they have a dedicated provider line with shorter wait times and an eviCore integration for prior auth. Claims follow-up IVR is manageable. Average hold time: 8–15 minutes.</p>
 <h3>Ambetter</h3>
 <p>Ambetter is the challenging case. They have an explicit policy against virtual agents and use voice biometrics to detect them. Our approach: the AI handles all prep work, identifies the claim, drafts the talking points, and flags it for a human caller who can complete the call in under 3 minutes with full AI support. Still cuts follow-up time by 65%.</p>
 
@@ -126,15 +126,15 @@ body::after{background:radial-gradient(ellipse 80% 50% at 10% 20%,rgba(40,0,100,
 </div>
 
 <h2>Handling Hold Times</h2>
-<p>Hold time is where AI voice agents have their most obvious advantage. A human billing specialist sitting on hold for 22 minutes is losing productivity. An AI agent sitting on hold costs essentially nothing — and can be doing other work while waiting.</p>
+<p>Hold time is where AI voice agents have their most obvious advantage. A human billing specialist sitting on hold for 22 minutes is losing productivity. An AI agent sitting on hold costs essentially nothing, and can be doing other work while waiting.</p>
 <p>Our agents use a dual-channel architecture: one thread holds the payer line, another thread continues processing the AR worklist. By the time the payer rep picks up, the agent has already worked 3–4 other claims.</p>
 
 <h2>When Calls Go Off-Script</h2>
-<p>The hardest part of IVR navigation isn't the predictable path — it's the edge cases. What happens when the payer says the claim isn't in their system? What happens when there's a system outage? What happens when you get transferred 3 times and end up back at the main menu?</p>
-<p>Production-grade agents need explicit handling for all of these scenarios. Each one requires a specific escalation path — either a retry logic, a human handoff trigger, or a documentation action that flags the claim for manual review.</p>
+<p>The hardest part of IVR navigation isn't the predictable path: it's the edge cases. What happens when the payer says the claim isn't in their system? What happens when there's a system outage? What happens when you get transferred 3 times and end up back at the main menu?</p>
+<p>Production-grade agents need explicit handling for all of these scenarios. Each one requires a specific escalation path: either a retry logic, a human handoff trigger, or a documentation action that flags the claim for manual review.</p>
 
 <h2>The Integration Layer</h2>
-<p>IVR navigation is only useful if the information extracted from the call makes it back into your billing system accurately. Our agents generate structured call summaries that map directly to your EHR or PM system fields — no manual transcription, no interpretation, no data entry errors.</p>
+<p>IVR navigation is only useful if the information extracted from the call makes it back into your billing system accurately. Our agents generate structured call summaries that map directly to your EHR or PM system fields, no manual transcription, no interpretation, no data entry errors.</p>
 
 
 <div class="cta-box">

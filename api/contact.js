@@ -15,13 +15,13 @@ async function sendEmail({ name, email, phone, company, message, requirement, so
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0a0a;color:#e0e0e0;border:1px solid #00ffcc22;border-radius:8px;overflow:hidden;">
       <div style="background:linear-gradient(135deg,#002b1c,#00ffcc);padding:24px 32px;">
-        <h1 style="margin:0;color:#000;font-size:20px;letter-spacing:2px;">CLAUDETER — NEW LEAD</h1>
+        <h1 style="margin:0;color:#000;font-size:20px;letter-spacing:2px;">CLAUDETER. NEW LEAD</h1>
         <p style="margin:4px 0 0;color:#000;font-size:12px;opacity:0.7;letter-spacing:1px;">${source}</p>
       </div>
       <div style="padding:32px;">
         <table style="width:100%;border-collapse:collapse;">
-          <tr><td style="padding:10px 0;color:#00ffcc;font-size:12px;letter-spacing:1px;width:130px;">NAME</td><td style="padding:10px 0;color:#fff;font-size:15px;">${name || '—'}</td></tr>
-          <tr><td style="padding:10px 0;color:#00ffcc;font-size:12px;letter-spacing:1px;">EMAIL</td><td style="padding:10px 0;"><a href="mailto:${email}" style="color:#00ffcc;">${email || '—'}</a></td></tr>
+          <tr><td style="padding:10px 0;color:#00ffcc;font-size:12px;letter-spacing:1px;width:130px;">NAME</td><td style="padding:10px 0;color:#fff;font-size:15px;">${name || '. '}</td></tr>
+          <tr><td style="padding:10px 0;color:#00ffcc;font-size:12px;letter-spacing:1px;">EMAIL</td><td style="padding:10px 0;"><a href="mailto:${email}" style="color:#00ffcc;">${email || '. '}</a></td></tr>
           ${phone ? `<tr><td style="padding:10px 0;color:#00ffcc;font-size:12px;letter-spacing:1px;">PHONE</td><td style="padding:10px 0;color:#fff;">${phone}</td></tr>` : ''}
           ${company ? `<tr><td style="padding:10px 0;color:#00ffcc;font-size:12px;letter-spacing:1px;">COMPANY</td><td style="padding:10px 0;color:#fff;">${company}</td></tr>` : ''}
           ${(message || requirement) ? `<tr><td style="padding:10px 0;color:#00ffcc;font-size:12px;letter-spacing:1px;vertical-align:top;">MESSAGE</td><td style="padding:10px 0;color:#ccc;line-height:1.6;">${message || requirement}</td></tr>` : ''}

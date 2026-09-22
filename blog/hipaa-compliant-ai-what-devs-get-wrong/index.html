@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Building HIPAA-Compliant AI: What Developers Get Wrong — Claudeter</title>
-<meta name="description" content="HIPAA compliance in AI isn't just about encryption. Most engineering teams miss the harder parts — data residency, audit logs, and model inference risks."/>
+<title>Building HIPAA-Compliant AI: What Developers Get Wrong | Claudeter</title>
+<meta name="description" content="HIPAA compliance in AI isn't just about encryption. Most engineering teams miss the harder parts: data residency, audit logs, and model inference risks."/>
 <link rel="canonical" href="https://www.claudeter.ai/blog/hipaa-compliant-ai-what-devs-get-wrong/"/>
-<meta property="og:title" content="Building HIPAA-Compliant AI: What Developers Get Wrong — Claudeter"/>
-<meta property="og:description" content="HIPAA compliance in AI isn't just about encryption. Most engineering teams miss the harder parts — data residency, audit logs, and model inference risks."/>
+<meta property="og:title" content="Building HIPAA-Compliant AI: What Developers Get Wrong | Claudeter"/>
+<meta property="og:description" content="HIPAA compliance in AI isn't just about encryption. Most engineering teams miss the harder parts: data residency, audit logs, and model inference risks."/>
 <meta property="og:url" content="https://www.claudeter.ai/blog/hipaa-compliant-ai-what-devs-get-wrong/"/>
 <meta property="og:image" content="https://www.claudeter.ai/logo/og-image.png"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -103,7 +103,7 @@ body::after{background:radial-gradient(ellipse 80% 50% at 10% 20%,rgba(40,0,100,
 <div class="post-body">
 
 <p>Every engineering team building AI for healthcare will tell you their system is HIPAA compliant. Ask them how, and most will describe the same three things: data encryption at rest and in transit, access controls with authentication, and a BAA signed with their cloud provider.</p>
-<p>These are necessary but not sufficient. HIPAA compliance in AI systems is harder than compliance in traditional software — and most engineering teams are failing at the parts that aren't obvious.</p>
+<p>These are necessary but not sufficient. HIPAA compliance in AI systems is harder than compliance in traditional software, and most engineering teams are failing at the parts that aren't obvious.</p>
 
 <h2>The Obvious Parts (That Everyone Gets Right)</h2>
 <ul>
@@ -112,7 +112,7 @@ body::after{background:radial-gradient(ellipse 80% 50% at 10% 20%,rgba(40,0,100,
   <li>BAA agreements with AWS, Azure, or GCP</li>
   <li>Signed BAAs with third-party service providers</li>
 </ul>
-<p>Good. Check these boxes. But these are baseline — table stakes for any software handling PHI, AI or not.</p>
+<p>Good. Check these boxes. But these are baseline: table stakes for any software handling PHI, AI or not.</p>
 
 <h2>The Hard Parts (Where Most Teams Fall Short)</h2>
 <h3>Model Inference and PHI</h3>
@@ -122,8 +122,8 @@ body::after{background:radial-gradient(ellipse 80% 50% at 10% 20%,rgba(40,0,100,
 <div class="callout"><p>Every external API call that touches PHI needs its own BAA. Model inference is an API call. This is the compliance gap most AI healthcare teams have.</p></div>
 
 <h3>Audit Logging at the Right Granularity</h3>
-<p>HIPAA requires audit controls — a log of who accessed what PHI and when. Most teams implement application-level logging. What they miss is logging at the model inference level: what PHI was included in which prompt, what the model returned, and what action was taken based on that response.</p>
-<p>This matters for breach assessment. If your model inference logging is insufficient, you can't reconstruct exactly what PHI was exposed in a breach scenario — which complicates both the breach notification analysis and any subsequent regulatory review.</p>
+<p>HIPAA requires audit controls: a log of who accessed what PHI and when. Most teams implement application-level logging. What they miss is logging at the model inference level: what PHI was included in which prompt, what the model returned, and what action was taken based on that response.</p>
+<p>This matters for breach assessment. If your model inference logging is insufficient, you can't reconstruct exactly what PHI was exposed in a breach scenario, which complicates both the breach notification analysis and any subsequent regulatory review.</p>
 
 <h3>De-identification vs Pseudonymization</h3>
 <p>There's a meaningful legal difference between de-identified data (which is no longer PHI under HIPAA's Safe Harbor or Expert Determination methods) and pseudonymized data (which still is PHI because it can be re-identified with a key). Many AI teams treat these as equivalent when fine-tuning models on healthcare data. They're not.</p>
@@ -135,22 +135,22 @@ body::after{background:radial-gradient(ellipse 80% 50% at 10% 20%,rgba(40,0,100,
 </div>
 
 <h3>Data Residency for UAE and Global Deployments</h3>
-<p>For UAE deployments, the DHA has specific data residency requirements — patient data must remain within UAE borders. This creates a challenge for AI systems that rely on US-based model inference APIs. Solutions include UAE-hosted model deployments (Azure UAE North, AWS ME-South-1) or on-premises inference for sensitive operations.</p>
+<p>For UAE deployments, the DHA has specific data residency requirements: patient data must remain within UAE borders. This creates a challenge for AI systems that rely on US-based model inference APIs. Solutions include UAE-hosted model deployments (Azure UAE North, AWS ME-South-1) or on-premises inference for sensitive operations.</p>
 
 <h2>Building It Right From the Start</h2>
 <p>The most expensive HIPAA compliance fix is a retrofit. A system built without proper audit logging takes weeks to add it correctly. A system that has been sending PHI to non-BAA-covered APIs has a retroactive exposure problem that's difficult to resolve cleanly.</p>
-<p>The right time to address compliance architecture is in week 1 of development — not in the week before launch when a compliance review catches the gaps. This is why we treat HIPAA compliance as a feature requirement, not an audit checklist.</p>
+<p>The right time to address compliance architecture is in week 1 of development, not in the week before launch when a compliance review catches the gaps. This is why we treat HIPAA compliance as a feature requirement, not an audit checklist.</p>
 
 <h2>The Minimum Viable Compliance Stack</h2>
 <ul>
   <li>BAA with every external service that touches PHI (cloud, LLM provider, TTS/STT vendors, logging services)</li>
   <li>Audit logging at application AND inference level with tamper-evident storage</li>
   <li>Data residency controls appropriate to your regulatory jurisdiction</li>
-  <li>PHI minimization — only include in prompts what's necessary for the task</li>
+  <li>PHI minimization, only include in prompts what's necessary for the task</li>
   <li>Regular access reviews and credential rotation</li>
   <li>Incident response plan specifically for AI-related PHI exposure</li>
 </ul>
-<p>This isn't a comprehensive HIPAA compliance program — that requires a full risk assessment and security officer involvement. But it's the technical baseline that most AI healthcare teams are missing.</p>
+<p>This isn't a comprehensive HIPAA compliance program: that requires a full risk assessment and security officer involvement. But it's the technical baseline that most AI healthcare teams are missing.</p>
 
 
 <div class="cta-box">
