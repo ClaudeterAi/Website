@@ -268,9 +268,9 @@ footer.site{border-top:1px solid var(--line);padding-block:42px;font-family:var(
 .foot-links a:hover{color:var(--vio-lt);opacity:1}
 
 /* ─ reveal ─ */
-.rv{opacity:0;transform:translateY(46px) scale(.975);transition:opacity .9s var(--ease),transform 1.05s cubic-bezier(.2,.75,.2,1),filter .8s var(--ease);will-change:opacity,transform}
-.rv:not(.glass):not(.display){filter:blur(6px)}
-.rv.in{opacity:1;transform:none;filter:none}
+.rv{opacity:0;transform:translateY(46px) scale(.975);transition:opacity .9s var(--ease),transform 1.05s cubic-bezier(.2,.75,.2,1)}
+.rv.in{opacity:1;transform:none}
+.hero .rv{transform:translateY(28px)}
 /* headings: word by word */
 .display .w{display:inline-block;opacity:0;transform:translateY(60%) rotate(1.5deg);transition:opacity .7s var(--ease),transform .95s cubic-bezier(.2,.75,.2,1);transition-delay:calc(var(--i,0)*65ms)}
 .display.in .w{opacity:1;transform:none}
@@ -1652,6 +1652,8 @@ window.addEventListener("DOMContentLoaded",function(){
   } else {
     document.querySelectorAll('.about-visual').forEach(v=>v.classList.add('in','open'));
   }
+  // A1. Hero is above the fold: reveal it right away (staggered by the delays already set), never wait for the observer
+  document.querySelectorAll('#hero .rv').forEach((el,i)=>{el.style.transitionDelay=(i*110)+'ms';requestAnimationFrame(()=>el.classList.add('in'));});
   // A2. Split display headings into words (any browser) and stagger cards inside each grid
   document.querySelectorAll('h1.display, h2.display').forEach(h=>{
     if(h.dataset.nosplit!==undefined||h.classList.contains('split')) return;
