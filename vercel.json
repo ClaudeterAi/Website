@@ -22,6 +22,13 @@
       }
     },
     {
+      "src": "/case-studies/([a-z0-9-]+)",
+      "status": 308,
+      "headers": {
+        "Location": "/case-studies/$1/"
+      }
+    },
+    {
       "src": "/services/([a-z0-9-]+)",
       "status": 308,
       "headers": {
@@ -68,6 +75,14 @@
     {
       "src": "/blog/?",
       "dest": "/blog/index.html"
+    },
+    {
+      "src": "/case-studies/([a-z0-9-]+)/",
+      "dest": "/case-studies/$1/index.html"
+    },
+    {
+      "src": "/case-studies/?",
+      "dest": "/case-studies/index.html"
     },
     {
       "src": "/(.*)",
