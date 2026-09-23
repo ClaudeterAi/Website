@@ -64,6 +64,13 @@
       }
     },
     {
+      "src": "/bg/(.*)",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      },
+      "continue": true
+    },
+    {
       "handle": "filesystem"
     },
     {
