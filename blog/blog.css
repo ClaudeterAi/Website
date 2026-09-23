@@ -196,3 +196,19 @@ footer.site{border-top:0;padding:0;background:#120829;position:relative;overflow
 .card p{flex:1}
 .card-meta{display:flex;gap:18px;font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;color:var(--w-3);padding-top:8px}
 .empty{font-family:var(--mono);font-size:12.5px;color:var(--w-3);padding:40px 0 clamp(80px,10.5vw,160px)}
+
+/* ─ long-form additions (guides, FAQ, sources) ─ */
+.post-body ol{padding-left:1.3em;display:grid;gap:.6em}
+.post-body ol li::marker{color:var(--vio-lt);font-family:var(--mono);font-size:.9em}
+.keypoints{display:grid;gap:0}
+.keypoints ul{margin:0;padding-left:1.1em;display:grid;gap:.55em;font-size:.97em;line-height:1.6}
+.kp-label{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--vio-lt);margin:0 0 12px}
+.faq{margin-top:2.6em;padding-top:1.6em;border-top:1px solid var(--line)}
+.faq h2{margin-top:0}
+.faq h3{margin-top:1.6em}
+.faq h3+p{margin-top:.6em}
+.sources{margin-top:2.2em;font-family:var(--mono);font-size:12px;line-height:1.75;color:var(--w-3)}
+.sources a{color:var(--w-3);border-bottom-color:var(--line-2)}
+.sources a:hover{color:var(--vio-lt);border-bottom-color:var(--vio-lt)}
+/* keep the related-posts block inside the article column (it sits outside .post-foot) */
+article .related{max-width:760px;margin-left:auto;margin-right:auto}

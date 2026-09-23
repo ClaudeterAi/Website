@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://www.claudeter.ai/</loc><lastmod>2026-09-22</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://www.claudeter.ai/blog/</loc><lastmod>2026-09-22</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.claudeter.ai/blog/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://www.claudeter.ai/blog/ai-automation-restaurant-industry/</loc><lastmod>2026-09-22</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.claudeter.ai/blog/ai-voice-agents-airline-industry/</loc><lastmod>2026-09-22</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.claudeter.ai/blog/ai-voice-agents-across-industries/</loc><lastmod>2026-09-22</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
@@ -22,4 +22,44 @@
   <url><loc>https://www.claudeter.ai/blog/why-we-ship-in-6-weeks/</loc><lastmod>2026-09-22</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.claudeter.ai/blog/ai-agents-vs-rpa/</loc><lastmod>2026-09-22</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.claudeter.ai/blog/hipaa-compliant-ai-what-devs-get-wrong/</loc><lastmod>2026-09-22</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url>
+    <loc>https://www.claudeter.ai/blog/ai-voice-agent-cost-2026/</loc>
+    <lastmod>2026-09-23</lastmod>
+  </url>
+  <url>
+    <loc>https://www.claudeter.ai/blog/how-to-choose-an-ai-agency/</loc>
+    <lastmod>2026-09-23</lastmod>
+  </url>
+  <url>
+    <loc>https://www.claudeter.ai/blog/ai-agents-saas-customer-support/</loc>
+    <lastmod>2026-09-23</lastmod>
+  </url>
+  <url>
+    <loc>https://www.claudeter.ai/blog/ai-receptionist-medical-practice/</loc>
+    <lastmod>2026-09-23</lastmod>
+  </url>
+  <url>
+    <loc>https://www.claudeter.ai/blog/insurance-eligibility-verification-automation/</loc>
+    <lastmod>2026-09-23</lastmod>
+  </url>
+  <url>
+    <loc>https://www.claudeter.ai/blog/denial-management-automation-ai/</loc>
+    <lastmod>2026-09-23</lastmod>
+  </url>
+  <url>
+    <loc>https://www.claudeter.ai/blog/ai-intake-law-firms-voice-agents/</loc>
+    <lastmod>2026-09-23</lastmod>
+  </url>
+  <url>
+    <loc>https://www.claudeter.ai/blog/ai-voice-agents-uae-arabic-english/</loc>
+    <lastmod>2026-09-23</lastmod>
+  </url>
+  <url>
+    <loc>https://www.claudeter.ai/blog/ai-voice-agents-india-languages-compliance/</loc>
+    <lastmod>2026-09-23</lastmod>
+  </url>
+  <url>
+    <loc>https://www.claudeter.ai/blog/ai-voice-agents-collections-compliance/</loc>
+    <lastmod>2026-09-23</lastmod>
+  </url>
 </urlset>

@@ -6,7 +6,87 @@
   <atom:link href="https://www.claudeter.ai/blog/feed.xml" rel="self" type="application/rss+xml"/>
   <description>Practical thinking on AI voice agents, automation and intelligent systems across healthcare, hospitality, fintech, real estate and more.</description>
   <language>en</language>
-  <lastBuildDate>Tue, 22 Sep 2026 00:00:00 +0000</lastBuildDate>
+  <lastBuildDate>Wed, 23 Sep 2026 00:00:00 +0000</lastBuildDate>
+  <item>
+    <title>How Much Does an AI Voice Agent Cost in 2026?</title>
+    <link>https://www.claudeter.ai/blog/ai-voice-agent-cost-2026/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-voice-agent-cost-2026/</guid>
+    <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
+    <category>Guides</category>
+    <description>Per-minute rates hide most of the cost. Here is how to model build cost, run cost and the fees vendors leave off the pricing page.</description>
+  </item>
+  <item>
+    <title>How to Choose an AI Agency: 12 Questions That Expose Demo-Ware</title>
+    <link>https://www.claudeter.ai/blog/how-to-choose-an-ai-agency/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/how-to-choose-an-ai-agency/</guid>
+    <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
+    <category>Guides</category>
+    <description>Every agency has a great demo. These twelve questions tell you who has kept an agent running in production for a year.</description>
+  </item>
+  <item>
+    <title>AI Agents for SaaS Customer Support: Tier-1 Deflection Without Wrecking CSAT</title>
+    <link>https://www.claudeter.ai/blog/ai-agents-saas-customer-support/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-agents-saas-customer-support/</guid>
+    <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
+    <category>SaaS</category>
+    <description>Deflection is easy to inflate and easy to regret. Here is how to build a support agent that resolves tickets and still leaves customers happy.</description>
+  </item>
+  <item>
+    <title>AI Receptionist for Medical Practices: What It Should Handle and What It Should Not</title>
+    <link>https://www.claudeter.ai/blog/ai-receptionist-medical-practice/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-receptionist-medical-practice/</guid>
+    <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
+    <category>Healthcare</category>
+    <description>Scheduling, reminders and insurance questions are automatable. Clinical triage is not. Here is the line, and how to build the phone agent on the right side of it.</description>
+  </item>
+  <item>
+    <title>Insurance Eligibility Verification Automation: 270/271, Payer Portals and AI Agents</title>
+    <link>https://www.claudeter.ai/blog/insurance-eligibility-verification-automation/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/insurance-eligibility-verification-automation/</guid>
+    <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
+    <category>Healthcare</category>
+    <description>Electronic eligibility checks cost cents; manual ones cost dollars. The hard part is the 271 response that answers half the question.</description>
+  </item>
+  <item>
+    <title>Denial Management Automation: How AI Cuts Rework and Recovers Revenue</title>
+    <link>https://www.claudeter.ai/blog/denial-management-automation-ai/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/denial-management-automation-ai/</guid>
+    <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
+    <category>Healthcare</category>
+    <description>Most denied claims are never appealed, yet most appeals win. Here is how automation works both ends of that gap.</description>
+  </item>
+  <item>
+    <title>AI Intake for Law Firms: Answering the 48% of Calls Nobody Picks Up</title>
+    <link>https://www.claudeter.ai/blog/ai-intake-law-firms-voice-agents/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-intake-law-firms-voice-agents/</guid>
+    <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
+    <category>Legal</category>
+    <description>Clio phoned 500 firms as a prospective client. Fewer than half were reachable. An intake agent fixes the phone problem without touching the legal one.</description>
+  </item>
+  <item>
+    <title>Arabic-English AI Voice Agents for UAE Businesses: Dialects, PDPL and What Actually Works</title>
+    <link>https://www.claudeter.ai/blog/ai-voice-agents-uae-arabic-english/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-voice-agents-uae-arabic-english/</guid>
+    <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
+    <category>UAE</category>
+    <description>UAE callers switch between Arabic and English mid-sentence and expect both handled. Here is what that demands of a voice agent, and what the PDPL demands of you.</description>
+  </item>
+  <item>
+    <title>AI Voice Agents in India: Hindi, Regional Languages, TRAI DLT and DPDP Compliance</title>
+    <link>https://www.claudeter.ai/blog/ai-voice-agents-india-languages-compliance/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-voice-agents-india-languages-compliance/</guid>
+    <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
+    <category>India</category>
+    <description>India&#x27;s phone market runs on Hinglish, 22 scheduled languages and strict telecom rules. Here is how voice agents work inside all three.</description>
+  </item>
+  <item>
+    <title>AI Voice Agents for Loan Collections: Staying Inside TCPA, Regulation F and RBI Rules</title>
+    <link>https://www.claudeter.ai/blog/ai-voice-agents-collections-compliance/</link>
+    <guid isPermaLink="true">https://www.claudeter.ai/blog/ai-voice-agents-collections-compliance/</guid>
+    <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
+    <category>Fintech</category>
+    <description>Collections is the most regulated call a business makes. The rules are specific, which means software can be built to obey them.</description>
+  </item>
   <item>
     <title>How AI Is Quietly Transforming the Restaurant Industry in 2026</title>
     <link>https://www.claudeter.ai/blog/ai-automation-restaurant-industry/</link>
