@@ -22,6 +22,27 @@
       }
     },
     {
+      "src": "/services/([a-z0-9-]+)",
+      "status": 308,
+      "headers": {
+        "Location": "/services/$1/"
+      }
+    },
+    {
+      "src": "/industries/([a-z0-9-]+)",
+      "status": 308,
+      "headers": {
+        "Location": "/industries/$1/"
+      }
+    },
+    {
+      "src": "/(usa|uae|india)",
+      "status": 308,
+      "headers": {
+        "Location": "/$1/"
+      }
+    },
+    {
       "handle": "filesystem"
     },
     {
@@ -31,6 +52,18 @@
     {
       "src": "/blog/([a-z0-9-]+)/",
       "dest": "/blog/$1/index.html"
+    },
+    {
+      "src": "/services/([a-z0-9-]+)/",
+      "dest": "/services/$1/index.html"
+    },
+    {
+      "src": "/industries/([a-z0-9-]+)/",
+      "dest": "/industries/$1/index.html"
+    },
+    {
+      "src": "/(usa|uae|india)/",
+      "dest": "/$1/index.html"
     },
     {
       "src": "/blog/?",

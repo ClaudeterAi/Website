@@ -7,6 +7,24 @@
 - [Blog](https://www.claudeter.ai/blog/): articles on AI voice agents, RCM automation, UAE healthcare (DHA eClaims, TPA portals) and AI across industries
 - [RSS](https://www.claudeter.ai/blog/feed.xml)
 
+## Services
+- [AI Voice Agent Development](https://www.claudeter.ai/services/ai-voice-agents/): custom inbound and outbound voice agents; sub-500ms latency; live in about six weeks; full IP transfer
+
+- [None](https://www.claudeter.ai/services/ai-agents-automation/)
+- [None](https://www.claudeter.ai/services/ai-workflow-automation/)
+- [None](https://www.claudeter.ai/services/saas-product-engineering/)
+- [None](https://www.claudeter.ai/services/data-analytics-infrastructure/)
+- [None](https://www.claudeter.ai/services/integrations-apis/)
+- [None](https://www.claudeter.ai/industries/healthcare-rcm/)
+- [None](https://www.claudeter.ai/industries/fintech-payments/)
+- [None](https://www.claudeter.ai/industries/enterprise-saas/)
+- [None](https://www.claudeter.ai/industries/real-estate-proptech/)
+- [None](https://www.claudeter.ai/industries/edtech-hr/)
+- [None](https://www.claudeter.ai/industries/legal-compliance/)
+- [None](https://www.claudeter.ai/usa/)
+- [None](https://www.claudeter.ai/uae/)
+- [None](https://www.claudeter.ai/india/)
+
 ## Articles
 - [How Much Does an AI Voice Agent Cost in 2026?](https://www.claudeter.ai/blog/ai-voice-agent-cost-2026/): Per-minute rates hide most of the cost. Here is how to model build cost, run cost and the fees vendors leave off the pricing page.
 - [How to Choose an AI Agency: 12 Questions That Expose Demo-Ware](https://www.claudeter.ai/blog/how-to-choose-an-ai-agency/): Every agency has a great demo. These twelve questions tell you who has kept an agent running in production for a year.
