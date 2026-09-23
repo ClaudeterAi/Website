@@ -43,3 +43,14 @@ footer.site{background:rgba(18,8,41,.62);-webkit-backdrop-filter:blur(18px) satu
 .pillar:has(.card-link:focus-visible){outline:2px solid var(--vio-lt);outline-offset:3px}
 /* contact email: 44px tap height without moving the layout */
 #contact a[href^="mailto:"]{display:inline-block;padding-block:12px;margin-block:-12px}
+
+/* ── hero 3D scene: fade into the video instead of painting the old page
+   colour. The original 70px ::after gradient went to solid --ink, which
+   read as a dark box once the video sat behind it. A mask fades the scene
+   itself to transparent at the bottom and softly at the sides. ── */
+.hero-scene::after{display:none}
+.hero-scene{
+  -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 110px),transparent),linear-gradient(to right,transparent,#000 7%,#000 93%,transparent);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to bottom,#000 calc(100% - 110px),transparent),linear-gradient(to right,transparent,#000 7%,#000 93%,transparent);
+  mask-composite:intersect}
