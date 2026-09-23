@@ -4,6 +4,7 @@
 
 ## Site
 - [Homepage](https://www.claudeter.ai/): services, process, industries, stack, about, client stories, contact
+- [Case studies](https://www.claudeter.ai/case-studies/): ten anonymised client engagements with results
 - [Blog](https://www.claudeter.ai/blog/): articles on AI voice agents, RCM automation, UAE healthcare (DHA eClaims, TPA portals) and AI across industries
 - [RSS](https://www.claudeter.ai/blog/feed.xml)
 
@@ -24,6 +25,18 @@
 - [None](https://www.claudeter.ai/usa/)
 - [None](https://www.claudeter.ai/uae/)
 - [None](https://www.claudeter.ai/india/)
+
+## Case studies
+- [An AI voice agent that took over 40 hours a week of insurance follow-up calls](https://www.claudeter.ai/case-studies/rcm-insurance-follow-up-voice-agent/): Healthcare RCM, USA. Voice AI agent.
+- [A reservation voice agent that stopped a Dubai restaurant group losing 35% of its calls](https://www.claudeter.ai/case-studies/restaurant-reservation-voice-agent-dubai/): Restaurants, UAE. Voice AI agent.
+- [AI concierge and revenue management across 14 UAE hotel properties, lifting RevPAR 11%](https://www.claudeter.ai/case-studies/hotel-group-ai-concierge-revenue-management/): Hotels, UAE. AI concierge and revenue management.
+- [AI fraud detection that cut false positives 60% while catching 3x more genuine fraud](https://www.claudeter.ai/case-studies/payments-fraud-detection-false-positives/): Payments, India. AI fraud detection.
+- [Production AI loan decisioning in six weeks: 90-second approvals for standard applications](https://www.claudeter.ai/case-studies/ai-loan-decisioning-lender/): Lending, USA. AI loan decisioning.
+- [Tenant operations AI for a 200-unit Dubai portfolio with a 90-second response time](https://www.claudeter.ai/case-studies/property-management-tenant-ai-dubai/): Property Management, UAE. Tenant operations AI.
+- [AI contract review that cut M&A due diligence prep from 5 days to 8 hours](https://www.claudeter.ai/case-studies/legal-contract-review-due-diligence/): Legal, USA. AI contract review.
+- [AI routing and warehouse intelligence that cut 3PL processing time 57% across 4,200 daily orders](https://www.claudeter.ai/case-studies/3pl-warehouse-routing-ai/): Logistics, India. Order routing and warehouse intelligence.
+- [An early-warning AI that flags at-risk students 6 weeks before they drop out](https://www.claudeter.ai/case-studies/edtech-student-dropout-early-warning/): EdTech, India. Student retention early-warning AI.
+- [Schedule risk AI that flagged a delay 5 weeks early on a $12M UAE project](https://www.claudeter.ai/case-studies/construction-schedule-delay-prediction/): Construction, UAE. Schedule risk and procurement AI.
 
 ## Articles
 - [How Much Does an AI Voice Agent Cost in 2026?](https://www.claudeter.ai/blog/ai-voice-agent-cost-2026/): Per-minute rates hide most of the cost. Here is how to model build cost, run cost and the fees vendors leave off the pricing page.
