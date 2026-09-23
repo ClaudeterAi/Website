@@ -212,3 +212,6 @@ footer.site{border-top:0;padding:0;background:#120829;position:relative;overflow
 .sources a:hover{color:var(--vio-lt);border-bottom-color:var(--vio-lt)}
 /* keep the related-posts block inside the article column (it sits outside .post-foot) */
 article .related{max-width:760px;margin-left:auto;margin-right:auto}
+
+/* back links: 44px tap height without moving the layout */
+.back{padding-block:13px;margin-block:-13px}

@@ -27,3 +27,19 @@ footer.site{background:rgba(18,8,41,.62);-webkit-backdrop-filter:blur(18px) satu
 #process .step-t{color:var(--vio-lt)}
 #process .step p{color:var(--w-2)}
 #process .step-n{color:var(--vio-lt)}
+/* never show the browser's own play button / controls over the background
+   (iOS Low Power Mode shows one on videos it refuses to autoplay) */
+.site-bg video::-webkit-media-controls,
+.site-bg video::-webkit-media-controls-panel,
+.site-bg video::-webkit-media-controls-start-playback-button,
+.site-bg video::-webkit-media-controls-overlay-play-button{display:none!important;-webkit-appearance:none;opacity:0!important}
+
+/* ── mobile tap targets (homepage) ── */
+/* service and industry cards: the whole card is the link, not just its title */
+.pillar:has(.card-link){position:relative}
+.pillar:has(.card-link)>:has(.card-link){position:static}
+.card-link::after{content:"";position:absolute;inset:0;border-radius:inherit;z-index:3}
+.card-link:focus-visible{outline:none}
+.pillar:has(.card-link:focus-visible){outline:2px solid var(--vio-lt);outline-offset:3px}
+/* contact email: 44px tap height without moving the layout */
+#contact a[href^="mailto:"]{display:inline-block;padding-block:12px;margin-block:-12px}
