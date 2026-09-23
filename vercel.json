@@ -64,6 +64,13 @@
       }
     },
     {
+      "src": "/bg/(bg-v[0-9]+-[a-z0-9-]+\\.(?:webm|mp4|jpg))",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      },
+      "continue": true
+    },
+    {
       "handle": "filesystem"
     },
     {
