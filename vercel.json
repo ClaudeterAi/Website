@@ -22,6 +22,13 @@
       }
     },
     {
+      "src": "/services/([a-z0-9-]+)",
+      "status": 308,
+      "headers": {
+        "Location": "/services/$1/"
+      }
+    },
+    {
       "handle": "filesystem"
     },
     {
@@ -31,6 +38,10 @@
     {
       "src": "/blog/([a-z0-9-]+)/",
       "dest": "/blog/$1/index.html"
+    },
+    {
+      "src": "/services/([a-z0-9-]+)/",
+      "dest": "/services/$1/index.html"
     },
     {
       "src": "/blog/?",
