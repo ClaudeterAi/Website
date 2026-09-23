@@ -28,10 +28,8 @@
 <meta property="article:section" content="Healthcare"/>
 <style>.related{margin:clamp(40px,5vw,64px) 0 0;padding-top:28px;border-top:1px solid var(--line,rgba(255,255,255,.1))}.related h2{font-family:var(--mono,ui-monospace,monospace);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--vio-lt,#b18cff);margin:0 0 14px;font-weight:400}.related ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}.related a{color:inherit;text-decoration:none;display:block;padding:14px 16px;border:1px solid var(--line,rgba(255,255,255,.1));border-radius:14px;transition:border-color .3s}.related a:hover{border-color:var(--vio-lt,#b18cff)}.related-cat{display:block;font-family:var(--mono,ui-monospace,monospace);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--vio-lt,#b18cff);margin-bottom:5px}</style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How does an AI agent learn a payer's IVR menu?", "acceptedAnswer": {"@type": "Answer", "text": "Before writing a single line of agent code, we do a full IVR tree mapping for each payer. This involves making hundreds of test calls across different scenarios, documenting every prompt, every decision point, every authentication requirement, and every failure mode."}}, {"@type": "Question", "name": "How do AI agents deal with long payer hold times?", "acceptedAnswer": {"@type": "Answer", "text": "Hold time is where AI voice agents have their most obvious advantage. A human billing specialist sitting on hold for 22 minutes is losing productivity. An AI agent sitting on hold costs essentially nothing, and can be doing other work while waiting."}}, {"@type": "Question", "name": "What happens when a payer call goes off-script?", "acceptedAnswer": {"@type": "Answer", "text": "The hardest part of IVR navigation isn't the predictable path: it's the edge cases. What happens when the payer says the claim isn't in their system? What happens when there's a system outage?"}}, {"@type": "Question", "name": "How do call results get back into the billing system?", "acceptedAnswer": {"@type": "Answer", "text": "IVR navigation is only useful if the information extracted from the call makes it back into your billing system accurately. Our agents generate structured call summaries that map directly to your EHR or PM system fields, no manual transcription, no interpretation, no data entry errors."}}]}</script>
-<link rel="stylesheet" href="/bg/bg.css">
 </head>
 <body>
-<div class="site-bg" aria-hidden="true"></div>
 <div class="progress" aria-hidden="true"></div>
 <header id="top">
 <div class="wrap nav">
@@ -134,6 +132,5 @@
 </div>
 </footer>
 <script src="/blog/blog.js" defer></script>
-<script src="/bg/bg.js" defer></script>
 </body>
 </html>

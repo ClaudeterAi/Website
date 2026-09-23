@@ -28,10 +28,8 @@
 <meta property="article:section" content="Healthcare"/>
 <style>.related{margin:clamp(40px,5vw,64px) 0 0;padding-top:28px;border-top:1px solid var(--line,rgba(255,255,255,.1))}.related h2{font-family:var(--mono,ui-monospace,monospace);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--vio-lt,#b18cff);margin:0 0 14px;font-weight:400}.related ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}.related a{color:inherit;text-decoration:none;display:block;padding:14px 16px;border:1px solid var(--line,rgba(255,255,255,.1));border-radius:14px;transition:border-color .3s}.related a:hover{border-color:var(--vio-lt,#b18cff)}.related-cat{display:block;font-family:var(--mono,ui-monospace,monospace);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--vio-lt,#b18cff);margin-bottom:5px}</style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is wrong with automating each TPA portal separately?", "acceptedAnswer": {"@type": "Answer", "text": "Most clinics that attempt TPA automation start with one portal (usually NextCare because it's the highest volume), and build a specific automation for it. Then they try to build the same thing for NAS."}}, {"@type": "Question", "name": "What is a unified TPA automation layer?", "acceptedAnswer": {"@type": "Answer", "text": "Our unified automation has three components: 1. The Routing Engine; 2. The Format Normalizer; 3. The Portal Adapters."}}, {"@type": "Question", "name": "What happens when a TPA portal changes?", "acceptedAnswer": {"@type": "Answer", "text": "The biggest operational challenge in UAE TPA automation isn't building the initial system: it's keeping it running when portals change. TPA portals update their UIs, change their authentication flows, and modify their file format requirements without warning."}}, {"@type": "Question", "name": "How does TPA automation integrate with clinic management systems?", "acceptedAnswer": {"@type": "Answer", "text": "The unified layer integrates with the major clinic management systems used in the UAE: iCliniq, Shafaa, Wareed (for DHA facilities), and international systems like Meditech and Epic. The integration handles bidirectional data flow: claim data goes out to TPA portals, and status updates, EOBs, and payment data come back into the clinic system."}}]}</script>
-<link rel="stylesheet" href="/bg/bg.css">
 </head>
 <body>
-<div class="site-bg" aria-hidden="true"></div>
 <div class="progress" aria-hidden="true"></div>
 <header id="top">
 <div class="wrap nav">
@@ -134,6 +132,5 @@
 </div>
 </footer>
 <script src="/blog/blog.js" defer></script>
-<script src="/bg/bg.js" defer></script>
 </body>
 </html>
