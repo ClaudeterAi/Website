@@ -50,6 +50,13 @@
       }
     },
     {
+      "src": "/(services|industries)",
+      "status": 308,
+      "headers": {
+        "Location": "/$1/"
+      }
+    },
+    {
       "handle": "filesystem"
     },
     {
@@ -70,6 +77,10 @@
     },
     {
       "src": "/(usa|uae|india)/",
+      "dest": "/$1/index.html"
+    },
+    {
+      "src": "/(services|industries)/",
       "dest": "/$1/index.html"
     },
     {
