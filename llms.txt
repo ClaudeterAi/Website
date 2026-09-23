@@ -38,6 +38,9 @@
 - [An early-warning AI that flags at-risk students 6 weeks before they drop out](https://www.claudeter.ai/case-studies/edtech-student-dropout-early-warning/): EdTech, India. Student retention early-warning AI.
 - [Schedule risk AI that flagged a delay 5 weeks early on a $12M UAE project](https://www.claudeter.ai/case-studies/construction-schedule-delay-prediction/): Construction, UAE. Schedule risk and procurement AI.
 
+## FAQ
+- [FAQ: Working With Claudeter](https://www.claudeter.ai/faq/): what we build, markets, process, pricing, ownership, compliance, NOVA
+
 ## Articles
 - [How Much Does an AI Voice Agent Cost in 2026?](https://www.claudeter.ai/blog/ai-voice-agent-cost-2026/): Per-minute rates hide most of the cost. Here is how to model build cost, run cost and the fees vendors leave off the pricing page.
 - [How to Choose an AI Agency: 12 Questions That Expose Demo-Ware](https://www.claudeter.ai/blog/how-to-choose-an-ai-agency/): Every agency has a great demo. These twelve questions tell you who has kept an agent running in production for a year.
