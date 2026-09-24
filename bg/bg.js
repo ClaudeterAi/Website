@@ -34,3 +34,36 @@
   document.addEventListener('visibilitychange', () => (document.hidden ? v.pause() : play()));
   if (reduce.addEventListener) reduce.addEventListener('change', e => { if (e.matches) { v.pause(); v.classList.remove('on'); } });
 })();
+
+/* Homepage client stories on phones: position dots and a counter for the
+   swipe row (the row itself is pure CSS scroll-snap, see bg.css). */
+(() => {
+  const row = document.querySelector('.stories.eleven');
+  if (!row) return;
+  const cards = [...row.querySelectorAll('.story')];
+  const dots = document.createElement('div'); dots.className = 'stories-dots';
+  const count = document.createElement('p'); count.className = 'stories-count'; count.setAttribute('aria-live', 'polite');
+  row.setAttribute('role', 'region'); row.setAttribute('aria-label', 'Client stories, swipe for more'); row.tabIndex = 0;
+  const go = i => cards[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  cards.forEach((c, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', `Show story ${i + 1} of ${cards.length}`);
+    b.addEventListener('click', () => go(i)); dots.appendChild(b);
+  });
+  row.after(dots); dots.after(count);
+  const set = i => {
+    [...dots.children].forEach((b, k) => b.setAttribute('aria-current', k === i ? 'true' : 'false'));
+    count.textContent = `${i + 1} / ${cards.length}`;
+  };
+  set(0);
+  // active card = the one whose centre is closest to the row's centre
+  let raf = 0, last = -1;
+  const update = () => {
+    raf = 0;
+    const r = row.getBoundingClientRect(), mid = r.left + r.width / 2;
+    let best = 0, dist = Infinity;
+    cards.forEach((c, k) => { const b = c.getBoundingClientRect(); const d = Math.abs(b.left + b.width / 2 - mid); if (d < dist) { dist = d; best = k; } });
+    if (best !== last) { last = best; set(best); }
+  };
+  row.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
+  addEventListener('resize', update, { passive: true });
+})();

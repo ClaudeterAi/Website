@@ -54,3 +54,22 @@ footer.site{background:rgba(18,8,41,.62);-webkit-backdrop-filter:blur(18px) satu
   -webkit-mask-composite:source-in;
   mask-image:linear-gradient(to bottom,#000 calc(100% - 110px),transparent),linear-gradient(to right,transparent,#000 7%,#000 93%,transparent);
   mask-composite:intersect}
+
+/* ── client stories: one card at a time on phones, swipe left and right ── */
+@media (max-width:659px){
+  .stories.eleven{display:flex;gap:14px;overflow-x:auto;overscroll-behavior-x:contain;
+    scroll-snap-type:x mandatory;scroll-padding-inline:var(--gut);-webkit-overflow-scrolling:touch;
+    margin-inline:calc(-1 * var(--gut));padding:6px var(--gut) 14px;scrollbar-width:none}
+  .stories.eleven::-webkit-scrollbar{display:none}
+  .stories.eleven .story{flex:0 0 86%;scroll-snap-align:center;scroll-snap-stop:always;
+    animation:none;opacity:1;transform:none}
+  .stories.eleven .story:hover{transform:none}
+  .stories.eleven:focus-visible{outline:2px solid var(--vio-lt);outline-offset:4px;border-radius:12px}
+  .stories-dots{display:flex;justify-content:center;gap:8px;margin-top:14px}
+  .stories-dots button{width:8px;height:8px;padding:0;border:0;border-radius:4px;background:rgba(255,255,255,.28);
+    transition:width .3s ease,background .3s ease;cursor:pointer;position:relative}
+  .stories-dots button::after{content:"";position:absolute;inset:-12px -4px}   /* 32px tap area without bigger dots */
+  .stories-dots button[aria-current="true"]{width:24px;background:var(--vio-lt)}
+  .stories-count{margin-top:10px;text-align:center;font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--w-3)}
+}
+@media (min-width:660px){.stories-dots,.stories-count{display:none}}
